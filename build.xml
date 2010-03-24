@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="jammed" default="run" basedir=".">
+
+	<description>Builds, tests, and runs the project antTest.</description>
+	<!-- set global properties for this build -->
+	<property name="src.dir" value="src"/>
+	<property name="build.dir" value="build"/>
+	<property name="lib.dir" value="lib" />
+	<property name="dist.dir"  value="dist"/>
+	<property name="jar" value="${dist.dir}/jammed.jar"/>
+	<property name="main-class" value="com.jammed.app.GUI"/> <!-- name of name class (without the .java) -->
+
+	<target name="init">
+		<mkdir dir="${dist.dir}/"/>
+		<mkdir dir="${build.dir}"/>
+		<!-- Move all images in the ./images/ directory into build/org/jammed/images -->
+		<copy todir="${build.dir}/com/jammed/app/images">
+			<fileset dir="images"/>
+		</copy>
+	</target>
+
+	<target name="clean" description="clean up" >
+		<delete dir="${build.dir}"/>
+		<delete dir="${dist.dir}"/>
+	</target>
+
+	<target name="compile" depends="init" description="compile the source " >
+		<!-- Compile the java code from ${src} into ${build} -->
+		<javac
+			srcdir="${src.dir}"
+			destdir="${build.dir}"
+			debug="true"
+			debuglevel="lines,vars,source">
+			<classpath>
+				<pathelement path="${classpath}"/>
+				<!-- Add all .jar files inside of the lib directory to our classpath -->
+				<fileset dir="${lib.dir}" includes="**/*.jar"/>
+			</classpath>
+			<compilerarg value="-Xlint"/>
+		</javac>
+	</target>
+
+	<target name="dist" depends="compile" description="generate the distribution" >
+		<delete file="${jar}"/>
+		<!-- By default, exclude all files and directories-->
+		<jar jarfile="${jar}" basedir="." excludes="**/**">
+			<!-- Include the entire src directory in the jar file-->
+			<fileset dir="." includes="${src.dir}/**"/>
+			<!-- Take all .class and.png files in build/ and put them in the jar file -->
+			<fileset dir="${build.dir}" includes="**/*.class,**/*.png"/>
+			<!-- Take all jars in lib/, extract them, and put all of their .class files into the new jar -->
+			<zipgroupfileset dir="${lib.dir}" includes="**/*.jar"/>
+
+			<manifest>
+				<attribute name="Main-class" value="${main-class}"/>
+			</manifest>
+		</jar>
+	</target>
+
+	<target name="jar" depends="dist" />
+
+	<target name="run" depends="dist" description="run the compiled jar" >
+
+		<java jar="${jar}" fork="true">
+			<jvmarg value="-Xdebug"/>
+			<jvmarg value="-Xrunjdwp:transport=dt_socket,server=y,address=8000,suspend=n"/>
+		</java>
+	</target>
+
+</project>

@@ -1,0 +1,43 @@
+package app;
+
+import "message.proto";
+
+option java_package         = "com.jammed.app";
+option java_outer_classname = "Protos";
+
+message Media {
+	required Message.Type type = 1 [default = MEDIA];
+	
+	required string location = 2;
+	required string title    = 3;
+	
+	// Optional Fields
+	optional int32 length  = 4;
+	optional string name   = 5;
+	optional string artist = 6;
+	optional string album  = 7;
+}
+
+message Playlist {
+	required Message.Type type = 1 [default = PLAYLIST];
+	
+	repeated Media media = 2;
+	required string host = 3;
+	
+	optional int32 request = 4;
+}
+
+message Library {
+	required Message.Type type = 1 [default = LIBRARY];
+	
+	repeated Playlist local  = 2;
+	repeated Playlist remote = 3;
+}
+
+message Search {
+	required Message.Type type = 1 [default = SEARCH];
+	
+	required int32 request = 2;
+	required string query  = 3;
+}
+
