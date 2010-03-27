@@ -5,6 +5,8 @@ import com.jammed.app.Protos.Media;
 import com.jammed.app.Protos.Playlist;
 import com.jammed.app.ProtocolMessage.Message;
 
+import static com.jammed.app.MulticastSender.TTL;
+
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.MessageLite;
 
@@ -72,39 +74,48 @@ public class MulticastListener implements Runnable {
 		this.handlers.add(handler);
 	}
 	
-	public void listen () {
+	private class ListenerThread extends Thread {
 		
-		MulticastSocket ms = null;
-		
-		try {
-			ms = new MulticastSocket(port);
-			ms.joinGroup(group);
+		@Override
+		public void run() {
+			MulticastSocket ms = null;
 			
-			final byte[] buffer = new byte[MulticastSender.LIMIT];
-			
-			while (true) {
-				final DatagramPacket dp = new DatagramPacket(buffer,
-					buffer.length);
+			try {
+				ms = new MulticastSocket(port);
+				ms.joinGroup(group);
+				ms.setTimeToLive(TTL);
 				
-				ms.receive(dp);
+				final byte[] buffer = new byte[MulticastSender.LIMIT];
 				
-				final Callable<Packet> callable   = new PacketExecutor(dp);
-				final Future<Packet> futurePacket = pool.submit(callable);
-				
-				results.add(futurePacket);
-			}
-		} catch (final IOException ioe) {
-			ioe.printStackTrace();
-		} finally {
-			if (ms != null) {
-				try {
-					ms.leaveGroup(group);
-					ms.close();
-				} catch (final IOException ioe) {
-					ioe.printStackTrace();
+				while (true) {
+					final DatagramPacket dp = new DatagramPacket(buffer,
+						buffer.length);
+					
+					ms.receive(dp);
+					
+					final Callable<Packet> callable   = new PacketExecutor(dp);
+					final Future<Packet> futurePacket = pool.submit(callable);
+					
+					results.add(futurePacket);
+				}
+			} catch (final IOException ioe) {
+				ioe.printStackTrace();
+			} finally {
+				if (ms != null) {
+					try {
+						ms.leaveGroup(group);
+						ms.close();
+					} catch (final IOException ioe) {
+						ioe.printStackTrace();
+					}
 				}
 			}
 		}
+	}
+	
+	public void listen() {
+		(new ListenerThread()).start();
+		(new ListenerThread()).start();
 	}
 	
 	public void run() {
@@ -132,16 +143,24 @@ public class MulticastListener implements Runnable {
 				
 				if (futurePacket.isDone()) {
 					final Packet packet = futurePacket.get();
-					final int request = packet.getPacketHeader().getRequest();
+					final int request   = packet.getPacketHeader().getRequest();
 					
 					SortedSet<Packet> packets = completed.remove(request);
 					
-					if (packets == null) {
-						packets = new TreeSet<Packet>();
-					}
+					synchronized (packets) {
+							
+						if (packets == null) {
+							packets = new TreeSet<Packet>();
+						}
 						
-					packets.add(packet);
-					completed.put(request, packets);
+						final boolean contains = packets.contains(packet);
+						if (!contains) {
+							packets.add(packet);
+						}
+						
+						completed.put(request, packets);
+					}
+					
 					iter.remove();
 					
 					if (packet.isFinished()) {
@@ -161,6 +180,17 @@ public class MulticastListener implements Runnable {
 		
 		if (packets.length == 1) {
 			handleMessage(packets[0].getMessage());
+			return;
+		}
+		
+		final int finalSequence =
+			packets[packets.length - 1].getPacketHeader().getSequence();
+		
+		if (finalSequence != packets.length - 1) {
+			System.err.println("Received incomplete request: " +
+				packets[0].getPacketHeader().getRequest());
+			
+			// We cannot handle this request so abort.
 			return;
 		}
 		

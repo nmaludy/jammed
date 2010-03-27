@@ -16,9 +16,21 @@ import java.net.DatagramPacket;
 import java.util.ArrayList;
 import java.util.List;
 
+/* TTL    |   Scope
+ * -------------------------------------------------------------------------
+ * 0      |   Restricted to the same host. Won't be output by any interface.
+ * 1      |   Restricted to the same subnet. Won't be forwarded by a router.
+ * < 32   |   Restricted to the same site, organization or department.
+ * < 64   |   Restricted to the same region.
+ * < 128  |   Restricted to the same continent.
+ * < 255  |   Unrestricted in scope. (Global).
+ */
+
 public class MulticastSender {
 	
 	public static final int   LIMIT = 65000;
+	public static final int   TTL   = 30;
+	
 	private static final long delay = 250L;
 	
 	private final InetAddress group;
@@ -103,6 +115,7 @@ public class MulticastSender {
 			final MulticastSocket ms = new MulticastSocket();
 			
 			ms.joinGroup(group);
+			ms.setTimeToLive(TTL);
 			ms.send(packet);
 			ms.leaveGroup(group);
 			
@@ -119,6 +132,7 @@ public class MulticastSender {
 			final MulticastSocket ms = new MulticastSocket();
 			
 			ms.joinGroup(group);
+			ms.setTimeToLive(TTL);
 			
 			for (final byte[] data : chunks) {
 				
