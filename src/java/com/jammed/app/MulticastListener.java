@@ -63,7 +63,7 @@ public class MulticastListener implements Runnable {
         tpe.prestartAllCoreThreads();
 		
 		pool      = tpe;
-		results   = new ArrayList<Future<Packet>>();
+		results   = Collections.synchronizedList(new ArrayList<Future<Packet>>());
 		completed = new HashMap<Integer, SortedSet<Packet>>();
 		handlers  = new ArrayList<PacketHandler>();
 		
@@ -136,35 +136,35 @@ public class MulticastListener implements Runnable {
 		}
 		
 		try {
-			for (final Iterator<Future<Packet>> iter = results.iterator();
-					iter.hasNext();) {
-			
-				final Future<Packet> futurePacket = iter.next();
+			synchronized (results) {
+				for (final Iterator<Future<Packet>> iter = results.iterator();
+						iter.hasNext();) {
 				
-				if (futurePacket.isDone()) {
-					final Packet packet = futurePacket.get();
-					final int request   = packet.getPacketHeader().getRequest();
+					final Future<Packet> futurePacket = iter.next();
 					
-					SortedSet<Packet> packets = completed.remove(request);
-					
-					synchronized (packets) {
-							
+					if (futurePacket.isDone()) {
+						final Packet packet = futurePacket.get();
+						final int request   =
+							packet.getPacketHeader().getRequest();
+						
+						SortedSet<Packet> packets = completed.remove(request);
+						
 						if (packets == null) {
 							packets = new TreeSet<Packet>();
 						}
 						
-						final boolean contains = packets.contains(packet);
-						if (!contains) {
-							packets.add(packet);
+						synchronized (packets) {
+							if (!packets.contains(packet)) {
+								packets.add(packet);
+							}
 						}
 						
 						completed.put(request, packets);
-					}
-					
-					iter.remove();
-					
-					if (packet.isFinished()) {
-						return request;
+						iter.remove();
+						
+						if (packet.isFinished()) {
+							return request;
+						}
 					}
 				}
 			}
