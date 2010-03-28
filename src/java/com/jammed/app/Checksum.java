@@ -1,7 +1,20 @@
 
 package com.jammed.app;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
 public class Checksum {
+	
+	public final static byte[] SHA1 (final byte[] data) {
+		try {
+			final MessageDigest md = MessageDigest.getInstance("SHA-1");
+			
+			return md.digest(data);
+		} catch (final NoSuchAlgorithmException nsae) { }
+		
+		return new byte[] { -1 };
+	}
 	
     public final static int fletcher32 (final int[] data) {
         return fletcher32(data, data.length);

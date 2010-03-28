@@ -77,4 +77,33 @@ public class Packet implements Comparable<Packet> {
 	public int compareTo (final Packet other) {
 		return this.getPacketHeader().compareTo(other.getPacketHeader());
 	}
+	
+	@Override
+	public int hashCode() {
+		return header.getChecksum() * 17;
+	}
+	
+	@Override
+	public boolean equals (final Object obj) {
+		if (this == obj) return true;
+		if (!(obj instanceof Packet)) return false;
+		
+		final Packet other = (Packet)obj;
+		if (other.getPacketHeader().getChecksum() == 
+			this.getPacketHeader().getChecksum()) {
+		
+			return true;
+		}
+		
+		return false;
+	}
+	
+	@Override
+	public String toString() {
+		final StringBuilder sb = new StringBuilder();
+		
+		sb.append(this.getPacketHeader().toString());
+		
+		return sb.toString();
+	}
 }

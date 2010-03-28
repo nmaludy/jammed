@@ -29,7 +29,7 @@ import java.util.List;
 public class MulticastSender {
 	
 	public static final int   LIMIT = 65000;
-	public static final int   TTL   = 30;
+	public static final int   TTL   = 1;
 	
 	private static final long delay = 250L;
 	

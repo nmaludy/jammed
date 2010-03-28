@@ -41,7 +41,7 @@ public class MulticastListener implements Runnable {
 	private final InetAddress group;
 	private final int port;
 	
-	private static final int poolSize = 5;
+	private static final int poolSize = 10;
 	
 	private final ExecutorService pool;
 	private final List<Future<Packet>> results;
@@ -64,7 +64,7 @@ public class MulticastListener implements Runnable {
 		
 		pool      = tpe;
 		results   = Collections.synchronizedList(new ArrayList<Future<Packet>>());
-		completed = new HashMap<Integer, SortedSet<Packet>>();
+		completed = Collections.synchronizedMap(new HashMap<Integer, SortedSet<Packet>>());
 		handlers  = new ArrayList<PacketHandler>();
 		
 		(new Thread(this)).start();
@@ -120,19 +120,30 @@ public class MulticastListener implements Runnable {
 	
 	public void run() {
 		while (true) {
-			
-			final int request = isResultsComplete();
-			
-			if (request > 0) {
+			for (final Integer request : completedRequests()) {
 				handlePackets(completed.remove(request));
 			}
 		}
 	}
 	
-	protected int isResultsComplete() {
+	protected boolean isPoolFinished() {
+		synchronized (results) {
+			for (final Future<Packet> futurePacket : results) {
+				if (!futurePacket.isDone()) {
+					return false;
+				}
+			}
+		}
 		
-		if (results.size() == 0) {
-			return -1;
+		return true;
+	}
+	
+	protected List<Integer> completedRequests() {
+		
+		final List<Integer> finishedRequests = new ArrayList<Integer>();
+		
+		if (results.size() == 0 || !isPoolFinished()) {
+			return finishedRequests;
 		}
 		
 		try {
@@ -142,40 +153,35 @@ public class MulticastListener implements Runnable {
 				
 					final Future<Packet> futurePacket = iter.next();
 					
-					if (futurePacket.isDone()) {
-						final Packet packet = futurePacket.get();
-						final int request   =
-							packet.getPacketHeader().getRequest();
-						
-						SortedSet<Packet> packets = completed.remove(request);
-						
-						if (packets == null) {
-							packets = new TreeSet<Packet>();
-						}
-						
-						synchronized (packets) {
-							if (!packets.contains(packet)) {
-								packets.add(packet);
-							}
-						}
-						
-						completed.put(request, packets);
-						iter.remove();
-						
-						if (packet.isFinished()) {
-							return request;
-						}
+					final Packet packet = futurePacket.get();
+					final int request   = packet.getPacketHeader().getRequest();
+					
+					SortedSet<Packet> packets = completed.remove(request);
+					
+					if (packets == null) {
+						packets = new TreeSet<Packet>();
+					}
+					
+					synchronized (packets) {
+						packets.add(packet);
+					}
+					
+					completed.put(request, packets);
+					iter.remove();
+					
+					if (packet.isFinished()) {
+						finishedRequests.add(request);
 					}
 				}
 			}
-		} catch (final Exception e) {
-			return -1;
-		}
+		} catch (final Exception e) { }
 		
-		return -1;
+		return finishedRequests;
 	}
 	
-	protected void handlePackets (final SortedSet<Packet> set) {
+	protected synchronized void handlePackets (final SortedSet<Packet> set) {
+		if (set == null) return;
+		
 		final Packet[] packets = set.toArray(new Packet[set.size()]);
 		
 		if (packets.length == 1) {

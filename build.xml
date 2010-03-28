@@ -9,7 +9,7 @@
 	<property name="lib.dir" value="lib" />
 	<property name="dist.dir"  value="dist"/>
 	<property name="jar" value="${dist.dir}/jammed.jar"/>
-	<property name="main-class" value="com.jammed.app.GUI"/> <!-- name of name class (without the .java) -->
+	<property name="main-class" value="com.jammed.app.Main"/> <!-- name of name class (without the .java) -->
 
 	<target name="init">
 		<mkdir dir="${dist.dir}/"/>
@@ -64,7 +64,9 @@
 
 		<java jar="${jar}" fork="true">
 			<jvmarg value="-Xdebug"/>
+			<!--
 			<jvmarg value="-Xrunjdwp:transport=dt_socket,server=y,address=8000,suspend=n"/>
+			-->
 		</java>
 	</target>
 
