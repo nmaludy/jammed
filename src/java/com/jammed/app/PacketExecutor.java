@@ -1,11 +1,6 @@
 
 package com.jammed.app;
 
-import com.jammed.app.Protos.Playlist;
-import com.jammed.app.ProtocolMessage.Message;
-
-import com.google.protobuf.InvalidProtocolBufferException;
-
 import java.util.concurrent.Callable;
 
 import java.net.DatagramPacket;

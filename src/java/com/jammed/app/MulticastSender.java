@@ -1,9 +1,6 @@
 
 package com.jammed.app;
 
-import com.jammed.app.Protos.Playlist;
-import com.jammed.app.ProtocolMessage.Message;
-
 import com.google.protobuf.MessageLite;
 
 import java.io.IOException;

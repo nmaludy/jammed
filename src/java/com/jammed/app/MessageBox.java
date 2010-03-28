@@ -1,5 +1,5 @@
 
-package com.jammed.app;;
+package com.jammed.app;
 
 import java.awt.Color;
 import java.awt.FontMetrics;
