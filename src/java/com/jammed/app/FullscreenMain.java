@@ -99,6 +99,7 @@ public class FullscreenMain {
 		Directive.Builder builder = Directive.newBuilder();
 		
 		builder.setDestination(hostField.getText());
+		builder.setType(builder.getType());
 		
 		for (final String line : message.split(",")) {
 			builder.addMessage(line);
