@@ -3,6 +3,7 @@ package com.jammed.app;
 
 import com.jammed.app.Protos.Playlist;
 import com.jammed.app.Protos.Search;
+import com.jammed.app.Protos.Directive;
 
 import com.jammed.app.ProtocolMessage.Message;
 
@@ -64,6 +65,12 @@ public class Packet implements Comparable<Packet> {
 					searchBuilder.mergeFrom(data);
 					
 					return searchBuilder.build();
+				
+				case DIRECTIVE:
+					final Directive.Builder directiveBuilder = Directive.newBuilder();
+					directiveBuilder.mergeFrom(data);
+					
+					return directiveBuilder.build();
 					
 				default:
 					return null;

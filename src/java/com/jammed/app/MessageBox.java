@@ -7,6 +7,10 @@ import java.awt.Graphics;
 import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.geom.Rectangle2D;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Random;
 
 public class MessageBox implements Drawable {
@@ -20,26 +24,37 @@ public class MessageBox implements Drawable {
 
     private double x, y, deltaX, deltaY;
     private int width, height;
-    private String[] message;
+    private List<String> message = new ArrayList<String>();
+	
+	public MessageBox () {
+		this(new ArrayList<String>());
+	}
 
-    public MessageBox (final String[] message) {
-        this.deltaX = random.nextFloat() + 0.1f;
-        this.deltaY = random.nextFloat() + 0.1f;
-
+    public MessageBox (final Collection<String> message) {
+        
         this.background = new Color(0x00, 0x00, 0xFF, 125);
         this.foreground = Color.WHITE;
 
-        this.x = random.nextInt(FullscreenCanvas.DISPLAY_MODES[0].getWidth());
+        this.message.clear();
+		this.message.addAll(message);
+		
+		reset();
+    }
+	
+	public void reset() {
+		this.deltaX = random.nextFloat() + 0.1f;
+        this.deltaY = random.nextFloat() + 0.1f;
+		
+		this.x = random.nextInt(FullscreenCanvas.DISPLAY_MODES[0].getWidth());
         this.y = random.nextInt(FullscreenCanvas.DISPLAY_MODES[0].getHeight());
         
         if (random.nextBoolean()) { this.deltaX *= -1; }
         if (random.nextBoolean()) { this.deltaY *= -1; }
+	}
 
-        this.message = message;
-    }
-
-    public void setMessage (final String[] message) {
-        this.message = message;
+    public void setMessage (final Collection<String> message) {
+        this.message.clear();
+		this.message.addAll(message);
     }
 
     public void setForeground (final Color c) {
@@ -67,9 +82,10 @@ public class MessageBox implements Drawable {
     }
 
     public void draw(final Graphics g) {
+		
         this.width  = this.calculateWidth(g);
         this.height = this.calculateHeight(g);
-        
+        if (message.size() == 0) return;
         g.setColor(background);
         g.fillRoundRect(
                 (int)x,
@@ -79,20 +95,22 @@ public class MessageBox implements Drawable {
                 25, 25);
 
         g.setColor(foreground);
-        final int lineHeight = height / (message.length);
-        for (int i = 1; i <= message.length; i++) {
-            g.drawString(message[i-1],
+        final int lineHeight = height / (message.size());
+        for (int i = 1; i <= message.size(); i++) {
+            g.drawString(message.get(i -1),
                     (int)(x + insets.left),
                     (int)(y + insets.bottom + lineHeight * i));
         }
     }
 
     protected int calculateWidth (final Graphics g) {
-        String longestLine = message[0];
+		if (message.size() == 0) return 0;
+		
+        String longestLine = message.get(0);
         
-        for (int i = 1; i < message.length; i++) {
-            if (message[i].length() > longestLine.length()) {
-                longestLine = message[i];
+        for (int i = 1; i < message.size(); i++) {
+            if (message.get(i).length() > longestLine.length()) {
+                longestLine = message.get(i);
             }
         }
 
@@ -103,10 +121,12 @@ public class MessageBox implements Drawable {
     }
 
     protected int calculateHeight (final Graphics g) {
+		if (message.size() == 0) return 0;
+		
         final FontMetrics metrics = g.getFontMetrics();
-        final Rectangle2D bounds  = metrics.getStringBounds(message[0], g);
+        final Rectangle2D bounds  = metrics.getStringBounds(message.get(0), g);
 
-        return (int)bounds.getHeight() * (message.length);
+        return (int)bounds.getHeight() * (message.size());
     }
 
 }

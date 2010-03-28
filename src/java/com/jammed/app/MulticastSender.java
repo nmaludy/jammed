@@ -15,8 +15,8 @@ import java.util.List;
 
 /* TTL    |   Scope
  * -------------------------------------------------------------------------
- * 0      |   Restricted to the same host. Won't be output by any interface.
- * 1      |   Restricted to the same subnet. Won't be forwarded by a router.
+ * = 0    |   Restricted to the same host. Won't be output by any interface.
+ * = 1    |   Restricted to the same subnet. Won't be forwarded by a router.
  * < 32   |   Restricted to the same site, organization or department.
  * < 64   |   Restricted to the same region.
  * < 128  |   Restricted to the same continent.

@@ -41,6 +41,7 @@ public final class ProtocolMessage {
       PLAYLIST(1, 1),
       LIBRARY(2, 2),
       SEARCH(3, 3),
+      DIRECTIVE(4, 4),
       ;
       
       
@@ -52,6 +53,7 @@ public final class ProtocolMessage {
           case 1: return PLAYLIST;
           case 2: return LIBRARY;
           case 3: return SEARCH;
+          case 4: return DIRECTIVE;
           default: return null;
         }
       }
@@ -82,7 +84,7 @@ public final class ProtocolMessage {
       }
       
       private static final Type[] VALUES = {
-        MEDIA, PLAYLIST, LIBRARY, SEARCH, 
+        MEDIA, PLAYLIST, LIBRARY, SEARCH, DIRECTIVE, 
       };
       public static Type valueOf(
           com.google.protobuf.Descriptors.EnumValueDescriptor desc) {
@@ -338,10 +340,10 @@ public final class ProtocolMessage {
       descriptor;
   static {
     java.lang.String[] descriptorData = {
-      "\n\rmessage.proto\022\003app\"C\n\007Message\"8\n\004Type\022" +
+      "\n\rmessage.proto\022\003app\"R\n\007Message\"G\n\004Type\022" +
       "\t\n\005MEDIA\020\000\022\014\n\010PLAYLIST\020\001\022\013\n\007LIBRARY\020\002\022\n\n" +
-      "\006SEARCH\020\003B!\n\016com.jammed.appB\017ProtocolMes" +
-      "sage"
+      "\006SEARCH\020\003\022\r\n\tDIRECTIVE\020\004B!\n\016com.jammed.a" +
+      "ppB\017ProtocolMessage"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {

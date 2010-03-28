@@ -1871,6 +1871,464 @@ public final class Protos {
     // @@protoc_insertion_point(class_scope:app.Search)
   }
   
+  public static final class Directive extends
+      com.google.protobuf.GeneratedMessage {
+    // Use Directive.newBuilder() to construct.
+    private Directive() {
+      initFields();
+    }
+    private Directive(boolean noInit) {}
+    
+    private static final Directive defaultInstance;
+    public static Directive getDefaultInstance() {
+      return defaultInstance;
+    }
+    
+    public Directive getDefaultInstanceForType() {
+      return defaultInstance;
+    }
+    
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return com.jammed.app.Protos.internal_static_app_Directive_descriptor;
+    }
+    
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return com.jammed.app.Protos.internal_static_app_Directive_fieldAccessorTable;
+    }
+    
+    // required .app.Message.Type type = 1 [default = DIRECTIVE];
+    public static final int TYPE_FIELD_NUMBER = 1;
+    private boolean hasType;
+    private com.jammed.app.ProtocolMessage.Message.Type type_;
+    public boolean hasType() { return hasType; }
+    public com.jammed.app.ProtocolMessage.Message.Type getType() { return type_; }
+    
+    // required string destination = 2;
+    public static final int DESTINATION_FIELD_NUMBER = 2;
+    private boolean hasDestination;
+    private java.lang.String destination_ = "";
+    public boolean hasDestination() { return hasDestination; }
+    public java.lang.String getDestination() { return destination_; }
+    
+    // optional string password = 3;
+    public static final int PASSWORD_FIELD_NUMBER = 3;
+    private boolean hasPassword;
+    private java.lang.String password_ = "";
+    public boolean hasPassword() { return hasPassword; }
+    public java.lang.String getPassword() { return password_; }
+    
+    // repeated string message = 4;
+    public static final int MESSAGE_FIELD_NUMBER = 4;
+    private java.util.List<java.lang.String> message_ =
+      java.util.Collections.emptyList();
+    public java.util.List<java.lang.String> getMessageList() {
+      return message_;
+    }
+    public int getMessageCount() { return message_.size(); }
+    public java.lang.String getMessage(int index) {
+      return message_.get(index);
+    }
+    
+    private void initFields() {
+      type_ = com.jammed.app.ProtocolMessage.Message.Type.DIRECTIVE;
+    }
+    public final boolean isInitialized() {
+      if (!hasType) return false;
+      if (!hasDestination) return false;
+      return true;
+    }
+    
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      getSerializedSize();
+      if (hasType()) {
+        output.writeEnum(1, getType().getNumber());
+      }
+      if (hasDestination()) {
+        output.writeString(2, getDestination());
+      }
+      if (hasPassword()) {
+        output.writeString(3, getPassword());
+      }
+      for (java.lang.String element : getMessageList()) {
+        output.writeString(4, element);
+      }
+      getUnknownFields().writeTo(output);
+    }
+    
+    private int memoizedSerializedSize = -1;
+    public int getSerializedSize() {
+      int size = memoizedSerializedSize;
+      if (size != -1) return size;
+    
+      size = 0;
+      if (hasType()) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeEnumSize(1, getType().getNumber());
+      }
+      if (hasDestination()) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeStringSize(2, getDestination());
+      }
+      if (hasPassword()) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeStringSize(3, getPassword());
+      }
+      {
+        int dataSize = 0;
+        for (java.lang.String element : getMessageList()) {
+          dataSize += com.google.protobuf.CodedOutputStream
+            .computeStringSizeNoTag(element);
+        }
+        size += dataSize;
+        size += 1 * getMessageList().size();
+      }
+      size += getUnknownFields().getSerializedSize();
+      memoizedSerializedSize = size;
+      return size;
+    }
+    
+    public static com.jammed.app.Protos.Directive parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data).buildParsed();
+    }
+    public static com.jammed.app.Protos.Directive parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data, extensionRegistry)
+               .buildParsed();
+    }
+    public static com.jammed.app.Protos.Directive parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data).buildParsed();
+    }
+    public static com.jammed.app.Protos.Directive parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data, extensionRegistry)
+               .buildParsed();
+    }
+    public static com.jammed.app.Protos.Directive parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input).buildParsed();
+    }
+    public static com.jammed.app.Protos.Directive parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input, extensionRegistry)
+               .buildParsed();
+    }
+    public static com.jammed.app.Protos.Directive parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      Builder builder = newBuilder();
+      if (builder.mergeDelimitedFrom(input)) {
+        return builder.buildParsed();
+      } else {
+        return null;
+      }
+    }
+    public static com.jammed.app.Protos.Directive parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      Builder builder = newBuilder();
+      if (builder.mergeDelimitedFrom(input, extensionRegistry)) {
+        return builder.buildParsed();
+      } else {
+        return null;
+      }
+    }
+    public static com.jammed.app.Protos.Directive parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input).buildParsed();
+    }
+    public static com.jammed.app.Protos.Directive parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input, extensionRegistry)
+               .buildParsed();
+    }
+    
+    public static Builder newBuilder() { return Builder.create(); }
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder(com.jammed.app.Protos.Directive prototype) {
+      return newBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() { return newBuilder(this); }
+    
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder> {
+      private com.jammed.app.Protos.Directive result;
+      
+      // Construct using com.jammed.app.Protos.Directive.newBuilder()
+      private Builder() {}
+      
+      private static Builder create() {
+        Builder builder = new Builder();
+        builder.result = new com.jammed.app.Protos.Directive();
+        return builder;
+      }
+      
+      protected com.jammed.app.Protos.Directive internalGetResult() {
+        return result;
+      }
+      
+      public Builder clear() {
+        if (result == null) {
+          throw new IllegalStateException(
+            "Cannot call clear() after build().");
+        }
+        result = new com.jammed.app.Protos.Directive();
+        return this;
+      }
+      
+      public Builder clone() {
+        return create().mergeFrom(result);
+      }
+      
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return com.jammed.app.Protos.Directive.getDescriptor();
+      }
+      
+      public com.jammed.app.Protos.Directive getDefaultInstanceForType() {
+        return com.jammed.app.Protos.Directive.getDefaultInstance();
+      }
+      
+      public boolean isInitialized() {
+        return result.isInitialized();
+      }
+      public com.jammed.app.Protos.Directive build() {
+        if (result != null && !isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return buildPartial();
+      }
+      
+      private com.jammed.app.Protos.Directive buildParsed()
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        if (!isInitialized()) {
+          throw newUninitializedMessageException(
+            result).asInvalidProtocolBufferException();
+        }
+        return buildPartial();
+      }
+      
+      public com.jammed.app.Protos.Directive buildPartial() {
+        if (result == null) {
+          throw new IllegalStateException(
+            "build() has already been called on this Builder.");
+        }
+        if (result.message_ != java.util.Collections.EMPTY_LIST) {
+          result.message_ =
+            java.util.Collections.unmodifiableList(result.message_);
+        }
+        com.jammed.app.Protos.Directive returnMe = result;
+        result = null;
+        return returnMe;
+      }
+      
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof com.jammed.app.Protos.Directive) {
+          return mergeFrom((com.jammed.app.Protos.Directive)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+      
+      public Builder mergeFrom(com.jammed.app.Protos.Directive other) {
+        if (other == com.jammed.app.Protos.Directive.getDefaultInstance()) return this;
+        if (other.hasType()) {
+          setType(other.getType());
+        }
+        if (other.hasDestination()) {
+          setDestination(other.getDestination());
+        }
+        if (other.hasPassword()) {
+          setPassword(other.getPassword());
+        }
+        if (!other.message_.isEmpty()) {
+          if (result.message_.isEmpty()) {
+            result.message_ = new java.util.ArrayList<java.lang.String>();
+          }
+          result.message_.addAll(other.message_);
+        }
+        this.mergeUnknownFields(other.getUnknownFields());
+        return this;
+      }
+      
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder(
+            this.getUnknownFields());
+        while (true) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              this.setUnknownFields(unknownFields.build());
+              return this;
+            default: {
+              if (!parseUnknownField(input, unknownFields,
+                                     extensionRegistry, tag)) {
+                this.setUnknownFields(unknownFields.build());
+                return this;
+              }
+              break;
+            }
+            case 8: {
+              int rawValue = input.readEnum();
+              com.jammed.app.ProtocolMessage.Message.Type value = com.jammed.app.ProtocolMessage.Message.Type.valueOf(rawValue);
+              if (value == null) {
+                unknownFields.mergeVarintField(1, rawValue);
+              } else {
+                setType(value);
+              }
+              break;
+            }
+            case 18: {
+              setDestination(input.readString());
+              break;
+            }
+            case 26: {
+              setPassword(input.readString());
+              break;
+            }
+            case 34: {
+              addMessage(input.readString());
+              break;
+            }
+          }
+        }
+      }
+      
+      
+      // required .app.Message.Type type = 1 [default = DIRECTIVE];
+      public boolean hasType() {
+        return result.hasType();
+      }
+      public com.jammed.app.ProtocolMessage.Message.Type getType() {
+        return result.getType();
+      }
+      public Builder setType(com.jammed.app.ProtocolMessage.Message.Type value) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        result.hasType = true;
+        result.type_ = value;
+        return this;
+      }
+      public Builder clearType() {
+        result.hasType = false;
+        result.type_ = com.jammed.app.ProtocolMessage.Message.Type.DIRECTIVE;
+        return this;
+      }
+      
+      // required string destination = 2;
+      public boolean hasDestination() {
+        return result.hasDestination();
+      }
+      public java.lang.String getDestination() {
+        return result.getDestination();
+      }
+      public Builder setDestination(java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  result.hasDestination = true;
+        result.destination_ = value;
+        return this;
+      }
+      public Builder clearDestination() {
+        result.hasDestination = false;
+        result.destination_ = getDefaultInstance().getDestination();
+        return this;
+      }
+      
+      // optional string password = 3;
+      public boolean hasPassword() {
+        return result.hasPassword();
+      }
+      public java.lang.String getPassword() {
+        return result.getPassword();
+      }
+      public Builder setPassword(java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  result.hasPassword = true;
+        result.password_ = value;
+        return this;
+      }
+      public Builder clearPassword() {
+        result.hasPassword = false;
+        result.password_ = getDefaultInstance().getPassword();
+        return this;
+      }
+      
+      // repeated string message = 4;
+      public java.util.List<java.lang.String> getMessageList() {
+        return java.util.Collections.unmodifiableList(result.message_);
+      }
+      public int getMessageCount() {
+        return result.getMessageCount();
+      }
+      public java.lang.String getMessage(int index) {
+        return result.getMessage(index);
+      }
+      public Builder setMessage(int index, java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  result.message_.set(index, value);
+        return this;
+      }
+      public Builder addMessage(java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  if (result.message_.isEmpty()) {
+          result.message_ = new java.util.ArrayList<java.lang.String>();
+        }
+        result.message_.add(value);
+        return this;
+      }
+      public Builder addAllMessage(
+          java.lang.Iterable<? extends java.lang.String> values) {
+        if (result.message_.isEmpty()) {
+          result.message_ = new java.util.ArrayList<java.lang.String>();
+        }
+        super.addAll(values, result.message_);
+        return this;
+      }
+      public Builder clearMessage() {
+        result.message_ = java.util.Collections.emptyList();
+        return this;
+      }
+      
+      // @@protoc_insertion_point(builder_scope:app.Directive)
+    }
+    
+    static {
+      defaultInstance = new Directive(true);
+      com.jammed.app.Protos.internalForceInit();
+      defaultInstance.initFields();
+    }
+    
+    // @@protoc_insertion_point(class_scope:app.Directive)
+  }
+  
   private static com.google.protobuf.Descriptors.Descriptor
     internal_static_app_Media_descriptor;
   private static
@@ -1891,6 +2349,11 @@ public final class Protos {
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_app_Search_fieldAccessorTable;
+  private static com.google.protobuf.Descriptors.Descriptor
+    internal_static_app_Directive_descriptor;
+  private static
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_app_Directive_fieldAccessorTable;
   
   public static com.google.protobuf.Descriptors.FileDescriptor
       getDescriptor() {
@@ -1912,7 +2375,10 @@ public final class Protos {
       ".app.Playlist\022\035\n\006remote\030\003 \003(\0132\r.app.Play",
       "list\"Q\n\006Search\022\'\n\004type\030\001 \002(\0162\021.app.Messa" +
       "ge.Type:\006SEARCH\022\017\n\007request\030\002 \002(\005\022\r\n\005quer" +
-      "y\030\003 \002(\tB\030\n\016com.jammed.appB\006Protos"
+      "y\030\003 \002(\t\"o\n\tDirective\022*\n\004type\030\001 \002(\0162\021.app" +
+      ".Message.Type:\tDIRECTIVE\022\023\n\013destination\030" +
+      "\002 \002(\t\022\020\n\010password\030\003 \001(\t\022\017\n\007message\030\004 \003(\t" +
+      "B\030\n\016com.jammed.appB\006Protos"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
@@ -1951,6 +2417,14 @@ public final class Protos {
               new java.lang.String[] { "Type", "Request", "Query", },
               com.jammed.app.Protos.Search.class,
               com.jammed.app.Protos.Search.Builder.class);
+          internal_static_app_Directive_descriptor =
+            getDescriptor().getMessageTypes().get(4);
+          internal_static_app_Directive_fieldAccessorTable = new
+            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+              internal_static_app_Directive_descriptor,
+              new java.lang.String[] { "Type", "Destination", "Password", "Message", },
+              com.jammed.app.Protos.Directive.class,
+              com.jammed.app.Protos.Directive.Builder.class);
           return null;
         }
       };

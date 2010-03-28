@@ -21,7 +21,8 @@ public abstract class FullscreenCanvas extends Frame
         new DisplayMode(640, 480, 8,  0)
     };
 
-    private static final int numBuffers = 3;
+    private static final int numBuffers = 4;
+	private static final int fps = 75;
 
     private final GraphicsDevice device;
     private volatile boolean done; // This will be modified by multiple threads
@@ -57,6 +58,8 @@ public abstract class FullscreenCanvas extends Frame
             final BufferStrategy strategy = this.getBufferStrategy();
             
             while (!done) {
+				long startTime = System.currentTimeMillis();
+				
                 for (int i = 0; i < numBuffers; i++) {
                     g = strategy.getDrawGraphics();
                     if (!strategy.contentsLost()) {
@@ -66,7 +69,8 @@ public abstract class FullscreenCanvas extends Frame
                     }
                 }
                 try {
-                    Thread.sleep(15);
+					startTime += fps;
+                    Thread.sleep(Math.max(15, startTime - System.currentTimeMillis()));
                 } catch (final InterruptedException ie) { }
             }   
         } catch (final Exception e) {

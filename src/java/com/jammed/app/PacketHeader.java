@@ -3,8 +3,9 @@ package com.jammed.app;
 
 public class PacketHeader implements Comparable<PacketHeader> {
 
-    private static final int FIN = 1;
-	private static final int CHK = 2;
+    private static final int FIN = (1 << 0);
+	private static final int CHK = (1 << 1);
+	private static final int DUM = (1 << 2);
     
     private static final int INT_SIZE  = 3;
     private static final int BYTE_SIZE = INT_SIZE << 2;
@@ -118,6 +119,10 @@ public class PacketHeader implements Comparable<PacketHeader> {
 	public void setChunk (final boolean chunk) {
 		setBit(chunk, CHK);
 	}
+	
+	public void setDumb (final boolean dumb) {
+		setBit(dumb, DUM);
+	}
 
     public int getType() {
         return type;
@@ -141,6 +146,10 @@ public class PacketHeader implements Comparable<PacketHeader> {
 	
 	public boolean isChunk() {
 		return isBitSet(CHK);
+	}
+	
+	public boolean isDumb() {
+		return isBitSet(DUM);
 	}
 
     public int getChecksum() {
@@ -228,5 +237,6 @@ public class PacketHeader implements Comparable<PacketHeader> {
 	public int compareTo (final PacketHeader other) {
 		return ((Integer)this.getSequence()).compareTo(other.getSequence());
 	}
+	
 }
 

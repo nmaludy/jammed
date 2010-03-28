@@ -5,10 +5,11 @@ option java_outer_classname = "ProtocolMessage";
 
 message Message {
 	enum Type {
-		MEDIA    = 0;
-		PLAYLIST = 1;
-		LIBRARY  = 2;
-		SEARCH   = 3;
+		MEDIA     = 0;
+		PLAYLIST  = 1;
+		LIBRARY   = 2;
+		SEARCH    = 3;
+		DIRECTIVE = 4;
 	}
 }
 

@@ -41,3 +41,11 @@ message Search {
 	required string query  = 3;
 }
 
+message Directive {
+	required Message.Type type = 1 [default = DIRECTIVE];
+	
+	required string destination = 2;
+	optional string password    = 3;
+	repeated string message     = 4;
+}
+

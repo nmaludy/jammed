@@ -36,8 +36,8 @@ public class Cloud implements Runnable {
 		sender.setSource(Checksum.fletcher16(host));
 		
 		// Default simple searching
-		this.addMessageHandler(new SearchHandler());
-		this.addMessageHandler(new PlaylistHandler());
+		//this.addMessageHandler(new SearchHandler());
+		//this.addMessageHandler(new PlaylistHandler());
 		
 		(new Thread(this)).start();
 	}

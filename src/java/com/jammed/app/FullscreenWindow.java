@@ -16,28 +16,16 @@ public class FullscreenWindow extends FullscreenCanvas {
 
     private static final SimpleDateFormat format = new SimpleDateFormat("yyyy.MM.dd G 'at' HH:mm:ss z");
 	private static final long serialVersionUID   = 0x454D53;
-	
-    private static final String[] songInfo = new String[] {
-        "Title:  Hello World",
-        "Artist: David Sunshine",
-        "Album:  Back in Town"
-    };
-
-    private String[] timeInfo = new String[] { "" };
-
-    private MessageBox songBox = new MessageBox(songInfo);
-    private MessageBox timeBox = new MessageBox(timeInfo);
 
     private final List<Drawable> drawable = new ArrayList<Drawable>();
 
     public FullscreenWindow() {
         super();
-
-        drawable.add(songBox);
-        drawable.add(timeBox);
-
-        timeBox.setBackground(Color.BLACK);
     }
+	
+	public void addDrawable (final Drawable d) {
+		this.drawable.add(d);
+	}
     
     @Override
     public void paint(final Graphics g) {
@@ -53,12 +41,6 @@ public class FullscreenWindow extends FullscreenCanvas {
             d.draw(g);
             d.move();
         }
-
-        // Update the time box
-        final Calendar now = Calendar.getInstance();
-        final String time  = format.format(now.getTime());
-        timeInfo[0] = time;
-        timeBox.setMessage(timeInfo);
 
         // Top layer
         g.setColor(Color.WHITE);
