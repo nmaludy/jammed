@@ -8,8 +8,13 @@
 	<property name="build.dir" value="build"/>
 	<property name="lib.dir" value="lib" />
 	<property name="dist.dir"  value="dist"/>
+	<property name="protobuf.dir"  value="${src.dir}/protobuf"/>
 	<property name="jar" value="${dist.dir}/jammed.jar"/>
-	<property name="main-class" value="com.jammed.app.Main"/> <!-- name of name class (without the .java) -->
+	<property name="main-class" value="com.jammed.app.GUI"/> <!-- name of name class (without the .java) -->
+	<property name="protobuf"  value="protoc"/>
+	<property name="protobuf.include"  value="-I=${protobuf.dir}"/>
+	<property name="protobuf.destination"  value="--java_out=${src.dir}/java"/>
+	<property name="protobuf.files" value="${protobuf.dir}/message.proto ${protobuf.dir}/media.proto"/>
 
 	<target name="init">
 		<mkdir dir="${dist.dir}/"/>
@@ -25,7 +30,7 @@
 		<delete dir="${dist.dir}"/>
 	</target>
 
-	<target name="compile" depends="init" description="compile the source " >
+	<target name="compile" depends="init, protobuf" description="compile the source " >
 		<!-- Compile the java code from ${src} into ${build} -->
 		<javac
 			srcdir="${src.dir}"
@@ -68,6 +73,17 @@
 			<jvmarg value="-Xrunjdwp:transport=dt_socket,server=y,address=8000,suspend=n"/>
 			-->
 		</java>
+	</target>
+
+	<target name="protobuf" description="compile the protocol buffers" >
+		<!-- protoc -I=protobuf.include -java_out=protobuf.destination SRCFILES -->
+		<apply executable="${protobuf}" relative="true">
+			<arg value="${protobuf.include}"/>
+			<arg value="${protobuf.destination}"/>
+			<srcfile/> <!-- inserts SRCFILES after the destination argument-->
+			<!-- replace SRCFILE with the relative path of each .proto file contained in the current working directory-->
+			<fileset dir="." includes="**/*.proto"/>
+		</apply>
 	</target>
 
 </project>

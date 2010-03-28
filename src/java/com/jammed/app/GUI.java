@@ -8,22 +8,6 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
-import javax.media.CachingControlEvent;
-import javax.media.ControllerClosedEvent;
-import javax.media.ControllerErrorEvent;
-import javax.media.ControllerEvent;
-import javax.media.ControllerListener;
-import javax.media.DurationUpdateEvent;
-import javax.media.MediaTimeSetEvent;
-import javax.media.PrefetchCompleteEvent;
-import javax.media.RateChangeEvent;
-import javax.media.RealizeCompleteEvent;
-import javax.media.SizeChangeEvent;
-import javax.media.StartEvent;
-import javax.media.StopTimeChangeEvent;
-import javax.media.TransitionEvent;
-import javax.media.bean.playerbean.MediaPlayer;
-import javax.media.format.FormatChangeEvent;
 import javax.swing.GroupLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -42,7 +26,7 @@ import javax.swing.table.TableColumn;
  *
  * @author Nicholas Maludy
  */
-public class GUI extends JFrame implements ActionListener, KeyListener, MouseListener, ControllerListener {
+public class GUI extends JFrame implements ActionListener, KeyListener, MouseListener {
 
 	private static final long serialVersionUID = 0;
 	private java.net.URL previousURL = GUI.class.getResource("images/previous_small.png");
@@ -57,9 +41,7 @@ public class GUI extends JFrame implements ActionListener, KeyListener, MouseLis
 	private Object[][] tableFormat = new Object[5][2];
 	private JTable table = new JTable(tableFormat, tableColumns);
 	private JScrollPane tablePanel = new JScrollPane(table);
-	private MediaPlayer player = null;
-	private boolean isPaused = false;
-	private boolean sessionInProgress = false;
+	private MediaController controller = MediaController.getInstance();
 	
 	/*
 	 * Initialze and layout all GUI components.
@@ -110,6 +92,8 @@ public class GUI extends JFrame implements ActionListener, KeyListener, MouseLis
 		playPauseButton.addActionListener(this);
 		nextButton.addActionListener(this);
 		showPlaylistBox.addActionListener(this);
+
+		controller.setPlayerPanel(playerPanel);
 
 		table.setValueAt("Song1.mp3", 0, 0);
 		table.setValueAt("1:30", 0, 1);
@@ -174,10 +158,17 @@ public class GUI extends JFrame implements ActionListener, KeyListener, MouseLis
 			pack();
 		} else if (e.getSource().equals(previousButton)) {
 		} else if (e.getSource().equals(playPauseButton)) {
-			if(isPaused || !sessionInProgress) {
-				play();
-			} else {
-				pause();
+			try {
+				final JFileChooser fc = new JFileChooser();
+				int returnVal = fc.showOpenDialog(this);
+
+				if (returnVal == JFileChooser.APPROVE_OPTION) {
+					File selectedFile = fc.getSelectedFile();
+					String selectedUrl = selectedFile.toURI().toURL().toString();
+					controller.playLocalMedia(selectedUrl);
+				}
+			} catch (Exception ex) {
+				ex.printStackTrace();
 			}
 		} else if (e.getSource().equals(nextButton)) {
 		}
@@ -210,86 +201,7 @@ public class GUI extends JFrame implements ActionListener, KeyListener, MouseLis
 		button.setBackground(Color.WHITE);
 	}
 
-	/*
-	 * TODO: Read the currently selected file from table
-	 */
-	private void playSelected() {
-		try {
-			//Create a file chooser
-			final JFileChooser fc = new JFileChooser();
-			//In response to a button click:
-			int returnVal = fc.showOpenDialog(this);
-			
-			if (returnVal == JFileChooser.APPROVE_OPTION) {
-				File selectedFile = fc.getSelectedFile();
-				String selectedUrl = selectedFile.toURI().toURL().toString();
-				player = MediaUtils.createMediaPlayer(selectedUrl);
-				player.addControllerListener(this);
-				player.realize();
-			}
-		} catch (Exception e) {
-			System.err.println("Got exception " + e);
-		}
-	}
-
-	public void play() {
-		if (isPaused) {
-			player.restoreMediaTime();
-			isPaused = false;
-		}
-		player.start();
-		sessionInProgress = true;
-	}
-
-	public void pause() {
-		player.saveMediaTime();
-		player.stop();
-		isPaused = true;
-	}
-
-	public void stop() {
-		player.stop();
-		player.deallocate();
-		sessionInProgress = false;
-	}
-
-	public void destroy() {
-		player.close();
-	}
-
-	/*
-	 * TODO: Handle all of the control events
-	 */
-	public synchronized void controllerUpdate(ControllerEvent event) {
-		if (event instanceof RealizeCompleteEvent) {
-			handleRealizeComplete((RealizeCompleteEvent) event);
-		} else if (event instanceof PrefetchCompleteEvent) {
-			//processPrefetchComplete ( (PrefetchCompleteEvent) event );
-		} else if (event instanceof ControllerErrorEvent) {
-			//processControllerError ( (ControllerErrorEvent) event );
-		} else if (event instanceof ControllerClosedEvent) {
-			// processControllerClosed ( (ControllerClosedEvent) event );
-		} else if (event instanceof DurationUpdateEvent) {
-			// Time t = ((DurationUpdateEvent)event).getDuration();
-		} else if (event instanceof CachingControlEvent) {
-			// processCachingControl ( (CachingControlEvent) event );
-		} else if (event instanceof StartEvent) {
-		} else if (event instanceof MediaTimeSetEvent) {
-		} else if (event instanceof TransitionEvent) {
-		} else if (event instanceof RateChangeEvent) {
-		} else if (event instanceof StopTimeChangeEvent) {
-		} else if (event instanceof FormatChangeEvent) {
-			//processFormatChange ( (FormatChangeEvent) event );
-		} else if (event instanceof SizeChangeEvent) {
-		}
-	}
-
-	protected void handleRealizeComplete(RealizeCompleteEvent event) {
-		player.prefetch();
-		playerPanel.setPlayer(player);
-		play();
-	}
-
+	
 
 	/*
 	 * Initializes a new instance of GUI and schedules it for launch.
@@ -299,7 +211,6 @@ public class GUI extends JFrame implements ActionListener, KeyListener, MouseLis
 
 			public void run() {
 				GUI g = new GUI();
-				g.playSelected();
 			}
 		});
 	}

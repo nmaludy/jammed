@@ -27,6 +27,9 @@ public class PlayerPanel extends JPanel {
 	}
 
 	public void setPlayer(Player player) {
+		if (currentPlayer != null) {
+			currentPlayer.close();
+		}
 		currentPlayer = player;
 		update();
 	}
