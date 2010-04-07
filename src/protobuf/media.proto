@@ -1,9 +1,10 @@
-package app;
+package gen;
 
 import "message.proto";
 
-option java_package         = "com.jammed.app";
+option java_package         = "com.jammed.gen";
 option java_outer_classname = "Protos";
+option optimize_for         = LITE_RUNTIME;
 
 message Media {
 	required Message.Type type = 1 [default = MEDIA];
@@ -12,7 +13,7 @@ message Media {
 	required string title    = 3;
 	
 	// Optional Fields
-	optional int32 length  = 4;
+	optional int32  length = 4;
 	optional string name   = 5;
 	optional string artist = 6;
 	optional string album  = 7;
@@ -21,9 +22,10 @@ message Media {
 message Playlist {
 	required Message.Type type = 1 [default = PLAYLIST];
 	
-	repeated Media media = 2;
-	required string host = 3;
+	repeated Media  media  = 2;
+	required string host   = 3;
 	
+	// Optional Fields
 	optional int32 request = 4;
 }
 
@@ -37,15 +39,36 @@ message Library {
 message Search {
 	required Message.Type type = 1 [default = SEARCH];
 	
-	required int32 request = 2;
-	required string query  = 3;
+	required int32  request = 2;
+	required string query   = 3;
 }
 
 message Directive {
 	required Message.Type type = 1 [default = DIRECTIVE];
 	
 	required string destination = 2;
-	optional string password    = 3;
-	repeated string message     = 4;
+	repeated string directive   = 3;
+	
+	// Optional Fields
+	optional string password    = 4;
+}
+
+message PlayRequest {
+	required Message.Type type = 1 [default = PLAY_REQUEST];
+	
+	required bool video    = 2;
+	required string host   = 3;
+	
+	required int32 request = 4;
+}
+
+message PlayResponse {
+	required Message.Type type = 1 [default = PLAY_RESPONSE];
+	
+	required string adress   = 2;
+	required int32 videoPort = 3;
+	required int32 auidoPort = 4;
+	
+	required int32 request = 5;
 }
 

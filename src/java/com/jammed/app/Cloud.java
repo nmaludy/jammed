@@ -50,7 +50,7 @@ public class Cloud implements Runnable {
 		sender.send(message, request);
 	}
 	
-	public void addMessageHandler (final PacketHandler handler) {
+	public void addMessageHandler (final PacketHandler<? extends MessageLite> handler) {
 		sender.addMessageHandler(handler);
 		listener.addMessageHandler(handler);
 	}

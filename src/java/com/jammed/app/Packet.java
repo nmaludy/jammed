@@ -1,11 +1,11 @@
 
 package com.jammed.app;
 
-import com.jammed.app.Protos.Playlist;
-import com.jammed.app.Protos.Search;
-import com.jammed.app.Protos.Directive;
+import com.jammed.gen.Protos.Playlist;
+import com.jammed.gen.Protos.Search;
+import com.jammed.gen.Protos.Directive;
 
-import com.jammed.app.ProtocolMessage.Message;
+import com.jammed.gen.ProtoType.Message;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.MessageLite;
@@ -17,6 +17,8 @@ public class Packet implements Comparable<Packet> {
 	
 	public Packet(final byte[] header, final byte[] data) {
 		this.header = new PacketHeader(header);
+		
+		System.out.println("Packet Received");
 		
 		if (isFinished() && (this.header.getSequence() == 0)) {
 			// Single packet message

@@ -1,8 +1,8 @@
 
 package com.jammed.app;
 
-import com.jammed.app.Protos.Media;
-import com.jammed.app.Protos.Playlist;
+import com.jammed.gen.Protos.Media;
+import com.jammed.gen.Protos.Playlist;
 
 import java.io.File;
 import java.io.FileNotFoundException;

@@ -1,7 +1,7 @@
 
 package com.jammed.app;
 
-import com.jammed.app.Protos.Media;
+import com.jammed.gen.Protos.Media;
 
 import java.io.File;
 import java.io.IOException;

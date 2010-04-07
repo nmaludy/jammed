@@ -1,12 +1,12 @@
 
 package com.jammed.app;
 
-import com.jammed.app.Protos.Playlist;
+import com.jammed.gen.Protos.Playlist;
 
 import com.google.protobuf.MessageLite;
 
 
-public class PlaylistHandler implements PacketHandler<Playlist> {
+public class PlaylistHandler extends PacketHandler<Playlist> {
 	
 	public PlaylistHandler() {
 	}
@@ -15,11 +15,22 @@ public class PlaylistHandler implements PacketHandler<Playlist> {
 		return (message instanceof Playlist);
 	}
 	
-	public int type (final Playlist playlist) {
+	public int type (final MessageLite message) {
+		if (!(message instanceof Playlist)) {
+			throw new IllegalArgumentException();
+		}
+		
+		final Playlist playlist = (Playlist)message;
+		
 		return playlist.getType().ordinal();
 	}
 	
-	public boolean handleMessage (final Playlist playlist) {
+	public boolean handleMessage (final MessageLite message) {
+		if (!(message instanceof Playlist)) {
+			throw new IllegalArgumentException();
+		}
+		
+		final Playlist playlist = (Playlist)message;
 		
 		if (playlist.getHost().equals(Cloud.getInstance().getHostName())) {
 			System.out.println("Received message I sent");

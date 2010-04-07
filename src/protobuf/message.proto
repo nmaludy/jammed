@@ -1,7 +1,7 @@
-package app;
+package gen;
 
-option java_package         = "com.jammed.app";
-option java_outer_classname = "ProtocolMessage";
+option java_package         = "com.jammed.gen";
+option java_outer_classname = "ProtoType";
 
 message Message {
 	enum Type {
@@ -10,6 +10,10 @@ message Message {
 		LIBRARY   = 2;
 		SEARCH    = 3;
 		DIRECTIVE = 4;
+		
+		PLAY_REQUEST  = 5;
+		PLAY_RESPONSE = 6;
+		FORCE_REQUEST = 7;
 	}
 }
 

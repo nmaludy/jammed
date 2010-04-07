@@ -37,7 +37,7 @@ public class MulticastListener implements Runnable {
 	
 	private final ExecutorService pool;
 	private final List<Future<Packet>> results;
-	private final List<PacketHandler> handlers;
+	private final List<PacketHandler<? extends MessageLite>> handlers;
 	private final Map<Integer, SortedSet<Packet>> completed;
 	
 	public MulticastListener (final String addressName, final int port) {
@@ -57,12 +57,12 @@ public class MulticastListener implements Runnable {
 		pool      = tpe;
 		results   = Collections.synchronizedList(new ArrayList<Future<Packet>>());
 		completed = Collections.synchronizedMap(new HashMap<Integer, SortedSet<Packet>>());
-		handlers  = new ArrayList<PacketHandler>();
+		handlers  = new ArrayList<PacketHandler<? extends MessageLite>>();
 		
 		(new Thread(this)).start();
 	}
 	
-	public void addMessageHandler (final PacketHandler handler) {
+	public void addMessageHandler (final PacketHandler<? extends MessageLite> handler) {
 		this.handlers.add(handler);
 	}
 	
@@ -214,7 +214,7 @@ public class MulticastListener implements Runnable {
 	}
 	
 	protected void handleMessage (final MessageLite message) {
-		for (final PacketHandler handler : handlers) {
+		for (final PacketHandler<? extends MessageLite> handler : handlers) {
 			if (handler.isMessageSupported(message)) {
 				handler.handleMessage(message);
 			}

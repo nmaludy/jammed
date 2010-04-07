@@ -1,7 +1,9 @@
 
 package com.jammed.app;
 
-import com.jammed.app.Protos.*;
+import com.jammed.gen.Protos.*;
+
+import com.google.protobuf.MessageLite;
 
 import java.awt.Container;
 import java.awt.GridBagConstraints;
@@ -104,7 +106,7 @@ public class FullscreenMain {
 			builder.setType(builder.getType());
 			
 			for (final String line : message.split(",")) {
-				builder.addMessage(line);
+				builder.addDirective(line);
 			}
 			
 			cloud.send(builder.build());
