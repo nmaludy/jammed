@@ -16,6 +16,7 @@ public class Cloud implements Runnable {
 	private static final byte[] host = getHostAddress();
 	private static final String hostName = Checksum.fletcher16(host) + "";
 	
+	private final PacketBuilder builder = PacketBuilder.getInstance();
 	private final MulticastListener listener;
 	private final MulticastSender   sender;
 	
@@ -53,6 +54,7 @@ public class Cloud implements Runnable {
 	public void addMessageHandler (final PacketHandler<? extends MessageLite> handler) {
 		sender.addMessageHandler(handler);
 		listener.addMessageHandler(handler);
+		builder.addMessageHandler(handler);
 	}
 
 	public void run() {

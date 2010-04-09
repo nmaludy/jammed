@@ -3,6 +3,7 @@ package com.jammed.app;
 
 import com.jammed.gen.Protos.Directive;
 
+import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.MessageLite;
 
 import java.util.List;
@@ -19,6 +20,12 @@ public class DirectiveHandler extends PacketHandler<Directive> {
 		return (message instanceof Directive);
 	}
 	
+	public boolean isMessageSupported (final int type) {
+		final Directive.Builder builder = Directive.newBuilder();
+		
+		return builder.getType().ordinal() == type;
+	}
+	
 	public int type (final MessageLite message) {
 		if (!(message instanceof Directive)) {
 			throw new IllegalArgumentException();
@@ -27,6 +34,17 @@ public class DirectiveHandler extends PacketHandler<Directive> {
 		final Directive directive = (Directive)message;
 		
 		return directive.getType().ordinal();
+	}
+	
+	public Directive mergeFrom (final byte[] data) {
+		try {
+			final Directive.Builder builder = Directive.newBuilder();
+			builder.mergeFrom(data);
+			
+			return builder.build();
+		} catch (final InvalidProtocolBufferException ipbe) {
+			return null;
+		}
 	}
 	
 	public boolean handleMessage (final MessageLite message) {
@@ -42,6 +60,7 @@ public class DirectiveHandler extends PacketHandler<Directive> {
 			// This is a message for us
 			final List<String> m = directive.getDirectiveList();
 			display.setMessage(m);
+			
 		}
 		
 		return true;

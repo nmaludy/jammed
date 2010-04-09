@@ -2,6 +2,7 @@ package gen;
 
 option java_package         = "com.jammed.gen";
 option java_outer_classname = "ProtoType";
+option optimize_for         = LITE_RUNTIME;
 
 message Message {
 	enum Type {

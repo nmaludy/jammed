@@ -210,7 +210,7 @@ public class MulticastListener implements Runnable {
 			offset += packet.getData().length;
 		}
 		
-		handleMessage(Packet.getMessage(data, type));
+		handleMessage(PacketBuilder.getInstance().buildMessage(data, type));
 	}
 	
 	protected void handleMessage (final MessageLite message) {
