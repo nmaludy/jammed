@@ -8,6 +8,7 @@
 	<property name="build.dir" value="build"/>
 	<property name="lib.dir" value="lib" />
 	<property name="dist.dir"  value="dist"/>
+	<property name="doc.dir"  value="javadoc"/>
 	<property name="protobuf.dir"  value="${src.dir}/protobuf"/>
 	<property name="jar" value="${dist.dir}/jammed.jar"/>
 	<property name="main-class" value="com.jammed.app.FullscreenMain"/> <!-- name of name class (without the .java) -->
@@ -84,6 +85,22 @@
 			<!-- replace SRCFILE with the relative path of each .proto file contained in the current working directory-->
 			<fileset dir="." includes="**/*.proto"/>
 		</apply>
+	</target>
+	
+	<target name="document">
+		<javadoc
+			access="public"
+			destdir="${doc.dir}"
+			author="true"
+			version="true"
+			use="true"
+			windowtitle="Jammed API"
+		>	
+		
+		<fileset dir="${src.dir}" defaultexcludes="yes">
+			<include name="**/*.java"/>
+			</fileset>
+		</javadoc>
 	</target>
 
 </project>

@@ -17,6 +17,7 @@ message Media {
 	optional string name   = 5;
 	optional string artist = 6;
 	optional string album  = 7;
+	optional bytes  file   = 8;
 }
 
 message Playlist {
@@ -56,19 +57,21 @@ message Directive {
 message PlayRequest {
 	required Message.Type type = 1 [default = PLAY_REQUEST];
 	
-	required bool video    = 2;
+	required bool   video  = 2;
 	required string host   = 3;
+	required Media  media  = 4;
 	
-	required int32 request = 4;
+	required int32 request = 5;
 }
 
 message PlayResponse {
 	required Message.Type type = 1 [default = PLAY_RESPONSE];
 	
-	required string adress   = 2;
+	required string address  = 2;
 	required int32 videoPort = 3;
 	required int32 auidoPort = 4;
 	
-	required int32 request = 5;
+	required int32 request   = 5;
+	optional Media media     = 6;
 }
 
