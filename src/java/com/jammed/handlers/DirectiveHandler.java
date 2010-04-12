@@ -1,5 +1,9 @@
 
-package com.jammed.app;
+package com.jammed.handlers;
+
+import com.jammed.app.PacketHandler;
+import com.jammed.app.MessageBox;
+import com.jammed.app.Cloud;
 
 import com.jammed.gen.MessageProtos.Directive;
 

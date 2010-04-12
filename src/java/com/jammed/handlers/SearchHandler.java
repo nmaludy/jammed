@@ -1,5 +1,9 @@
 
-package com.jammed.app;
+package com.jammed.handlers;
+
+import com.jammed.app.Cloud;
+import com.jammed.app.Librarian;
+import com.jammed.app.PacketHandler;
 
 import com.jammed.gen.MediaProtos.Playlist;
 import com.jammed.gen.MessageProtos.Search;
