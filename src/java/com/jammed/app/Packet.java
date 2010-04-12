@@ -1,11 +1,11 @@
 
 package com.jammed.app;
 
-import com.jammed.app.Protos.Playlist;
-import com.jammed.app.Protos.Search;
-import com.jammed.app.Protos.Directive;
+import com.jammed.gen.Protos.Playlist;
+import com.jammed.gen.Protos.Search;
+import com.jammed.gen.Protos.Directive;
 
-import com.jammed.app.ProtocolMessage.Message;
+import com.jammed.gen.ProtoType.Message;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.MessageLite;
@@ -20,7 +20,7 @@ public class Packet implements Comparable<Packet> {
 		
 		if (isFinished() && (this.header.getSequence() == 0)) {
 			// Single packet message
-			this.message = getMessage(data, this.header.getType());
+			this.message = PacketBuilder.getInstance().buildMessage(data, this.header.getType());
 			this.data    = null;
 		} else {
 			// Multi-packet message
@@ -48,37 +48,6 @@ public class Packet implements Comparable<Packet> {
 	
 	public byte[] getData() {
 		return data;
-	}
-	
-	public static MessageLite getMessage (final byte[] data, final int type) {
-		try {
-			switch (Message.Type.valueOf(type)) {
-				case PLAYLIST:
-					final Playlist.Builder playlistBuilder =
-						Playlist.newBuilder();
-					playlistBuilder.mergeFrom(data);
-					
-					return playlistBuilder.build();
-					
-				case SEARCH:
-					final Search.Builder searchBuilder = Search.newBuilder();
-					searchBuilder.mergeFrom(data);
-					
-					return searchBuilder.build();
-				
-				case DIRECTIVE:
-					final Directive.Builder directiveBuilder = Directive.newBuilder();
-					directiveBuilder.mergeFrom(data);
-					
-					return directiveBuilder.build();
-					
-				default:
-					return null;
-			}
-		} catch (final InvalidProtocolBufferException ipbe) {
-			ipbe.printStackTrace();
-			return null;
-		}
 	}
 	
 	public int compareTo (final Packet other) {

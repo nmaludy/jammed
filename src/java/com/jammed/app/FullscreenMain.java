@@ -1,7 +1,9 @@
 
 package com.jammed.app;
 
-import com.jammed.app.Protos.*;
+import com.jammed.gen.Protos.*;
+
+import com.google.protobuf.MessageLite;
 
 import java.awt.Container;
 import java.awt.GridBagConstraints;
@@ -37,8 +39,9 @@ public class FullscreenMain {
 			final Object source = e.getSource();
 			
 			if (source == button) {
-				FullscreenWindow fw = new FullscreenWindow();
-				message.reset();
+				final FullscreenWindow fw = new FullscreenWindow();
+				message.clear();
+				message.resetPosition();
 				fw.addDrawable(message);
 			} else if (source == send) {
 				send(searchField.getText());
@@ -96,15 +99,17 @@ public class FullscreenMain {
 	
 	private static void send (final String message) {
 		
-		Directive.Builder builder = Directive.newBuilder();
-		
-		builder.setDestination(hostField.getText());
-		builder.setType(builder.getType());
-		
-		for (final String line : message.split(",")) {
-			builder.addMessage(line);
+		for (final String host : hostField.getText().split(",")) {
+			final Directive.Builder builder = Directive.newBuilder();
+			
+			builder.setDestination(host.trim());
+			builder.setType(builder.getType());
+			
+			for (final String line : message.split(",")) {
+				builder.addDirective(line);
+			}
+			
+			cloud.send(builder.build());
 		}
-		
-		cloud.send(builder.build());
 	}
 }

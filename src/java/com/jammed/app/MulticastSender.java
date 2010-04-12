@@ -26,7 +26,7 @@ import java.util.List;
 public class MulticastSender {
 	
 	public static final int   LIMIT = 65000;
-	public static final int   TTL   = 1;
+	public static final int   TTL   = 255;
 	
 	private static final long delay = 250L;
 	
@@ -34,7 +34,7 @@ public class MulticastSender {
 	private final int port;
 	private int source;
 	
-	private final List<PacketHandler> handlers;
+	private final List<PacketHandler<? extends MessageLite>> handlers;
 	
 	public MulticastSender (final String addressName, final int port) {
 		try {
@@ -44,10 +44,10 @@ public class MulticastSender {
 			throw new RuntimeException();
 		}
 		
-		handlers = new ArrayList<PacketHandler>();
+		handlers = new ArrayList<PacketHandler<? extends MessageLite>>();
 	}
 	
-	public void addMessageHandler (final PacketHandler handler) {
+	public void addMessageHandler (final PacketHandler<? extends MessageLite> handler) {
 		this.handlers.add(handler);
 	}
 	
@@ -64,7 +64,7 @@ public class MulticastSender {
 	}
 	
 	public void send (final MessageLite message, final int request) {
-		for (final PacketHandler handler : handlers) {
+		for (final PacketHandler<? extends MessageLite> handler : handlers) {
 			if (handler.isMessageSupported(message)) {
 				send(message, handler.type(message), request);
 			}

@@ -1,6 +1,9 @@
 package com.jammed.app;
 
-import com.jammed.app.Protos.*;
+import com.jammed.gen.Protos.*;
+import com.google.protobuf.MessageLite;
+
+import java.util.*;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -71,6 +74,7 @@ public class Main {
                 createAndShowGUI();
             }
         });
+		
 	}
 	
 	private static void search (final String query) {

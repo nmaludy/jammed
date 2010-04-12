@@ -38,10 +38,14 @@ public class MessageBox implements Drawable {
         this.message.clear();
 		this.message.addAll(message);
 		
-		reset();
+		resetPosition();
     }
 	
-	public void reset() {
+	public void clear() {
+		message.clear();
+	}
+	
+	public void resetPosition() {
 		this.deltaX = random.nextFloat() + 0.1f;
         this.deltaY = random.nextFloat() + 0.1f;
 		
