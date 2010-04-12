@@ -12,7 +12,7 @@
 	<property name="protobuf.dir"  value="${src.dir}/protobuf"/>
 	<property name="jar" value="${dist.dir}/jammed.jar"/>
 	<!-- name of name class (without the .java) -->
-	<property name="main-class" value="com.jammed.app.FullscreenMain"/> 
+	<property name="main-class" value="com.jammed.app.GUI"/> 
 	<property name="protobuf"  value="protoc"/>
 	<property name="protobuf.include"  value="-I=${protobuf.dir}"/>
 	<property name="protobuf.destination"  value="--java_out=${src.dir}/java"/>
