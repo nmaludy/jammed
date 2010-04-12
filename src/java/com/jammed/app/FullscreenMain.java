@@ -3,6 +3,7 @@ package com.jammed.app;
 
 import com.jammed.gen.MediaProtos.*;
 import com.jammed.gen.MessageProtos.*;
+import com.jammed.gen.ProtoBuffer.Request;
 
 import com.google.protobuf.MessageLite;
 
@@ -110,7 +111,9 @@ public class FullscreenMain {
 				builder.addDirective(line);
 			}
 			
-			cloud.send(builder.build());
+			Request request = RequestPool.getInstance().lease();
+			
+			cloud.send(builder.build(), request.getId());
 		}
 	}
 }

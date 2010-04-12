@@ -13,10 +13,10 @@ public class Cloud implements Runnable {
 	private static final String DEFAULT_ADDRESS = "ALL-SYSTEMS.MCAST.NET";
 	private static final int    DEFAULT_PORT    = 4000;
 	
-	private static final byte[] host = getHostAddress();
+	private static final byte[] host     = getHostAddress();
 	private static final String hostName = Checksum.fletcher16(host) + "";
 	
-	private final PacketBuilder builder = PacketBuilder.getInstance();
+	private final PacketBuilder builder  = PacketBuilder.getInstance();
 	private final MulticastListener listener;
 	private final MulticastSender   sender;
 	
@@ -36,15 +36,7 @@ public class Cloud implements Runnable {
 		
 		sender.setSource(Checksum.fletcher16(host));
 		
-		// Default simple searching
-		//this.addMessageHandler(new SearchHandler());
-		//this.addMessageHandler(new PlaylistHandler());
-		
 		(new Thread(this)).start();
-	}
-	
-	public void send (final MessageLite message) {
-		sender.send(message);
 	}
 	
 	public void send (final MessageLite message, final int request) {

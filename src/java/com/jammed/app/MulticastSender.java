@@ -59,10 +59,6 @@ public class MulticastSender {
 		return source;
 	}
 	
-	public void send (final MessageLite message) {
-		send(message, 1);
-	}
-	
 	public void send (final MessageLite message, final int request) {
 		for (final PacketHandler<? extends MessageLite> handler : handlers) {
 			if (handler.isMessageSupported(message)) {
