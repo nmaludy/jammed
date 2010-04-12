@@ -1,9 +1,9 @@
 package gen;
 
-import "message.proto";
+import "prototype.proto";
 
 option java_package         = "com.jammed.gen";
-option java_outer_classname = "Protos";
+option java_outer_classname = "MediaProtos";
 option optimize_for         = LITE_RUNTIME;
 
 message Media {
@@ -23,11 +23,12 @@ message Media {
 message Playlist {
 	required Message.Type type = 1 [default = PLAYLIST];
 	
-	repeated Media  media  = 2;
-	required string host   = 3;
+	repeated Media   media   = 2;
+	required string  host    = 3;
 	
 	// Optional Fields
-	optional int32 request = 4;
+	optional Request request = 4; // Used when a playlist is a response to a
+								  // search request.
 }
 
 message Library {
@@ -36,42 +37,3 @@ message Library {
 	repeated Playlist local  = 2;
 	repeated Playlist remote = 3;
 }
-
-message Search {
-	required Message.Type type = 1 [default = SEARCH];
-	
-	required int32  request = 2;
-	required string query   = 3;
-}
-
-message Directive {
-	required Message.Type type = 1 [default = DIRECTIVE];
-	
-	required string destination = 2;
-	repeated string directive   = 3;
-	
-	// Optional Fields
-	optional string password    = 4;
-}
-
-message PlayRequest {
-	required Message.Type type = 1 [default = PLAY_REQUEST];
-	
-	required bool   video  = 2;
-	required string host   = 3;
-	required Media  media  = 4;
-	
-	required int32 request = 5;
-}
-
-message PlayResponse {
-	required Message.Type type = 1 [default = PLAY_RESPONSE];
-	
-	required string address  = 2;
-	required int32 videoPort = 3;
-	required int32 auidoPort = 4;
-	
-	required int32 request   = 5;
-	optional Media media     = 6;
-}
-

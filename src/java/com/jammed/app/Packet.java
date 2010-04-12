@@ -1,11 +1,11 @@
 
 package com.jammed.app;
 
-import com.jammed.gen.Protos.Playlist;
-import com.jammed.gen.Protos.Search;
-import com.jammed.gen.Protos.Directive;
+import com.jammed.gen.MediaProtos.Playlist;
+import com.jammed.gen.MessageProtos.Search;
+import com.jammed.gen.MessageProtos.Directive;
 
-import com.jammed.gen.ProtoType.Message;
+import com.jammed.gen.ProtoBuffer.Message;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.MessageLite;

@@ -1,8 +1,8 @@
 
 package com.jammed.app;
 
-import com.jammed.gen.Protos.Playlist;
-import com.jammed.gen.Protos.Search;
+import com.jammed.gen.MediaProtos.Playlist;
+import com.jammed.gen.MessageProtos.Search;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.MessageLite;
@@ -50,7 +50,7 @@ public class SearchHandler extends PacketHandler<Search> {
 		
 		final Search search = (Search)message;
 		
-		final int request  = search.getRequest();
+		final int request  = search.getRequest().getId();
 		final String query = search.getQuery();
 		
 		System.out.println("Received search for: " + query);

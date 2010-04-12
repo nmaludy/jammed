@@ -1,7 +1,7 @@
 
 package com.jammed.app;
 
-import com.jammed.gen.Protos.Directive;
+import com.jammed.gen.MessageProtos.Directive;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.MessageLite;

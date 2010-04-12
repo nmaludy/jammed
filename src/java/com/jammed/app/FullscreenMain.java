@@ -1,7 +1,8 @@
 
 package com.jammed.app;
 
-import com.jammed.gen.Protos.*;
+import com.jammed.gen.MediaProtos.*;
+import com.jammed.gen.MessageProtos.*;
 
 import com.google.protobuf.MessageLite;
 

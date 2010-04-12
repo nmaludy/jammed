@@ -1,6 +1,9 @@
 package com.jammed.app;
 
-import com.jammed.gen.Protos.*;
+import com.jammed.gen.MediaProtos.*;
+import com.jammed.gen.MessageProtos.*;
+import com.jammed.gen.ProtoBuffer.*;
+
 import com.google.protobuf.MessageLite;
 
 import java.util.*;
@@ -86,10 +89,15 @@ public class Main {
 		
 		final int request = 69;
 		
+		Request.Builder requestBuilder = Request.newBuilder();
+		requestBuilder.setId(request);
+		requestBuilder.setOrigin("me");
+		requestBuilder.setRelease(false);
+		
 		Search.Builder builder = Search.newBuilder();
 		
 		builder.setQuery(query);
-		builder.setRequest(request);
+		builder.setRequest(requestBuilder.build());
 		builder.setType(builder.getType());
 		
 		Cloud.getInstance().send(builder.build(), request);

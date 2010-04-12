@@ -1,7 +1,7 @@
 
 package com.jammed.app;
 
-import com.jammed.gen.Protos.Playlist;
+import com.jammed.gen.MediaProtos.Playlist;
 
 import java.io.File;
 

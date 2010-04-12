@@ -1,7 +1,7 @@
 
 package com.jammed.app;
 
-import com.jammed.gen.Protos.Media;
+import com.jammed.gen.MediaProtos.Media;
 
 import java.util.HashMap;
 import java.util.Map;
