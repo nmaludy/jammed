@@ -30,10 +30,9 @@ message PlayRequest {
 	
 	required bool    video   = 2;
 	required bool    stream  = 3;
-	required string  host    = 4;
-	required Media   media   = 5;
+	required Media   media   = 4;
 	
-	required Request request = 6;
+	required Request request = 5;
 }
 
 message PlayResponse {

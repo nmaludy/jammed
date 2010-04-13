@@ -1,6 +1,8 @@
 
 package com.jammed.app;
 
+import com.jammed.handlers.*;
+
 import com.jammed.gen.MediaProtos.*;
 import com.jammed.gen.MessageProtos.*;
 import com.jammed.gen.ProtoBuffer.Request;
