@@ -22,7 +22,7 @@ public class Librarian implements ScannerListener {
 	private final EventListenerList libraryListener;
 	private final List<Playlist> localPlaylists;
 	private final List<EventListenerList> localPlaylistListeners;
-	private final String host;
+	private  String host = "192.168.1.1";
 	
 	static class LibrarianHolder {
 		static Librarian instance = new Librarian();
@@ -42,7 +42,8 @@ public class Librarian implements ScannerListener {
 		libraryListener = new EventListenerList();
 		localPlaylists = new ArrayList<Playlist>();
 		localPlaylistListeners = new ArrayList<EventListenerList>();
-		host = Checksum.fletcher16(Cloud.getInstance().getAddress()) + "";
+		//host = Checksum.fletcher16(Cloud.getInstance().getAddress()) + "";
+		host = "192.168.1.1";
 	}
 	
 	public Playlist search (final String query) {

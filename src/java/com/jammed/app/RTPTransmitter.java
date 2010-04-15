@@ -3,6 +3,8 @@ package com.jammed.app;
 import java.awt.Dimension;
 import java.io.IOException;
 import java.net.InetAddress;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import javax.media.Codec;
 import javax.media.ConfigureCompleteEvent;
 import javax.media.Control;
@@ -32,7 +34,9 @@ import javax.media.rtp.SessionAddress;
  *
  * @author nmaludy
  */
-public class RTPTransmitter implements ControllerListener {
+public class RTPTransmitter implements ControllerListener, Runnable {
+
+	private static final ExecutorService executor = Executors.newSingleThreadExecutor();
 
 	// Input MediaLocator
 	// Can be a file or http or capture source
@@ -54,9 +58,12 @@ public class RTPTransmitter implements ControllerListener {
 	 * Otherwise it returns a string with the reason why the setup failed.
 	 */
 	public void start() {
-		createAndConfigureProcessor();
+		executor.execute(this);
 	}
 
+	public void run() {
+		createAndConfigureProcessor();
+	}
 	/**
 	 * Stops the transmission if already started
 	 */
@@ -243,25 +250,27 @@ public class RTPTransmitter implements ControllerListener {
 
 			if (cs[i] instanceof QualityControl
 					  && cs[i] instanceof Owned) {
-				Object owner = ((Owned) cs[i]).getOwner();
+				qc = (QualityControl) cs[i];
+				qc.setQuality(1.0f);
+				//Object owner = ((Owned) cs[i]).getOwner();
 
 				// Check to see if the owner is a Codec.
 				// Then check for the output format.
-				if (owner instanceof Codec) {
-					Format fmts[] = ((Codec) owner).getSupportedOutputFormats(null);
-					for (int j = 0; j < fmts.length; j++) {
-						if (fmts[j].matches(jpegFmt)) {
-							qc = (QualityControl) cs[i];
-							qc.setQuality(val);
-							System.err.println("- Setting quality to "
-									  + val + " on " + qc);
-							break;
-						}
-					}
-				}
-				if (qc != null) {
-					break;
-				}
+//				if (owner instanceof Codec) {
+//					Format fmts[] = ((Codec) owner).getSupportedOutputFormats(null);
+//					for (int j = 0; j < fmts.length; j++) {
+//						if (fmts[j].matches(jpegFmt)) {
+//							qc = (QualityControl) cs[i];
+//							qc.setQuality(val);
+//							System.err.println("- Setting quality to "
+//									  + val + " on " + qc);
+//							break;
+//						}
+//					}
+//				}
+//				if (qc != null) {
+//					break;
+//				}
 			}
 		}
 	}

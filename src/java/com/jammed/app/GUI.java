@@ -9,10 +9,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.net.URL;
+import javax.media.MediaLocator;
 import javax.swing.GroupLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.LayoutStyle;
@@ -135,7 +137,19 @@ public class GUI extends JFrame implements ActionListener {
 			Media m = PlaylistPanel.getInstance().getSelectedMedia();
 			play(m);
 		} else if (e.getSource().equals(nextButton)) {
+			try {
+				JFileChooser fc = new JFileChooser();
+				int returnVal = fc.showOpenDialog(this);
 
+				if (returnVal == JFileChooser.APPROVE_OPTION) {
+					File selectedFile = fc.getSelectedFile();
+					MediaLocator l = new MediaLocator(selectedFile.toURI().toURL());
+					RTPTransmitter t = new RTPTransmitter(l, "224.111.111.111", 5004);
+					t.start();
+				}
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
 		}
 	}
 
