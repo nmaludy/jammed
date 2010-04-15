@@ -1,12 +1,9 @@
 package com.jammed.ui;
 
 import com.jammed.app.Librarian;
-import com.jammed.gen.MediaProtos.Media;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;

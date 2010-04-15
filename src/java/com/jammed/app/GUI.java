@@ -1,18 +1,18 @@
 package com.jammed.app;
 
+import com.jammed.gen.MediaProtos.Media;
 import com.jammed.ui.PlayerPanel;
+import com.jammed.ui.PlaylistPanel;
 import com.jammed.ui.TabbedPanel;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.net.InetAddress;
 import java.net.URL;
 import javax.swing.GroupLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.LayoutStyle;
@@ -28,6 +28,7 @@ import javax.swing.WindowConstants;
 public class GUI extends JFrame implements ActionListener {
 
 	private static final long serialVersionUID = 0;
+	private static GUI INSTANCE;
 	private URL previousURL = GUI.class.getResource("images/rew_gray.png");
 	private URL playPauseURL = GUI.class.getResource("images/play_gray.png");
 	private URL nextURL = GUI.class.getResource("images/ff_gray.png");
@@ -44,7 +45,7 @@ public class GUI extends JFrame implements ActionListener {
 	 *
 	 * TODO: Refactor
 	 */
-	public GUI() {
+	private GUI() {
 		super();
 		GroupLayout layout = new GroupLayout(getContentPane());
 		getContentPane().setLayout(layout);
@@ -100,6 +101,13 @@ public class GUI extends JFrame implements ActionListener {
 		setVisible(true);
 	}
 
+	public static GUI getInstance() {
+		if (INSTANCE == null) {
+			INSTANCE = new GUI();
+		}
+		return INSTANCE;
+	}
+
 	//TODO: Implement icon switching when Allison gets done
 	private void initializeButtonIcons() {
 		previousButton.setRolloverIcon(new ImageIcon("images/rew_color.png"));
@@ -119,24 +127,28 @@ public class GUI extends JFrame implements ActionListener {
 	 * TODO: Handling song switching (next, previous)
 	 */
 	public void actionPerformed(ActionEvent e) {
-		if (e.getSource().equals(this.showPlaylistBox)) {
+		if (e.getSource().equals(showPlaylistBox)) {
 			tabsPanel.setVisible(showPlaylistBox.isSelected());
 			pack();
 		} else if (e.getSource().equals(previousButton)) {
 		} else if (e.getSource().equals(playPauseButton)) {
-			try {
-				final JFileChooser fc = new JFileChooser();
-				int returnVal = fc.showOpenDialog(this);
-
-				if (returnVal == JFileChooser.APPROVE_OPTION) {
-					File selectedFile = fc.getSelectedFile();
-					String selectedUrl = selectedFile.toURI().toURL().toString();
-					controller.playLocalMedia(selectedUrl);
-				}
-			} catch (Exception ex) {
-				ex.printStackTrace();
-			}
+			Media m = PlaylistPanel.getInstance().getSelectedMedia();
+			play(m);
 		} else if (e.getSource().equals(nextButton)) {
+
+		}
+	}
+
+	public void play(Media toPlay) {
+		if (toPlay == null) { //No media to play
+			return;
+		}
+		try {
+			File f = new File(toPlay.getLocation());
+			String selectedUrl = f.toURI().toURL().toString();
+			controller.playLocalMedia(selectedUrl);
+		} catch (Exception ex) {
+			ex.printStackTrace();
 		}
 	}
 
@@ -147,7 +159,7 @@ public class GUI extends JFrame implements ActionListener {
 		javax.swing.SwingUtilities.invokeLater(new Runnable() {
 
 			public void run() {
-				GUI g = new GUI();
+				GUI.getInstance();
 			}
 		});
 	}

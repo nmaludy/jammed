@@ -17,15 +17,16 @@ public class PlayerPanel extends JPanel {
 
 	private static final long serialVersionUID = 2394329L;
 	private final ImageIcon backgroundImage;
+	private final JLabel background;
 	private Player currentPlayer = null;
 
 	private PlayerPanel() {
 		super();
 		backgroundImage = new ImageIcon("images/jammed_logo.png");
-		JLabel backgroundLabel = new JLabel(backgroundImage);
+		background = new JLabel(backgroundImage);
 		BorderLayout layout = new BorderLayout();
 		setLayout(layout);
-		add(backgroundLabel, BorderLayout.CENTER);
+		add(background, BorderLayout.CENTER);
 	}
 
 	public static PlayerPanel create() {
@@ -53,6 +54,8 @@ public class PlayerPanel extends JPanel {
 		if (visualComponent != null) {
 			System.out.println("Adding Video");
 			add(visualComponent, BorderLayout.CENTER);
+		} else {
+			add(background, BorderLayout.CENTER);
 		}
 		Component controlComponent = currentPlayer.getControlPanelComponent();
 		if (controlComponent != null) {
