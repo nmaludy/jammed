@@ -1,5 +1,6 @@
 package com.jammed.app;
 
+import com.jammed.ui.PlayerPanel;
 import javax.media.CachingControlEvent;
 import javax.media.ControllerClosedEvent;
 import javax.media.ControllerErrorEvent;

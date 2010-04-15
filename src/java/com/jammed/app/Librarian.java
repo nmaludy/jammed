@@ -5,13 +5,22 @@ import com.jammed.gen.MediaProtos.Playlist;
 import com.jammed.gen.MediaProtos.Media;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 import java.util.ArrayList;
 import java.util.List;
+import javax.swing.event.EventListenerList;
 
-public class Librarian {
+public class Librarian implements ScannerListener {
+	private File libraryRoot = null;
+	private final File libraryFile;
+	private Playlist library;
+	private final EventListenerList libraryListener;
 	private final List<Playlist> localPlaylists;
-	
+	private final List<EventListenerList> localPlaylistListeners;
 	private final String host;
 	
 	static class LibrarianHolder {
@@ -23,7 +32,15 @@ public class Librarian {
 	}
 	
 	private Librarian() {
+		libraryFile = new File("./library");
+		if(libraryFile.exists()) {
+			library = readLibrary();
+		} else {
+			library = Playlist.getDefaultInstance();
+		}
+		libraryListener = new EventListenerList();
 		localPlaylists = new ArrayList<Playlist>();
+		localPlaylistListeners = new ArrayList<EventListenerList>();
 		host = Checksum.fletcher16(Cloud.getInstance().getAddress()) + "";
 	}
 	
@@ -73,7 +90,83 @@ public class Librarian {
 		
 		if (playlist.getMediaList().size() > 0) {
 			localPlaylists.add(playlist);
+			localPlaylistListeners.add(new EventListenerList());
 		}
 	}
-	
+
+	private Playlist readLibrary() {
+		Playlist.Builder lib = Playlist.newBuilder();
+
+		// Read the existing address book.
+		try {
+			lib.mergeFrom(new FileInputStream(libraryFile));
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return lib.build();
+	}
+
+	private void saveLibrary() {
+		try {
+			FileOutputStream output = new FileOutputStream(libraryFile);
+			library.writeTo(output);
+			output.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public Playlist getLibrary() {
+		return Playlist.getDefaultInstance();
+		//return library;
+	}
+
+	public void refreshLibrary() {
+		FileSystemScanner.start(libraryRoot, this);
+	}
+
+	public void setLibraryRoot(File root) {
+		libraryRoot = root;
+		refreshLibrary();
+	}
+
+	public Playlist getPlaylist(int index) {
+		return localPlaylists.get(index);
+	}
+
+	public void scanCompleted(Playlist result) {
+		System.out.println("Scan complete!");
+		library = result;
+		PlaylistEvent e = PlaylistEvent.create(result, PlaylistEvent.Type.REPLACE, 0, 0);
+		firePlaylistEvent(libraryListener, e);
+
+		saveLibrary();
+	}
+
+	public void addLibraryListener(PlaylistListener l) {
+		libraryListener.add(PlaylistListener.class, l);
+	}
+
+	public void removeLibraryListener(PlaylistListener l) {
+		libraryListener.remove(PlaylistListener.class, l);
+	}
+
+	public void addPlaylistListener(PlaylistListener l, int playlistIndex) {
+		localPlaylistListeners.get(playlistIndex).add(PlaylistListener.class, l);
+	}
+
+	public void removePlaylistListener(PlaylistListener l, int playlistIndex) {
+		localPlaylistListeners.get(playlistIndex).remove(PlaylistListener.class, l);
+	}
+
+	protected void firePlaylistEvent(EventListenerList list, PlaylistEvent event) {
+		Object[] listeners = list.getListenerList();
+		for (int i = listeners.length - 2; i >= 0; i -= 2) {
+			if (listeners[i] == PlaylistListener.class) {
+				((PlaylistListener) listeners[i + 1]).playlistChanged(event);
+			}
+		}
+	}
 }

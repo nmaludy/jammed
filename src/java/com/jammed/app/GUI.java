@@ -1,9 +1,12 @@
 package com.jammed.app;
 
+import com.jammed.ui.PlayerPanel;
+import com.jammed.ui.TabbedPanel;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.net.InetAddress;
 import java.net.URL;
 import javax.swing.GroupLayout;
 import javax.swing.ImageIcon;
@@ -11,12 +14,10 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
+import javax.swing.JPanel;
 import javax.swing.LayoutStyle;
 import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
-import javax.swing.table.TableColumn;
 
 /*
  * TODO: Convert to completely custom controls and remove JMF controls.
@@ -34,11 +35,8 @@ public class GUI extends JFrame implements ActionListener {
     private JButton playPauseButton = new JButton(new ImageIcon(playPauseURL));
     private JButton nextButton = new JButton(new ImageIcon(nextURL));
     private JCheckBox showPlaylistBox = new JCheckBox("Show Playlist");
-    private PlayerPanel playerPanel = new PlayerPanel();
-    private String[] tableColumns = {"Title", "Duration"};
-    private Object[][] tableFormat = new Object[5][2];
-    private JTable table = new JTable(tableFormat, tableColumns);
-    private JScrollPane tablePanel = new JScrollPane(table);
+    private PlayerPanel playerPanel = PlayerPanel.create();
+    private JPanel tabsPanel = TabbedPanel.create();
     private MediaController controller = MediaController.getInstance();
 
     /*
@@ -64,7 +62,7 @@ public class GUI extends JFrame implements ActionListener {
 		        .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
 		        .addComponent(showPlaylistBox)))
 		.addGroup(layout.createSequentialGroup()
-		    .addComponent(tablePanel)));
+		    .addComponent(tabsPanel)));
 
 	layout.setVerticalGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
 		.addGroup(layout.createSequentialGroup()
@@ -76,7 +74,7 @@ public class GUI extends JFrame implements ActionListener {
 			.addComponent(nextButton)
 			.addComponent(showPlaylistBox)))
 		.addGroup(layout.createSequentialGroup()
-		    .addComponent(tablePanel)));
+		    .addComponent(tabsPanel)));
 
 
 	layout.linkSize(SwingConstants.VERTICAL, previousButton, playPauseButton, nextButton, showPlaylistBox);
@@ -92,32 +90,7 @@ public class GUI extends JFrame implements ActionListener {
 
 	controller.setPlayerPanel(playerPanel);
 
-	table.setValueAt("Song1.mp3", 0, 0);
-	table.setValueAt("1:30", 0, 1);
-	table.setValueAt("Movie1.mov", 1, 0);
-	table.setValueAt("1:25:02", 1, 1);
-	table.setValueAt("Song_xyx.mp3", 2, 0);
-	table.setValueAt("8:56", 2, 1);
-	table.setValueAt("Movie_abc.mov", 3, 0);
-	table.setValueAt("2:30:01", 3, 1);
-	table.setValueAt("abc.mov", 4, 0);
-	table.setValueAt("99:30:01", 4, 1);
-	table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-
-	TableColumn column = null;
-	for (int i = 0; i < table.getColumnCount(); i++) {
-	    column = table.getColumnModel().getColumn(i);
-	    if (i == 1) {
-		column.setPreferredWidth(80);
-	    } else {
-		column.setPreferredWidth(280);
-	    }
-	}
-	table.setPreferredScrollableViewportSize(table.getPreferredSize());
-	table.setAutoCreateRowSorter(true);
-	table.getRowSorter().toggleSortOrder(0);
-	tablePanel.setVisible(false);
-	tablePanel.doLayout();
+	tabsPanel.setVisible(false);
 
 	initializeButtonIcons();
 
@@ -147,7 +120,7 @@ public class GUI extends JFrame implements ActionListener {
      */
     public void actionPerformed(ActionEvent e) {
 	if (e.getSource().equals(this.showPlaylistBox)) {
-	    tablePanel.setVisible(showPlaylistBox.isSelected());
+	    tabsPanel.setVisible(showPlaylistBox.isSelected());
 	    pack();
 	} else if (e.getSource().equals(previousButton)) {
 	} else if (e.getSource().equals(playPauseButton)) {

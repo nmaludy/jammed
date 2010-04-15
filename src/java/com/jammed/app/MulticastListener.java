@@ -27,6 +27,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.net.MulticastSocket;
 import java.net.DatagramPacket;
+import java.util.concurrent.BlockingQueue;
 
 public class MulticastListener implements Runnable {
 	
@@ -36,7 +37,7 @@ public class MulticastListener implements Runnable {
 	private static final int poolSize = 10;
 	
 	private final ExecutorService pool;
-	private final List<Future<Packet>> results;
+	private final BlockingQueue<Future<Packet>> results;
 	private final List<PacketHandler<? extends MessageLite>> handlers;
 	private final Map<Integer, SortedSet<Packet>> completed;
 	
@@ -55,7 +56,7 @@ public class MulticastListener implements Runnable {
         tpe.prestartAllCoreThreads();
 		
 		pool      = tpe;
-		results   = Collections.synchronizedList(new ArrayList<Future<Packet>>());
+		results   = new LinkedBlockingQueue<Future<Packet>>();
 		completed = Collections.synchronizedMap(new HashMap<Integer, SortedSet<Packet>>());
 		handlers  = new ArrayList<PacketHandler<? extends MessageLite>>();
 		
@@ -88,10 +89,12 @@ public class MulticastListener implements Runnable {
 					final Callable<Packet> callable   = new PacketExecutor(dp);
 					final Future<Packet> futurePacket = pool.submit(callable);
 					
-					results.add(futurePacket);
+					results.put(futurePacket);
 				}
 			} catch (final IOException ioe) {
 				ioe.printStackTrace();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
 			} finally {
 				if (ms != null) {
 					try {
@@ -131,43 +134,36 @@ public class MulticastListener implements Runnable {
 	}
 	
 	protected List<Integer> completedRequests() {
-		
+
 		final List<Integer> finishedRequests = new ArrayList<Integer>();
-		
-		if (results.size() == 0 || !isPoolFinished()) {
-			return finishedRequests;
-		}
-		
+
+//		if (results.size() == 0 || !isPoolFinished()) {
+//			return finishedRequests;
+//		}
+
 		try {
-			synchronized (results) {
-				for (final Iterator<Future<Packet>> iter = results.iterator();
-						iter.hasNext();) {
-				
-					final Future<Packet> futurePacket = iter.next();
-					
-					final Packet packet = futurePacket.get();
-					final int request   = packet.getPacketHeader().getRequest();
-					
-					SortedSet<Packet> packets = completed.remove(request);
-					
-					if (packets == null) {
-						packets = new TreeSet<Packet>();
-					}
-					
-					synchronized (packets) {
-						packets.add(packet);
-					}
-					
-					completed.put(request, packets);
-					iter.remove();
-					
-					if (packet.isFinished()) {
-						finishedRequests.add(request);
-					}
-				}
+			final Future<Packet> futurePacket = results.take();
+			final Packet packet = futurePacket.get();
+			final int request = packet.getPacketHeader().getRequest();
+
+			SortedSet<Packet> packets = completed.remove(request);
+
+			if (packets == null) {
+				packets = new TreeSet<Packet>();
 			}
-		} catch (final Exception e) { }
-		
+
+			synchronized (packets) {
+				packets.add(packet);
+			}
+
+			completed.put(request, packets);
+
+			if (packet.isFinished()) {
+				finishedRequests.add(request);
+			}
+		} catch (final Exception e) {
+		}
+
 		return finishedRequests;
 	}
 	
