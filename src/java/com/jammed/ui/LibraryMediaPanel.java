@@ -67,12 +67,11 @@ public class LibraryMediaPanel extends JPanel implements ActionListener{
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource().equals(addButton)) {
-			List<Media> selected = new ArrayList<Media>();
 			int[] selectedIndexes = table.getSelectedRows();
+			int index = PlaylistPanel.getInstance().getCurrentPlaylistIndex();
 			for(int i : selectedIndexes) {
-				selected.add(model.getMedia(i));
-			}
-			PlaylistPanel.getInstance().addAll(selected);
+				Librarian.getInstance().addMediaToPlaylist(model.getMedia(i), index);
+			}			
 		} else if (e.getSource().equals(selectButton)) {
 			try {
 				JFileChooser fc = new JFileChooser();

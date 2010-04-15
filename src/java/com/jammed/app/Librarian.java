@@ -3,6 +3,7 @@ package com.jammed.app;
 
 import com.jammed.gen.MediaProtos.Playlist;
 import com.jammed.gen.MediaProtos.Media;
+import com.jammed.gen.ProtoBuffer.Message.Type;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -36,7 +37,7 @@ public class Librarian implements ScannerListener {
 		if(libraryFile.exists()) {
 			library = readLibrary();
 		} else {
-			library = Playlist.getDefaultInstance();
+			library = createEmptyPlaylist();
 		}
 		libraryListener = new EventListenerList();
 		localPlaylists = new ArrayList<Playlist>();
@@ -94,6 +95,19 @@ public class Librarian implements ScannerListener {
 		}
 	}
 
+	public Playlist createEmptyPlaylist() {
+		Playlist.Builder builder = Playlist.newBuilder()
+														.setHost(host)
+														.setType(Type.PLAYLIST);
+		return builder.build();
+	}
+
+	public int addEmptyPlaylist() {
+		localPlaylists.add(createEmptyPlaylist());
+		localPlaylistListeners.add(new EventListenerList());
+		return localPlaylists.size() - 1;
+	}
+
 	private Playlist readLibrary() {
 		Playlist.Builder lib = Playlist.newBuilder();
 
@@ -119,8 +133,7 @@ public class Librarian implements ScannerListener {
 	}
 
 	public Playlist getLibrary() {
-		return Playlist.getDefaultInstance();
-		//return library;
+		return library;
 	}
 
 	public void refreshLibrary() {
@@ -137,7 +150,6 @@ public class Librarian implements ScannerListener {
 	}
 
 	public void scanCompleted(Playlist result) {
-		System.out.println("Scan complete!");
 		library = result;
 		PlaylistEvent e = PlaylistEvent.create(result, PlaylistEvent.Type.REPLACE, 0, 0);
 		firePlaylistEvent(libraryListener, e);
@@ -168,5 +180,24 @@ public class Librarian implements ScannerListener {
 				((PlaylistListener) listeners[i + 1]).playlistChanged(event);
 			}
 		}
+	}
+
+	public void addMediaToPlaylist(Media m, int playlistIndex) {
+		List<Media> list = new ArrayList<Media>();
+		list.add(m);
+		addMediaToPlaylist(list, playlistIndex);
+	}
+
+	public void addMediaToPlaylist(List<Media> m, int playlistIndex) {
+		Playlist list = localPlaylists.get(playlistIndex);
+		int startIndex = list.getMediaCount();
+
+		Playlist.Builder builder = Playlist.newBuilder(list);
+		list = builder.addAllMedia(m).build();
+		localPlaylists.set(playlistIndex, list);
+
+		int endIndex = list.getMediaCount() - 1;
+		PlaylistEvent e = PlaylistEvent.create(list, PlaylistEvent.Type.ADD, startIndex,  endIndex);
+		firePlaylistEvent(localPlaylistListeners.get(playlistIndex), e);
 	}
 }

@@ -27,128 +27,128 @@ import javax.swing.WindowConstants;
  */
 public class GUI extends JFrame implements ActionListener {
 
-    private static final long serialVersionUID = 0;
-    private URL previousURL = GUI.class.getResource("images/rew_gray.png");
-    private URL playPauseURL = GUI.class.getResource("images/play_gray.png");
-    private URL nextURL = GUI.class.getResource("images/ff_gray.png");
-    private JButton previousButton = new JButton(new ImageIcon(previousURL));
-    private JButton playPauseButton = new JButton(new ImageIcon(playPauseURL));
-    private JButton nextButton = new JButton(new ImageIcon(nextURL));
-    private JCheckBox showPlaylistBox = new JCheckBox("Show Playlist");
-    private PlayerPanel playerPanel = PlayerPanel.create();
-    private JPanel tabsPanel = TabbedPanel.create();
-    private MediaController controller = MediaController.getInstance();
+	private static final long serialVersionUID = 0;
+	private URL previousURL = GUI.class.getResource("images/rew_gray.png");
+	private URL playPauseURL = GUI.class.getResource("images/play_gray.png");
+	private URL nextURL = GUI.class.getResource("images/ff_gray.png");
+	private JButton previousButton = new JButton(new ImageIcon(previousURL));
+	private JButton playPauseButton = new JButton(new ImageIcon(playPauseURL));
+	private JButton nextButton = new JButton(new ImageIcon(nextURL));
+	private JCheckBox showPlaylistBox = new JCheckBox("Show Playlist");
+	private PlayerPanel playerPanel = PlayerPanel.create();
+	private JPanel tabsPanel = TabbedPanel.create();
+	private MediaController controller = MediaController.getInstance();
 
-    /*
-     * Initialze and layout all GUI components.
-     *
-     * TODO: Refactor
-     */
-    public GUI() {
-	super();
-	GroupLayout layout = new GroupLayout(getContentPane());
-	getContentPane().setLayout(layout);
+	/*
+	 * Initialze and layout all GUI components.
+	 *
+	 * TODO: Refactor
+	 */
+	public GUI() {
+		super();
+		GroupLayout layout = new GroupLayout(getContentPane());
+		getContentPane().setLayout(layout);
 
-	layout.setAutoCreateGaps(true);
-	layout.setHorizontalGroup(layout.createSequentialGroup()
-		.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-		    .addGroup(layout.createSequentialGroup()
-			.addComponent(playerPanel, 0,GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-		    .addGroup(GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-		        .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-		        .addComponent(previousButton)
-		        .addComponent(playPauseButton)
-		        .addComponent(nextButton)
-		        .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-		        .addComponent(showPlaylistBox)))
-		.addGroup(layout.createSequentialGroup()
-		    .addComponent(tabsPanel)));
+		layout.setAutoCreateGaps(true);
+		layout.setHorizontalGroup(layout.createSequentialGroup()
+				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
+					.addGroup(layout.createSequentialGroup()
+						.addComponent(playerPanel, 0, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+					.addGroup(GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+						.addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+						.addComponent(previousButton)
+						.addComponent(playPauseButton)
+						.addComponent(nextButton)
+						.addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+						.addComponent(showPlaylistBox)))
+				.addGroup(layout.createSequentialGroup()
+					.addComponent(tabsPanel)));
 
-	layout.setVerticalGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-		.addGroup(layout.createSequentialGroup()
-		    .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-			.addComponent(playerPanel))
-		    .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-			.addComponent(previousButton)
-			.addComponent(playPauseButton)
-			.addComponent(nextButton)
-			.addComponent(showPlaylistBox)))
-		.addGroup(layout.createSequentialGroup()
-		    .addComponent(tabsPanel)));
+		layout.setVerticalGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+				.addGroup(layout.createSequentialGroup()
+					.addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+						.addComponent(playerPanel))
+					.addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+						.addComponent(previousButton)
+						.addComponent(playPauseButton)
+						.addComponent(nextButton)
+						.addComponent(showPlaylistBox)))
+				.addGroup(layout.createSequentialGroup()
+					.addComponent(tabsPanel)));
 
 
-	layout.linkSize(SwingConstants.VERTICAL, previousButton, playPauseButton, nextButton, showPlaylistBox);
+		layout.linkSize(SwingConstants.VERTICAL, previousButton, playPauseButton, nextButton, showPlaylistBox);
 
-	previousButton.setBackground(Color.white);
-	playPauseButton.setBackground(Color.white);
-	nextButton.setBackground(Color.white);
+		previousButton.setBackground(Color.white);
+		playPauseButton.setBackground(Color.white);
+		nextButton.setBackground(Color.white);
 
-	previousButton.addActionListener(this);
-	playPauseButton.addActionListener(this);
-	nextButton.addActionListener(this);
-	showPlaylistBox.addActionListener(this);
+		previousButton.addActionListener(this);
+		playPauseButton.addActionListener(this);
+		nextButton.addActionListener(this);
+		showPlaylistBox.addActionListener(this);
 
-	controller.setPlayerPanel(playerPanel);
+		controller.setPlayerPanel(playerPanel);
 
-	tabsPanel.setVisible(false);
+		tabsPanel.setVisible(false);
 
-	initializeButtonIcons();
+		initializeButtonIcons();
 
-	setTitle("Jammed!");
-	pack();
-	setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-	setVisible(true);
-    }
-
-    //TODO: Implement icon switching when Allison gets done
-    private void initializeButtonIcons() {
-	previousButton.setRolloverIcon(new ImageIcon("images/rew_color.png"));
-	previousButton.setPressedIcon(new ImageIcon("images/rew_color.png"));
-	previousButton.setRolloverEnabled(true);
-	playPauseButton.setRolloverIcon(new ImageIcon("images/play_color.png"));
-	playPauseButton.setPressedIcon(new ImageIcon("images/play_color.png"));
-	playPauseButton.setRolloverEnabled(true);
-	nextButton.setRolloverIcon(new ImageIcon("images/ff_color.png"));
-	nextButton.setPressedIcon(new ImageIcon("images/ff_color.png"));
-	nextButton.setRolloverEnabled(true);
-    }
-
-    /*
-     * Handle events for the tableCheckBox and selectComboBox components
-     *
-     * TODO: Handling song switching (next, previous)
-     */
-    public void actionPerformed(ActionEvent e) {
-	if (e.getSource().equals(this.showPlaylistBox)) {
-	    tabsPanel.setVisible(showPlaylistBox.isSelected());
-	    pack();
-	} else if (e.getSource().equals(previousButton)) {
-	} else if (e.getSource().equals(playPauseButton)) {
-	    try {
-		final JFileChooser fc = new JFileChooser();
-		int returnVal = fc.showOpenDialog(this);
-
-		if (returnVal == JFileChooser.APPROVE_OPTION) {
-		    File selectedFile = fc.getSelectedFile();
-		    String selectedUrl = selectedFile.toURI().toURL().toString();
-		    controller.playLocalMedia(selectedUrl);
-		}
-	    } catch (Exception ex) {
-		ex.printStackTrace();
-	    }
-	} else if (e.getSource().equals(nextButton)) {
+		setTitle("Jammed!");
+		pack();
+		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+		setVisible(true);
 	}
-    }
 
-    /*
-     * Initializes a new instance of GUI and schedules it for launch.
-     */
-    public static void main(String[] args) throws Exception {
-	javax.swing.SwingUtilities.invokeLater(new Runnable() {
+	//TODO: Implement icon switching when Allison gets done
+	private void initializeButtonIcons() {
+		previousButton.setRolloverIcon(new ImageIcon("images/rew_color.png"));
+		previousButton.setPressedIcon(new ImageIcon("images/rew_color.png"));
+		previousButton.setRolloverEnabled(true);
+		playPauseButton.setRolloverIcon(new ImageIcon("images/play_color.png"));
+		playPauseButton.setPressedIcon(new ImageIcon("images/play_color.png"));
+		playPauseButton.setRolloverEnabled(true);
+		nextButton.setRolloverIcon(new ImageIcon("images/ff_color.png"));
+		nextButton.setPressedIcon(new ImageIcon("images/ff_color.png"));
+		nextButton.setRolloverEnabled(true);
+	}
 
-	    public void run() {
-		GUI g = new GUI();
-	    }
-	});
-    }
+	/*
+	 * Handle events for the tableCheckBox and selectComboBox components
+	 *
+	 * TODO: Handling song switching (next, previous)
+	 */
+	public void actionPerformed(ActionEvent e) {
+		if (e.getSource().equals(this.showPlaylistBox)) {
+			tabsPanel.setVisible(showPlaylistBox.isSelected());
+			pack();
+		} else if (e.getSource().equals(previousButton)) {
+		} else if (e.getSource().equals(playPauseButton)) {
+			try {
+				final JFileChooser fc = new JFileChooser();
+				int returnVal = fc.showOpenDialog(this);
+
+				if (returnVal == JFileChooser.APPROVE_OPTION) {
+					File selectedFile = fc.getSelectedFile();
+					String selectedUrl = selectedFile.toURI().toURL().toString();
+					controller.playLocalMedia(selectedUrl);
+				}
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
+		} else if (e.getSource().equals(nextButton)) {
+		}
+	}
+
+	/*
+	 * Initializes a new instance of GUI and schedules it for launch.
+	 */
+	public static void main(String[] args) throws Exception {
+		javax.swing.SwingUtilities.invokeLater(new Runnable() {
+
+			public void run() {
+				GUI g = new GUI();
+			}
+		});
+	}
 }

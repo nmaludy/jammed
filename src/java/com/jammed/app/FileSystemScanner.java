@@ -41,8 +41,7 @@ public class FileSystemScanner {
 	}
 
 	private void scan(File root, ScannerListener listener) {
-		Scanner s = new Scanner(root, listener);
-		s.run();
+		executor.execute(new Scanner(root, listener));
 	}
 
 	private class Scanner implements Runnable {
