@@ -2,6 +2,7 @@ package com.jammed.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.net.URL;
 import javax.media.Player;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
@@ -16,13 +17,15 @@ import javax.swing.JPanel;
 public class PlayerPanel extends JPanel {
 
 	private static final long serialVersionUID = 2394329L;
+	private final URL imageURL;
 	private final ImageIcon backgroundImage;
 	private final JLabel background;
 	private Player currentPlayer = null;
 
 	private PlayerPanel() {
 		super();
-		backgroundImage = new ImageIcon("images/jammed_logo.png");
+		imageURL = this.getClass().getResource("/images/jammed_logo.png");
+		backgroundImage = new ImageIcon(imageURL);
 		background = new JLabel(backgroundImage);
 		BorderLayout layout = new BorderLayout();
 		setLayout(layout);

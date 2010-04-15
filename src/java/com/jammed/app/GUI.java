@@ -31,9 +31,12 @@ public class GUI extends JFrame implements ActionListener {
 
 	private static final long serialVersionUID = 0;
 	private static GUI INSTANCE;
-	private URL previousURL = GUI.class.getResource("images/rew_gray.png");
-	private URL playPauseURL = GUI.class.getResource("images/play_gray.png");
-	private URL nextURL = GUI.class.getResource("images/ff_gray.png");
+	private URL previousURL = this.getClass().getResource("/images/rew_gray.png");
+	private URL previousColorURL = this.getClass().getResource("/images/rew_color.png");
+	private URL playPauseURL = this.getClass().getResource("/images/play_gray.png");
+	private URL playPauseColorURL =this.getClass().getResource("/images/play_color.png");
+	private URL nextURL = this.getClass().getResource("/images/ff_gray.png");
+	private URL nextColorURL = this.getClass().getResource("/images/ff_color.png");
 	private JButton previousButton = new JButton(new ImageIcon(previousURL));
 	private JButton playPauseButton = new JButton(new ImageIcon(playPauseURL));
 	private JButton nextButton = new JButton(new ImageIcon(nextURL));
@@ -112,14 +115,14 @@ public class GUI extends JFrame implements ActionListener {
 
 	//TODO: Implement icon switching when Allison gets done
 	private void initializeButtonIcons() {
-		previousButton.setRolloverIcon(new ImageIcon("images/rew_color.png"));
-		previousButton.setPressedIcon(new ImageIcon("images/rew_color.png"));
+		previousButton.setRolloverIcon(new ImageIcon(previousColorURL));
+		previousButton.setPressedIcon(new ImageIcon(previousColorURL));
 		previousButton.setRolloverEnabled(true);
-		playPauseButton.setRolloverIcon(new ImageIcon("images/play_color.png"));
-		playPauseButton.setPressedIcon(new ImageIcon("images/play_color.png"));
+		playPauseButton.setRolloverIcon(new ImageIcon(playPauseColorURL));
+		playPauseButton.setPressedIcon(new ImageIcon(playPauseColorURL));
 		playPauseButton.setRolloverEnabled(true);
-		nextButton.setRolloverIcon(new ImageIcon("images/ff_color.png"));
-		nextButton.setPressedIcon(new ImageIcon("images/ff_color.png"));
+		nextButton.setRolloverIcon(new ImageIcon(nextColorURL));
+		nextButton.setPressedIcon(new ImageIcon(nextColorURL));
 		nextButton.setRolloverEnabled(true);
 	}
 

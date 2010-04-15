@@ -21,7 +21,7 @@
 		<mkdir dir="${dist.dir}/"/>
 		<mkdir dir="${build.dir}"/>
 		<!-- Move all images in the ./images/ directory into build/org/jammed/images -->
-		<copy todir="${build.dir}/com/jammed/app/images">
+		<copy todir="${build.dir}/images">
 			<fileset dir="images"/>
 		</copy>
 	</target>
