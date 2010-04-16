@@ -147,7 +147,7 @@ public class GUI extends JFrame implements ActionListener {
 				if (returnVal == JFileChooser.APPROVE_OPTION) {
 					File selectedFile = fc.getSelectedFile();
 					MediaLocator l = new MediaLocator(selectedFile.toURI().toURL());
-					RTPTransmitter t = new RTPTransmitter(l, "224.111.111.111", 5004);
+					RTPTransmitter t = new RTPTransmitter(l, "224.111.111.112", 5006);
 					t.start();
 				}
 			} catch (Exception ex) {

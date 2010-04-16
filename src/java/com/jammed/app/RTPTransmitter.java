@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import javax.media.Codec;
 import javax.media.ConfigureCompleteEvent;
 import javax.media.Control;
 import javax.media.ControllerEvent;
@@ -19,8 +18,10 @@ import javax.media.Owned;
 import javax.media.Player;
 import javax.media.Processor;
 import javax.media.RealizeCompleteEvent;
+import javax.media.control.BitRateControl;
 import javax.media.control.QualityControl;
 import javax.media.control.TrackControl;
+import javax.media.format.AudioFormat;
 import javax.media.format.VideoFormat;
 import javax.media.protocol.ContentDescriptor;
 import javax.media.protocol.DataSource;
@@ -110,22 +111,37 @@ public class RTPTransmitter implements ControllerListener, Runnable {
 			System.err.println("Couldn't find tracks in processor");
 			return;
 		}
+		//Only allow supported RTP payload formats
 		ContentDescriptor cd = new ContentDescriptor(ContentDescriptor.RAW_RTP);
 		processor.setContentDescriptor(cd);
 
 		Format supported[];
 		Format chosen;
 		boolean atLeastOneTrack = false;
-
+		
+		double audioQuality = 0.0;
+		float videoQuality = 0.0f;
 		// Program the tracks.
 		for (int i = 0; i < tracks.length; i++) {
 			if (tracks[i].isEnabled()) {
 				supported = tracks[i].getSupportedFormats();
 				if (supported.length > 0) {
-					if (supported[0] instanceof VideoFormat) {
-						chosen = checkForVideoSizes(tracks[i].getFormat(), supported[0]);
-					} else {
-						chosen = supported[0];
+					chosen = supported[0]; //default
+					for (int j = 0; j < supported.length; j++) {
+						if (supported[i] instanceof VideoFormat) {
+							//chosen = checkForVideoSizes(tracks[i].getFormat(), supported[0]);
+							VideoFormat vf = (VideoFormat) supported[j];
+							if(vf.getFrameRate() > videoQuality) {
+								videoQuality = vf.getFrameRate();
+								chosen = checkForVideoSizes(tracks[i].getFormat(), supported[j]);
+							}
+						} else if (supported[j] instanceof AudioFormat) {
+							AudioFormat af = (AudioFormat) supported[j];
+							if (af.getSampleRate() > audioQuality) {
+								audioQuality = af.getSampleRate();
+								chosen = supported[j];
+							}
+						}
 					}
 					tracks[i].setFormat(chosen);
 					System.err.println("Track " + i + " is set to transmit as:");
@@ -180,7 +196,7 @@ public class RTPTransmitter implements ControllerListener, Runnable {
 				sendStream = rtpMgrs[i].createSendStream(dataOutput, i);
 				sendStream.start();
 			} catch (Exception e) {
-				System.err.println(e.getMessage());
+				System.err.println(e.getMessage() + "JFKDLSJKFL");
 				return;
 			}
 		}
@@ -206,9 +222,9 @@ public class RTPTransmitter implements ControllerListener, Runnable {
 		if (supported.matches(jpegFmt)) {
 			// For JPEG, make sure width and height are divisible by 8.
 			width = (size.width % 8 == 0 ? size.width
-					  : (int) (size.width / 8) * 8);
+					  : (size.width / 8) * 8);
 			height = (size.height % 8 == 0 ? size.height
-					  : (int) (size.height / 8) * 8);
+					  : (size.height / 8) * 8);
 		} else if (supported.matches(h263Fmt)) {
 			// For H.263, we only support some specific sizes.
 			if (size.width < 128) {
@@ -239,18 +255,13 @@ public class RTPTransmitter implements ControllerListener, Runnable {
 	 * 0.5 is a good default.
 	 */
 	void setJPEGQuality(Player p, float val) {
+		Control controls[] = p.getControls();
+		//VideoFormat jpegFmt = new VideoFormat(VideoFormat.JPEG);
 
-		Control cs[] = p.getControls();
-		QualityControl qc = null;
-		VideoFormat jpegFmt = new VideoFormat(VideoFormat.JPEG);
-
-		// Loop through the controls to find the Quality control for
-		// the JPEG encoder.
-		for (int i = 0; i < cs.length; i++) {
-
-			if (cs[i] instanceof QualityControl
-					  && cs[i] instanceof Owned) {
-				qc = (QualityControl) cs[i];
+		for (int i = 0; i < controls.length; i++) {
+			if (controls[i] instanceof QualityControl
+					  && controls[i] instanceof Owned) {
+				QualityControl qc = (QualityControl) controls[i];
 				qc.setQuality(1.0f);
 				//Object owner = ((Owned) cs[i]).getOwner();
 
@@ -271,7 +282,12 @@ public class RTPTransmitter implements ControllerListener, Runnable {
 //				if (qc != null) {
 //					break;
 //				}
+			} else if (controls[i] instanceof BitRateControl) {
+				BitRateControl brc = (BitRateControl) controls[i];
+				int maxBitRate = brc.getMaxSupportedBitRate();
+				brc.setBitRate(maxBitRate);
 			}
+
 		}
 	}
 }

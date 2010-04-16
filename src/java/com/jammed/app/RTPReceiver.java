@@ -1,26 +1,16 @@
 package com.jammed.app;
 
-import com.sun.media.ui.PlayerWindow;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.media.Player;
 import javax.media.control.BufferControl;
-import javax.media.protocol.DataSource;
 import javax.media.rtp.InvalidSessionAddressException;
-import javax.media.rtp.Participant;
-import javax.media.rtp.RTPControl;
 import javax.media.rtp.RTPManager;
-import javax.media.rtp.ReceiveStream;
 import javax.media.rtp.ReceiveStreamListener;
 import javax.media.rtp.SessionAddress;
-import javax.media.rtp.event.ByeEvent;
-import javax.media.rtp.event.NewReceiveStreamEvent;
 import javax.media.rtp.event.ReceiveStreamEvent;
-import javax.media.rtp.event.RemotePayloadChangeEvent;
-import javax.media.rtp.event.StreamMappedEvent;
 
 /**
  *
