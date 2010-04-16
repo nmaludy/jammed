@@ -136,6 +136,7 @@ public class GUI extends JFrame implements ActionListener {
 			tabsPanel.setVisible(showPlaylistBox.isSelected());
 			pack();
 		} else if (e.getSource().equals(previousButton)) {
+			controller.playRemoteMedia("224.111.111.112", 5006);
 		} else if (e.getSource().equals(playPauseButton)) {
 			Media m = PlaylistPanel.getInstance().getSelectedMedia();
 			play(m);

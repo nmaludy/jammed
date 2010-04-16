@@ -17,12 +17,13 @@ import javax.media.StopTimeChangeEvent;
 import javax.media.TransitionEvent;
 import javax.media.bean.playerbean.MediaPlayer;
 import javax.media.format.FormatChangeEvent;
+import javax.media.protocol.DataSource;
 
 /**
  *
  * @author nmaludy
  */
-public class MediaController implements ControllerListener{
+public class MediaController implements ControllerListener, RTPReceiverListener {
 	private static MediaController INSTANCE;
 	private MediaPlayer player;
 	private PlayerPanel panel;
@@ -59,7 +60,7 @@ public class MediaController implements ControllerListener{
 	public void playRemoteMedia(String hostname, int port) {
 		this.remoteHostname = hostname;
 		this.remotePort = port;
-		initPlayer();
+		RTPReceiver r = new RTPReceiver(hostname, port, this);
 	}
 
 	private void initPlayer() {
@@ -135,6 +136,20 @@ public class MediaController implements ControllerListener{
 		player.prefetch();
 		panel.setPlayer(player);
 		play();
+		System.out.println("Playing");
+	}
+
+	public void streamReceived(StreamReceivedEvent event) {
+		System.out.println("StreamReceived");
+		DataSource ds = event.getDataSource();
+		if (player != null) {
+			player.close();
+		}
+		player = MediaUtils.createMediaPlayer(ds);
+		player.addControllerListener(this);
+		player.realize();
+
+		System.out.println("Realizing");
 	}
 
 }
