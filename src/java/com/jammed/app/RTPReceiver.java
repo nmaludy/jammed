@@ -5,7 +5,6 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.media.ControllerListener;
 import javax.media.control.BufferControl;
 import javax.media.protocol.DataSource;
 import javax.media.rtp.InvalidSessionAddressException;
@@ -31,17 +30,26 @@ import javax.swing.event.EventListenerList;
  */
 public class RTPReceiver implements ReceiveStreamListener, SessionListener {
 
-	private final EventListenerList streamListeners;
-	RTPManager manager;
-	int ttl = 1;
+	private EventListenerList streamListeners;
+	private RTPManager manager;
+	private String host;
+	private int port;
+	private int ttl = 1;
 
-	public RTPReceiver(String host, int port, RTPReceiverListener listener) {
+	private RTPReceiver(String h, int p) {
+		streamListeners = new EventListenerList();
+		host = h;
+		port = p;
+	}
+
+	public static RTPReceiver create(String host, int port) {
+		return new RTPReceiver(host, port);
+	}
+
+	public void start() {
 		SessionAddress localAddr;
 		SessionAddress destAddr;
 		InetAddress source;
-		streamListeners = new EventListenerList();
-		addReceiverListener(listener);
-
 		try {
 			manager = RTPManager.newInstance();
 			manager.addSessionListener(this);
@@ -59,7 +67,6 @@ public class RTPReceiver implements ReceiveStreamListener, SessionListener {
 			BufferControl bc = (BufferControl) manager.getControl("javax.media.control.BufferControl");
 			bc.setBufferLength(350);
 			manager.addTarget(destAddr);
-			
 		} catch (UnknownHostException ex) {
 			ex.printStackTrace();
 		} catch (InvalidSessionAddressException ex) {
@@ -70,18 +77,41 @@ public class RTPReceiver implements ReceiveStreamListener, SessionListener {
 	}
 
 	/**
-	 * Close the players and the session managers.
+	 * Close the session manager and event listeners
 	 */
-	private void close() {
-		manager.removeTargets("Closing session from AVReceive2");
-		manager.dispose();
-		manager = null;
+	public void stop() {
+		streamListeners = null;
+
+		if (manager != null) {
+			manager.dispose();
+			manager = null;
+		}
 	}
 
+	public void addReceiverListener(final RTPReceiverListener l) {
+		streamListeners.add(RTPReceiverListener.class, l);
+	}
 
-	/**
+	public void removeReceiverListener(final RTPReceiverListener l) {
+		streamListeners.remove(RTPReceiverListener.class, l);
+	}
+
+	protected void fireReceiverEvent(final StreamReceivedEvent event) {
+		if (streamListeners == null) {
+			return;
+		}
+		Object[] listeners = streamListeners.getListenerList();
+		for (int i = listeners.length - 2; i >= 0; i -= 2) {
+			if (listeners[i] == RTPReceiverListener.class) {
+				((RTPReceiverListener) listeners[i + 1]).streamReceived(event);
+			}
+		}
+	}
+	/*
 	 * SessionListener.
 	 */
+
+	@Override
 	public void update(SessionEvent evt) {
 		if (evt instanceof NewParticipantEvent) {
 			Participant p = ((NewParticipantEvent) evt).getParticipant();
@@ -89,9 +119,10 @@ public class RTPReceiver implements ReceiveStreamListener, SessionListener {
 		}
 	}
 
-	/**
+	/*
 	 * ReceiveStreamListener
 	 */
+	@Override
 	public void update(ReceiveStreamEvent evt) {
 		Participant participant = evt.getParticipant();	// could be null.
 		ReceiveStream stream = evt.getReceiveStream();  // could be null.
@@ -118,11 +149,9 @@ public class RTPReceiver implements ReceiveStreamListener, SessionListener {
 				} else {
 					System.err.println("      The stream comes from: " + participant.getCNAME());
 				}
-
 				StreamReceivedEvent e = StreamReceivedEvent.create(this, ds);
-				System.out.println("FireingStreamReceived");
 				fireReceiverEvent(e);
-				
+
 			} catch (Exception e) {
 				System.err.println("NewReceiveStreamEvent exception " + e.getMessage());
 				return;
@@ -145,22 +174,5 @@ public class RTPReceiver implements ReceiveStreamListener, SessionListener {
 			System.err.println("  - Got \"bye\" from: " + participant.getCNAME());
 		}
 
-	}
-
-	public void addReceiverListener(RTPReceiverListener l) {
-		streamListeners.add(RTPReceiverListener.class, l);
-	}
-
-	public void removeReceiverListener(RTPReceiverListener l) {
-		streamListeners.remove(RTPReceiverListener.class, l);
-	}
-
-	protected void fireReceiverEvent(StreamReceivedEvent event) {
-		Object[] listeners = streamListeners.getListenerList();
-		for (int i = listeners.length - 2; i >= 0; i -= 2) {
-			if (listeners[i] == RTPReceiverListener.class) {
-				((RTPReceiverListener) listeners[i + 1]).streamReceived(event);
-			}
-		}
 	}
 }

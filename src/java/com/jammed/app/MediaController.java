@@ -27,9 +27,7 @@ public class MediaController implements ControllerListener, RTPReceiverListener 
 	private static MediaController INSTANCE;
 	private MediaPlayer player;
 	private PlayerPanel panel;
-	private String mediaURL;
-	private String remoteHostname;
-	private int remotePort;
+	private RTPReceiver receiver;
 
 	//Variables to manage controller state
 	private boolean isPaused = false;
@@ -53,26 +51,30 @@ public class MediaController implements ControllerListener, RTPReceiverListener 
 	}
 
 	public void playLocalMedia(String mediaURL) {
-		this.mediaURL = mediaURL;
-		initPlayer();
+		destroyCurrent();
+		initPlayer(mediaURL);
 	}
 
 	public void playRemoteMedia(String hostname, int port) {
-		this.remoteHostname = hostname;
-		this.remotePort = port;
-		RTPReceiver r = new RTPReceiver(hostname, port, this);
+		destroyCurrent();
+		receiver = RTPReceiver.create(hostname, port);
+		receiver.addReceiverListener(this);
+		receiver.start();
 	}
 
-	private void initPlayer() {
-		if (player != null) {
-			player.close();
-		}
+	private void initPlayer(String mediaURL) {
 		player = MediaUtils.createMediaPlayer(mediaURL);
 		player.addControllerListener(this);
 		player.realize();
 	}
 
-	public void playOrPause() {
+	private void initRemotePlayer(DataSource ds) {
+		player = MediaUtils.createMediaPlayer(ds);
+		player.addControllerListener(this);
+		player.realize();
+	}
+
+	private void playOrPause() {
 		if (isPaused || !sessionInProgress) {
 			play();
 		} else {
@@ -80,7 +82,7 @@ public class MediaController implements ControllerListener, RTPReceiverListener 
 		}
 	}
 
-	public void play() {
+	private void play() {
 		if (isPaused) {
 			player.restoreMediaTime();
 			isPaused = false;
@@ -89,26 +91,28 @@ public class MediaController implements ControllerListener, RTPReceiverListener 
 		sessionInProgress = true;
 	}
 
-	public void pause() {
+	private void pause() {
 		player.saveMediaTime();
 		player.stop();
 		isPaused = true;
 	}
 
-	public void stop() {
-		player.stop();
-		player.deallocate();
+	private void destroyCurrent() {
+		if (player != null) {
+			player.close();
+			player = null;
+		}
+		if (receiver != null) {
+			receiver.stop();
+			receiver = null;
+		}
 		sessionInProgress = false;
-	}
-
-	public void destroy() {
-		player.close();
 	}
 
 	/*
 	 * TODO: Handle all of the control events
 	 */
-	public synchronized void controllerUpdate(ControllerEvent event) {
+	public void controllerUpdate(ControllerEvent event) {
 		if (event instanceof RealizeCompleteEvent) {
 			handleRealizeComplete((RealizeCompleteEvent) event);
 		} else if (event instanceof PrefetchCompleteEvent) {
@@ -132,7 +136,7 @@ public class MediaController implements ControllerListener, RTPReceiverListener 
 		}
 	}
 
-	protected void handleRealizeComplete(RealizeCompleteEvent event) {
+	private void handleRealizeComplete(RealizeCompleteEvent event) {
 		player.prefetch();
 		panel.setPlayer(player);
 		play();
@@ -140,15 +144,7 @@ public class MediaController implements ControllerListener, RTPReceiverListener 
 	}
 
 	public void streamReceived(StreamReceivedEvent event) {
-		System.out.println("StreamReceived");
-		DataSource ds = event.getDataSource();
-		if (player != null) {
-			player.close();
-		}
-		player = MediaUtils.createMediaPlayer(ds);
-		player.addControllerListener(this);
-		player.realize();
-
+		initRemotePlayer(event.getDataSource());
 		System.out.println("Realizing");
 	}
 
