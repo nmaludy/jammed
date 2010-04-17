@@ -142,15 +142,15 @@ public class GUI extends JFrame implements ActionListener {
 			play(m);
 		} else if (e.getSource().equals(nextButton)) {
 			try {
-				JFileChooser fc = new JFileChooser();
-				int returnVal = fc.showOpenDialog(this);
-
-				if (returnVal == JFileChooser.APPROVE_OPTION) {
-					File selectedFile = fc.getSelectedFile();
-					MediaLocator l = new MediaLocator(selectedFile.toURI().toURL());
-					RTPTransmitter t = new RTPTransmitter(l, "224.111.111.112", 5006);
-					t.start();
-				}
+//				JFileChooser fc = new JFileChooser();
+//				int returnVal = fc.showOpenDialog(this);
+//
+//				if (returnVal == JFileChooser.APPROVE_OPTION) {
+//					File selectedFile = fc.getSelectedFile();
+//					MediaLocator l = new MediaLocator(selectedFile.toURI().toURL());
+//					RTPTransmitter t = new RTPTransmitter(l, "224.111.111.112", 5006);
+//					t.start();
+//				}
 			} catch (Exception ex) {
 				ex.printStackTrace();
 			}

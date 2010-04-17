@@ -42,10 +42,14 @@ public class RTPTransmitter implements ControllerListener, Runnable {
 	private RTPManager rtpMgrs[];
 	private DataSource dataOutput = null;
 
-	public RTPTransmitter(MediaLocator locator, String ipAddress, int portBase) {
+	private RTPTransmitter(MediaLocator locator, String ipAddress, int portBase) {
 		this.locator = locator;
 		this.ipAddress = ipAddress;
 		this.portBase = portBase;
+	}
+
+	public static RTPTransmitter create(MediaLocator locator, String ipAddress, int portBase) {
+		return new RTPTransmitter(locator, ipAddress, portBase);
 	}
 
 	/**
@@ -72,7 +76,7 @@ public class RTPTransmitter implements ControllerListener, Runnable {
 	}
 
 	public void controllerUpdate(ControllerEvent ce) {
-		System.out.println("Transmission event : " + ce.getClass().toString() );
+		//System.out.println("Transmission event : " + ce.getClass().toString() );
 		if (ce instanceof ConfigureCompleteEvent) {
 			setupTracks();
 		} else if (ce instanceof RealizeCompleteEvent) {

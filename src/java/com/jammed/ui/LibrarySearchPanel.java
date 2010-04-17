@@ -31,6 +31,7 @@ public class LibrarySearchPanel extends JPanel implements ActionListener{
 	private final JTextField searchBox;
 	private final JButton searchButton;
 	private final JButton clearButton;
+	private final JButton addButton;
 	private final int searchPlaylistIndex;
 	private final SearchResponder responder;
 	private final SortedMap<Integer, Request> searchRequests;
@@ -53,6 +54,8 @@ public class LibrarySearchPanel extends JPanel implements ActionListener{
 		searchButton.addActionListener(this);
 		clearButton = new JButton("Clear");
 		clearButton.addActionListener(this);
+		addButton = new JButton("Add to Playlist");
+		addButton.addActionListener(this);
 		searchBox = new JTextField();
 		searchBox.addActionListener(this);
 
@@ -66,7 +69,8 @@ public class LibrarySearchPanel extends JPanel implements ActionListener{
 			.addGroup(layout.createSequentialGroup()
 				.addComponent(scrollPane))
 			.addGroup(layout.createSequentialGroup()
-				.addComponent(clearButton)));
+				.addComponent(clearButton)
+				.addComponent(addButton)));
 
 		layout.setVerticalGroup(layout.createSequentialGroup()
 			.addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
@@ -75,7 +79,8 @@ public class LibrarySearchPanel extends JPanel implements ActionListener{
 			.addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
 				.addComponent(scrollPane))
 			.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-				.addComponent(clearButton)));
+				.addComponent(clearButton)
+				.addComponent(addButton)));
 		
 		normalizeTable();
 		responder = new SearchResponder();
@@ -102,6 +107,12 @@ public class LibrarySearchPanel extends JPanel implements ActionListener{
 		} else if (e.getSource().equals(clearButton)) {
 			Playlist empty = Librarian.getInstance().createEmptyPlaylist();
 			Librarian.getInstance().setPlaylist(searchPlaylistIndex, empty);
+		} else if (e.getSource().equals(addButton)) {
+			int[] selectedIndexes = table.getSelectedRows();
+			int index = PlaylistPanel.getInstance().getCurrentPlaylistIndex();
+			for(int i : selectedIndexes) {
+				Librarian.getInstance().addMediaToPlaylist(model.getMedia(i), index);
+			}
 		}
 	}
 

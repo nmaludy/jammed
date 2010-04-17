@@ -70,7 +70,7 @@ public class LibraryMediaPanel extends JPanel implements ActionListener{
 			int index = PlaylistPanel.getInstance().getCurrentPlaylistIndex();
 			for(int i : selectedIndexes) {
 				Librarian.getInstance().addMediaToPlaylist(model.getMedia(i), index);
-			}			
+			}
 		} else if (e.getSource().equals(selectButton)) {
 			try {
 				JFileChooser fc = new JFileChooser();

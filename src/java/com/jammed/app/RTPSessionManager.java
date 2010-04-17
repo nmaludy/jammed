@@ -7,10 +7,13 @@ import com.jammed.gen.MessageProtos.PlayResponse;
 import com.jammed.gen.ProtoBuffer.Request;
 import com.jammed.handlers.PlayRequestHandler;
 import com.jammed.handlers.PlayResponseHandler;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
+import java.io.File;
+import java.util.Collections;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import javax.media.MediaLocator;
 import javax.swing.SwingUtilities;
 import javax.swing.event.EventListenerList;
 
@@ -22,8 +25,8 @@ public class RTPSessionManager {
 
 	private final ExecutorService transmitters;
 	private final RequestHandler requestHandler;
-	private final RequestHandler responseHandler;
-	private final ConcurrentMap<Integer, Request> receiveRequests;
+	private final ResponseHandler responseHandler;
+	private final Map<Integer, Request> receiveRequests;
 	private final EventListenerList receiveListeners;
 
 	private static class RTPSessionManagerHolder {
@@ -33,8 +36,8 @@ public class RTPSessionManager {
 	private RTPSessionManager() {
 		transmitters = Executors.newCachedThreadPool();
 		requestHandler = new RequestHandler();
-		responseHandler = new RequestHandler();
-		receiveRequests = new ConcurrentHashMap<Integer, Request>();
+		responseHandler = new ResponseHandler();
+		receiveRequests = Collections.synchronizedMap(new TreeMap<Integer, Request>());
 		receiveListeners = new EventListenerList();
 		Cloud.getInstance().addMessageHandler(requestHandler);
 		Cloud.getInstance().addMessageHandler(responseHandler);
@@ -49,10 +52,12 @@ public class RTPSessionManager {
 		playRequest.setType(playRequest.getType());
 		playRequest.setVideo(MediaUtils.isVideo(m));
 		playRequest.setStream(true);
+		playRequest.setMedia(m);
 		Request request = RequestPool.getInstance().lease();
 		Integer requestId = Integer.valueOf(request.getId());
-		receiveRequests.putIfAbsent(requestId, request); //Should always succeed due to ReuqestPool's uniqueness
+		receiveRequests.put(requestId, request); //Should always succeed due to ReuqestPool's uniqueness
 		playRequest.setRequest(request);
+		System.out.println("Sending playRequest " + requestId);
 		Cloud.getInstance().send(playRequest.build(), request.getId());
 	}
 
@@ -96,13 +101,37 @@ public class RTPSessionManager {
 				throw new IllegalArgumentException();
 			}
 			PlayRequest playRequest = (PlayRequest) message;
-			String hostname = playRequest.getMedia().getHostname();
+			Request request = playRequest.getRequest();
+			String hostname = request.getOrigin();
 			
-			if (!hostname.equals(Cloud.getInstance().getHostName())) {
-				return false; //not a request for a media on this sytem
+			if (hostname.equals(Cloud.getInstance().getHostName())) {
+				return false; //a request that originated from this system, ignore it
 			}
 
-			// Handle PlayRequest
+			String mediaHost = playRequest.getMedia().getHostname();
+			if (!mediaHost.equals(Cloud.getInstance().getHostName())) {
+				return false; //this media isn't present on our system
+			}
+			System.out.println("Got a request for media on my machine");
+
+			Media media = playRequest.getMedia();
+			try {
+				File mediaFile = new File(media.getLocation());
+				MediaLocator locator = new MediaLocator(mediaFile.toURI().toURL());
+
+				PlayResponse.Builder builder = PlayResponse.newBuilder();
+				builder.setType(builder.getType());
+				builder.setAddress( "224.111.111.112");
+				builder.setAuidoPort(5006);
+				builder.setRequest(request);
+				Cloud.getInstance().send(builder.build(), request.getId());
+				System.out.println("Sending Play Response");
+				RTPTransmitter t = RTPTransmitter.create(locator, "224.111.111.112", 5006);
+				transmitters.execute(t);
+				System.out.println("Transmitting");
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
 
 			return true;
 		}
@@ -122,23 +151,31 @@ public class RTPSessionManager {
 				throw new IllegalArgumentException();
 			}
 
-			PlayResponse playReponse = (PlayResponse) message;
-			Request request = playReponse.getRequest();
+			PlayResponse playResponse = (PlayResponse) message;
+			Request request = playResponse.getRequest();
 			if (!request.getOrigin().equals(Cloud.getInstance().getHostName())) {
 				return false; // not a request from this system
-			}
-			
+			}			
 			Integer id = Integer.valueOf(request.getId());
-			if (receiveRequests.remove(id, request)) { //check if this request has been handled yet
-				String hostname = playReponse.getAddress();
-				int port = playReponse.getAuidoPort();
-				RTPReceiver receiver = RTPReceiver.create(hostname, port, false);
-				addListenersToReceiver(receiver);
-				receiver.start();
-				if (playReponse.hasVideoPort()) {
-					RTPReceiver videoReceiver = RTPReceiver.create(hostname, port + 2, true);
-					addListenersToReceiver(videoReceiver);
-					videoReceiver.start();
+			System.out.println("Got a play response " + id);
+			synchronized (receiveRequests) {
+				if (receiveRequests.containsKey(id)) { //check if this request has been handled yet
+					receiveRequests.remove(id);
+					System.out.println("It is a response i was looking for");
+					String hostname = playResponse.getAddress();
+					int port = playResponse.getAuidoPort();
+					RTPReceiver receiver = RTPReceiver.create(hostname, port, false);
+					addListenersToReceiver(receiver);
+					receiver.start();
+
+					System.out.println("Receiving Audio");
+					if (playResponse.hasVideoPort()) {
+						RTPReceiver videoReceiver = RTPReceiver.create(hostname, playResponse.getVideoPort(), true);
+						addListenersToReceiver(videoReceiver);
+						videoReceiver.start();
+
+						System.out.println("Receiving Video");
+					}
 				}
 			}
 			// Handle PlayResponse
