@@ -34,16 +34,18 @@ public class RTPReceiver implements ReceiveStreamListener, SessionListener {
 	private RTPManager manager;
 	private String host;
 	private int port;
+	private boolean isVideo;
 	private int ttl = 1;
 
-	private RTPReceiver(String h, int p) {
+	private RTPReceiver(String h, int p, boolean v) {
 		streamListeners = new EventListenerList();
 		host = h;
 		port = p;
+		isVideo = v;
 	}
 
-	public static RTPReceiver create(String host, int port) {
-		return new RTPReceiver(host, port);
+	public static RTPReceiver create(String host, int port, boolean isVideo) {
+		return new RTPReceiver(host, port, isVideo);
 	}
 
 	public void start() {
@@ -149,7 +151,8 @@ public class RTPReceiver implements ReceiveStreamListener, SessionListener {
 				} else {
 					System.err.println("      The stream comes from: " + participant.getCNAME());
 				}
-				StreamReceivedEvent e = StreamReceivedEvent.create(this, ds);
+
+				StreamReceivedEvent e = StreamReceivedEvent.create(this, ds, isVideo);
 				fireReceiverEvent(e);
 
 			} catch (Exception e) {

@@ -1,6 +1,8 @@
 package com.jammed.app;
 
+import com.jammed.gen.MediaProtos.Media;
 import com.jammed.ui.PlayerPanel;
+import java.io.File;
 import javax.media.CachingControlEvent;
 import javax.media.ControllerClosedEvent;
 import javax.media.ControllerErrorEvent;
@@ -24,10 +26,14 @@ import javax.media.protocol.DataSource;
  * @author nmaludy
  */
 public class MediaController implements ControllerListener, RTPReceiverListener {
+	private static final RTPSessionManager sessionManager = RTPSessionManager.getInstance();
 	private static MediaController INSTANCE;
+	private VideoHandler videoHandler;
 	private MediaPlayer player;
+	private MediaPlayer remoteVideoPlayer;
 	private PlayerPanel panel;
-	private RTPReceiver receiver;
+	private RTPReceiver audioReceiver;
+	private RTPReceiver videoReceiver;
 
 	//Variables to manage controller state
 	private boolean isPaused = false;
@@ -39,7 +45,8 @@ public class MediaController implements ControllerListener, RTPReceiverListener 
 	
 
 	private MediaController() {
-
+		videoHandler = new VideoHandler();
+		sessionManager.addReceiverListener(this);
 	}
 
 	public static MediaController getInstance() {
@@ -50,16 +57,24 @@ public class MediaController implements ControllerListener, RTPReceiverListener 
 		this.panel = panel;
 	}
 
-	public void playLocalMedia(String mediaURL) {
-		destroyCurrent();
-		initPlayer(mediaURL);
+	public void playMedia(Media m) {
+		if (m.getHostname().equals(Cloud.getInstance().getHostName())) {
+			try {
+				File f = new File(m.getLocation());
+				String selectedUrl = f.toURI().toURL().toString();
+				playLocalMedia(selectedUrl);
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
+		} else {
+			destroyCurrent();
+			sessionManager.requestReceiveSession(m, this);
+		}
 	}
 
-	public void playRemoteMedia(String hostname, int port) {
+	private void playLocalMedia(String mediaURL) {
 		destroyCurrent();
-		receiver = RTPReceiver.create(hostname, port);
-		receiver.addReceiverListener(this);
-		receiver.start();
+		initPlayer(mediaURL);
 	}
 
 	private void initPlayer(String mediaURL) {
@@ -102,9 +117,13 @@ public class MediaController implements ControllerListener, RTPReceiverListener 
 			player.close();
 			player = null;
 		}
-		if (receiver != null) {
-			receiver.stop();
-			receiver = null;
+		if (audioReceiver != null) {
+			audioReceiver.stop();
+			audioReceiver = null;
+		}
+		if (videoReceiver != null) {
+			videoReceiver.stop();
+			videoReceiver = null;
 		}
 		sessionInProgress = false;
 	}
@@ -140,12 +159,31 @@ public class MediaController implements ControllerListener, RTPReceiverListener 
 		player.prefetch();
 		panel.setPlayer(player);
 		play();
-		System.out.println("Playing");
 	}
 
 	public void streamReceived(StreamReceivedEvent event) {
-		initRemotePlayer(event.getDataSource());
-		System.out.println("Realizing");
+		if (event.isVideo()) {
+			remoteVideoPlayer = MediaUtils.createMediaPlayer(event.getDataSource());
+			remoteVideoPlayer.addControllerListener(videoHandler);
+			remoteVideoPlayer.realize();
+		} else {
+			initRemotePlayer(event.getDataSource());
+		}
 	}
 
+	private class VideoHandler implements ControllerListener {
+
+		public void controllerUpdate(ControllerEvent event) {
+			if (event instanceof RealizeCompleteEvent) {
+				handleRealizeComplete((RealizeCompleteEvent) event);
+			}
+		}
+
+		private void handleRealizeComplete(RealizeCompleteEvent event) {
+			remoteVideoPlayer.prefetch();
+			panel.setVideoPlayer(remoteVideoPlayer);
+			remoteVideoPlayer.start();
+			sessionInProgress = true;
+		}
+	}
 }

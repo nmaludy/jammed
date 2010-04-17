@@ -1,5 +1,6 @@
 package com.jammed.app;
 
+import com.jammed.gen.MediaProtos.Media;
 import javax.media.MediaLocator;
 import javax.media.bean.playerbean.MediaPlayer;
 import javax.media.protocol.DataSource;
@@ -53,5 +54,13 @@ public class MediaUtils {
 		}
 
 		return (mediaPlayer);
+	}
+
+	public static boolean isVideo(Media m) {
+		String name = m.getLocation();
+		return  name.endsWith(".avi")
+				  || name.endsWith(".mov")
+				  || name.endsWith(".mpg")
+				  || name.endsWith(".mp2");
 	}
 }

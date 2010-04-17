@@ -3,8 +3,6 @@ package com.jammed.app;
 import java.awt.Dimension;
 import java.io.IOException;
 import java.net.InetAddress;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import javax.media.ConfigureCompleteEvent;
 import javax.media.Control;
 import javax.media.ControllerEvent;
@@ -36,11 +34,7 @@ import javax.media.rtp.SessionAddress;
  * @author nmaludy
  */
 public class RTPTransmitter implements ControllerListener, Runnable {
-
-	private static final ExecutorService executor = Executors.newSingleThreadExecutor();
-
-	// Input MediaLocator
-	// Can be a file or http or capture source
+	
 	private MediaLocator locator;
 	private String ipAddress;
 	private int portBase;
@@ -58,13 +52,10 @@ public class RTPTransmitter implements ControllerListener, Runnable {
 	 * Starts the transmission. Returns null if transmission started ok.
 	 * Otherwise it returns a string with the reason why the setup failed.
 	 */
-	public void start() {
-		executor.execute(this);
-	}
-
 	public void run() {
 		createAndConfigureProcessor();
 	}
+	
 	/**
 	 * Stops the transmission if already started
 	 */
@@ -81,6 +72,7 @@ public class RTPTransmitter implements ControllerListener, Runnable {
 	}
 
 	public void controllerUpdate(ControllerEvent ce) {
+		System.out.println("Transmission event : " + ce.getClass().toString() );
 		if (ce instanceof ConfigureCompleteEvent) {
 			setupTracks();
 		} else if (ce instanceof RealizeCompleteEvent) {
@@ -181,12 +173,17 @@ public class RTPTransmitter implements ControllerListener, Runnable {
 		SessionAddress localAddr, destAddr;
 		InetAddress ipAddr;
 		SendStream sendStream;
-		int port;
+		int port = portBase;
 
 		for (int i = 0; i < pbss.length; i++) {
 			try {
+				if (pbss[i].getFormat() instanceof AudioFormat) {
+					port = portBase;
+				} else if (pbss[i].getFormat() instanceof VideoFormat){
+					port = portBase + 2;
+				}
 				rtpMgrs[i] = RTPManager.newInstance();
-				port = portBase + 2 * i;
+				//port = portBase + 2 * i;
 				ipAddr = InetAddress.getByName(ipAddress);
 				localAddr = new SessionAddress(InetAddress.getLocalHost(), port);
 				destAddr = new SessionAddress(ipAddr, port);

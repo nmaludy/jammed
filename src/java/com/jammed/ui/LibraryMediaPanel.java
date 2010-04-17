@@ -23,7 +23,7 @@ public class LibraryMediaPanel extends JPanel implements ActionListener{
 	private final JButton selectButton;
 	private final JButton addButton;
 
-	public LibraryMediaPanel() {
+	private LibraryMediaPanel() {
 		super();
 		model = MediaTableModel.createModel(Librarian.getInstance().getLibrary());
 		Librarian.getInstance().addLibraryListener(model);
@@ -55,6 +55,8 @@ public class LibraryMediaPanel extends JPanel implements ActionListener{
 			.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
 				.addComponent(addButton)
 				.addComponent(selectButton)));
+
+		normalizeTable();
 	}
 
 	public static LibraryMediaPanel create() {

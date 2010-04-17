@@ -11,13 +11,14 @@ message Media {
 	
 	required string location = 2;
 	required string title    = 3;
+	required string hostname = 4;
 	
 	// Optional Fields
-	optional int32  length = 4;
-	optional string name   = 5;
-	optional string artist = 6;
-	optional string album  = 7;
-	optional bytes  file   = 8;
+	optional int32  length = 5;
+	optional string name   = 6;
+	optional string artist = 7;
+	optional string album  = 8;
+	optional bytes  file   = 9;
 }
 
 message Playlist {

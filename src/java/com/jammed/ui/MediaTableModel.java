@@ -120,6 +120,7 @@ public class MediaTableModel extends AbstractTableModel implements PlaylistListe
 			clear();
 			Playlist list = (Playlist)event.getSource();
 			addAll(list.getMediaList());
+			System.out.println("Replacing " + list.getMediaCount());
 		}
 	}
 }

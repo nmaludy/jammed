@@ -59,7 +59,7 @@ public class SearchHandler extends PacketHandler<Search> {
 		
 		System.out.println("Received search for: " + query);
 		
-		final Playlist results = Librarian.getInstance().search(query);
+		final Playlist results = Librarian.getInstance().search(query, search.getRequest());
 		
 		if (results.getMediaList().size() > 0) {
 			Cloud.getInstance().send(results, request);

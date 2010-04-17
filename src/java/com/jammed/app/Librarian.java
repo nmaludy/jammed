@@ -1,9 +1,12 @@
-
 package com.jammed.app;
 
+import com.google.protobuf.MessageLite;
 import com.jammed.gen.MediaProtos.Playlist;
 import com.jammed.gen.MediaProtos.Media;
+import com.jammed.gen.MessageProtos.Search;
 import com.jammed.gen.ProtoBuffer.Message.Type;
+import com.jammed.gen.ProtoBuffer.Request;
+import com.jammed.handlers.SearchHandler;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -15,26 +18,27 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.swing.event.EventListenerList;
 
-public class Librarian implements ScannerListener {
+public class Librarian extends SearchHandler implements ScannerListener {
+
 	private File libraryRoot = null;
 	private final File libraryFile;
 	private Playlist library;
 	private final EventListenerList libraryListener;
 	private final List<Playlist> localPlaylists;
 	private final List<EventListenerList> localPlaylistListeners;
-	private  String host = "192.168.1.1";
-	
+	private String host = Checksum.fletcher16(Cloud.getInstance().getAddress()) + "";
+
 	static class LibrarianHolder {
 		static Librarian instance = new Librarian();
 	}
-	
+
 	public static Librarian getInstance() {
 		return LibrarianHolder.instance;
 	}
-	
+
 	private Librarian() {
 		libraryFile = new File("./library");
-		if(libraryFile.exists()) {
+		if (libraryFile.exists()) {
 			library = readLibrary();
 		} else {
 			library = createEmptyPlaylist();
@@ -42,15 +46,43 @@ public class Librarian implements ScannerListener {
 		libraryListener = new EventListenerList();
 		localPlaylists = new ArrayList<Playlist>();
 		localPlaylistListeners = new ArrayList<EventListenerList>();
-		//host = Checksum.fletcher16(Cloud.getInstance().getAddress()) + "";
-		host = "192.168.1.1";
+		Cloud.getInstance().addMessageHandler(this);
 	}
-	
-	public Playlist search (final String query) {
+
+	@Override
+	public boolean handleMessage(final MessageLite message) {
+		if (!(message instanceof Search)) {
+			throw new IllegalArgumentException();
+		}
+
+		final Search search = (Search) message;
+		if (search.getRequest().getOrigin().equals(Cloud.getInstance().getHostName())) {
+			System.out.println("Search from self");
+			return true;
+		} else {
+			System.out.println("Search from " + search.getRequest().getOrigin());
+		}
+		final Request request = search.getRequest();
+		final String query = search.getQuery();
+		System.out.println("Handling request for " + query + " ID " + request.getId());
+		final Playlist results = search(query, request);
+
+		if (results.getMediaList().size() > 0) {
+			System.out.println("Search found stuff ");
+			Cloud.getInstance().send(results, request.getId());
+		} else {
+			System.out.println("No search results ");
+		}
+
+		return true;
+	}
+
+	public Playlist search(final String query, Request request) {
 		final Playlist.Builder builder = Playlist.newBuilder();
 		builder.setType(builder.getType());
 		builder.setHost(host);
-		
+		builder.setRequest(request);
+
 		for (final Playlist playlist : localPlaylists) {
 			for (final Media media : playlist.getMediaList()) {
 				if (media.getTitle().contains(query)) {
@@ -70,14 +102,30 @@ public class Librarian implements ScannerListener {
 				}
 			}
 		}
-		
+		for (final Media media : library.getMediaList()) {
+			if (media.getTitle().contains(query)) {
+				builder.addMedia(media);
+			} else if (media.hasAlbum()) {
+				if (media.getAlbum().contains(query)) {
+					builder.addMedia(media);
+				}
+			} else if (media.hasArtist()) {
+				if (media.getArtist().contains(query)) {
+					builder.addMedia(media);
+				}
+			} else if (media.hasName()) {
+				if (media.getName().contains(query)) {
+					builder.addMedia(media);
+				}
+			}
+		}
 		return builder.build();
 	}
-	
-	public void open (final File file) {
+
+	public void open(final File file) {
 		final String name = file.getName().toLowerCase();
 		AbstractPlaylist builder = null;
-		
+
 		if (name.endsWith(".pls")) {
 			builder = new PLS(host);
 		} else if (name.endsWith(".xml")) {
@@ -85,11 +133,11 @@ public class Librarian implements ScannerListener {
 		} else {
 			throw new IllegalArgumentException("Unknown file type: " + name);
 		}
-		
+
 		builder.open(file);
-		
+
 		final Playlist playlist = builder.getPlaylist();
-		
+
 		if (playlist.getMediaList().size() > 0) {
 			localPlaylists.add(playlist);
 			localPlaylistListeners.add(new EventListenerList());
@@ -97,9 +145,7 @@ public class Librarian implements ScannerListener {
 	}
 
 	public Playlist createEmptyPlaylist() {
-		Playlist.Builder builder = Playlist.newBuilder()
-														.setHost(host)
-														.setType(Type.PLAYLIST);
+		Playlist.Builder builder = Playlist.newBuilder().setHost(host).setType(Type.PLAYLIST);
 		return builder.build();
 	}
 
@@ -150,6 +196,12 @@ public class Librarian implements ScannerListener {
 		return localPlaylists.get(index);
 	}
 
+	public void setPlaylist(int index, Playlist list) {
+		localPlaylists.set(index, list);
+		PlaylistEvent e = PlaylistEvent.create(localPlaylists.get(index), PlaylistEvent.Type.REPLACE, 0, 0);
+		firePlaylistEvent(localPlaylistListeners.get(index), e);
+	}
+
 	public void scanCompleted(Playlist result) {
 		library = result;
 		PlaylistEvent e = PlaylistEvent.create(result, PlaylistEvent.Type.REPLACE, 0, 0);
@@ -198,7 +250,7 @@ public class Librarian implements ScannerListener {
 		localPlaylists.set(playlistIndex, list);
 
 		int endIndex = list.getMediaCount() - 1;
-		PlaylistEvent e = PlaylistEvent.create(list, PlaylistEvent.Type.ADD, startIndex,  endIndex);
+		PlaylistEvent e = PlaylistEvent.create(list, PlaylistEvent.Type.ADD, startIndex, endIndex);
 		firePlaylistEvent(localPlaylistListeners.get(playlistIndex), e);
 	}
 }

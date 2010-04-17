@@ -81,6 +81,7 @@ public class FileSystemScanner {
 				media.setTitle(f.getName());
 				media.setLength(0);
 				media.setType(media.getType());
+				media.setHostname(Cloud.getInstance().getHostName());
 				result.addMedia(media.build());
 			}
 		}

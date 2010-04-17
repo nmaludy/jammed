@@ -12,18 +12,24 @@ public class StreamReceivedEvent extends EventObject {
 
 	public static enum Type {ADD, DELETE, REPLACE};
 	private final DataSource dataSource;
+	private final boolean isVideo;
 
-	private StreamReceivedEvent(RTPReceiver source, DataSource dataSource) {
+	private StreamReceivedEvent(RTPReceiver source, DataSource dataSource, boolean isVideo) {
 		super(source);
 		this.dataSource = dataSource;
+		this.isVideo = isVideo;
 	}
 
-	public static StreamReceivedEvent create(RTPReceiver source, DataSource dataSource) {
-		return new StreamReceivedEvent(source, dataSource);
+	public static StreamReceivedEvent create(RTPReceiver source, DataSource dataSource, boolean isVideo) {
+		return new StreamReceivedEvent(source, dataSource, isVideo);
 	}
 
 	public DataSource getDataSource() {
 		return dataSource;
+	}
+
+	public boolean isVideo() {
+		return isVideo;
 	}
 
 }

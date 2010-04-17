@@ -20,7 +20,9 @@ public class PlayerPanel extends JPanel {
 	private final URL imageURL;
 	private final ImageIcon backgroundImage;
 	private final JLabel background;
-	private Player currentPlayer = null;
+	private Player player = null;
+	private Player audioPlayer = null;
+	private Player videoPlayer = null;
 
 	private PlayerPanel() {
 		super();
@@ -37,14 +39,46 @@ public class PlayerPanel extends JPanel {
 	}
 
 	public Player getPlayer() {
-		return this.currentPlayer;
+		return this.player;
 	}
 
-	public void setPlayer(Player player) {
-		if (currentPlayer != null) {
-			currentPlayer.close();
+	public void setPlayer(Player p) {
+		if (player != null) {
+			player.close();
 		}
-		currentPlayer = player;
+		if (audioPlayer != null) {
+			audioPlayer.close();
+			audioPlayer = null;
+		}
+		if (videoPlayer != null) {
+			videoPlayer.close();
+			videoPlayer = null;
+		}
+		player = p;
+		update();
+	}
+
+	public void setAudioPlayer(Player p) {
+		if (player != null) {
+			player.close();
+			player = null;
+		}
+		if (audioPlayer != null) {
+			audioPlayer.close();
+		}
+		audioPlayer = p;
+		update();
+	}
+
+	public void setVideoPlayer(Player p) {
+		if (player != null) {
+			player.close();
+			player = null;
+		}
+		if (videoPlayer != null) {
+			videoPlayer.close();
+		}
+		videoPlayer = p;
 		update();
 	}
 
@@ -53,17 +87,44 @@ public class PlayerPanel extends JPanel {
 		invalidate();
 		BorderLayout layout = new BorderLayout();
 		setLayout(layout);
-		Component visualComponent = currentPlayer.getVisualComponent();
-		if (visualComponent != null) {
-			System.out.println("Adding Video");
-			add(visualComponent, BorderLayout.CENTER);
-		} else {
+		if (player != null) {
+			Component visualComponent = player.getVisualComponent();
+			if (visualComponent != null) {
+				System.out.println("Adding Video");
+				add(visualComponent, BorderLayout.CENTER);
+			} else {
+				add(background, BorderLayout.CENTER);
+			}
+			Component controlComponent = player.getControlPanelComponent();
+			if (controlComponent != null) {
+				add(controlComponent, BorderLayout.SOUTH);
+			}
+			revalidate();
+			return;
+		}
+
+		if (audioPlayer != null) {
 			add(background, BorderLayout.CENTER);
+			Component controlComponent = player.getControlPanelComponent();
+			if (controlComponent != null) {
+				add(controlComponent, BorderLayout.SOUTH);
+			}
 		}
-		Component controlComponent = currentPlayer.getControlPanelComponent();
-		if (controlComponent != null) {
-			add(controlComponent, BorderLayout.SOUTH);
+
+		if (videoPlayer != null) {
+			Component visualComponent = videoPlayer.getVisualComponent();
+			if (visualComponent != null) {
+				System.out.println("Adding Video");
+				add(visualComponent, BorderLayout.CENTER);
+			} else {
+				add(background, BorderLayout.CENTER);
+			}
+			Component controlComponent = player.getControlPanelComponent();
+			if (controlComponent != null) {
+				add(controlComponent, BorderLayout.SOUTH);
+			}
 		}
+
 		revalidate();
 	}
 }

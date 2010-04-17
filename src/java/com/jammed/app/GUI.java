@@ -136,7 +136,7 @@ public class GUI extends JFrame implements ActionListener {
 			tabsPanel.setVisible(showPlaylistBox.isSelected());
 			pack();
 		} else if (e.getSource().equals(previousButton)) {
-			controller.playRemoteMedia("224.111.111.112", 5006);
+			//controller.playRemoteMedia("224.111.111.112", 5006);
 		} else if (e.getSource().equals(playPauseButton)) {
 			Media m = PlaylistPanel.getInstance().getSelectedMedia();
 			play(m);
@@ -161,13 +161,7 @@ public class GUI extends JFrame implements ActionListener {
 		if (toPlay == null) { //No media to play
 			return;
 		}
-		try {
-			File f = new File(toPlay.getLocation());
-			String selectedUrl = f.toURI().toURL().toString();
-			controller.playLocalMedia(selectedUrl);
-		} catch (Exception ex) {
-			ex.printStackTrace();
-		}
+		controller.playMedia(toPlay);
 	}
 
 	/*
