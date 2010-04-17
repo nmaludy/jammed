@@ -76,7 +76,7 @@ public class RTPTransmitter implements ControllerListener, Runnable {
 	}
 
 	public void controllerUpdate(ControllerEvent ce) {
-		//System.out.println("Transmission event : " + ce.getClass().toString() );
+		System.out.println("Transmission event : " + ce.getClass().toString() );
 		if (ce instanceof ConfigureCompleteEvent) {
 			setupTracks();
 		} else if (ce instanceof RealizeCompleteEvent) {

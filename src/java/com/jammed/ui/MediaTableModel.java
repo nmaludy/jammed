@@ -1,7 +1,7 @@
 package com.jammed.ui;
 
-import com.jammed.app.PlaylistEvent;
-import com.jammed.app.PlaylistListener;
+import com.jammed.event.PlaylistEvent;
+import com.jammed.event.PlaylistListener;
 import com.jammed.gen.MediaProtos.Media;
 import com.jammed.gen.MediaProtos.Playlist;
 import java.util.ArrayList;

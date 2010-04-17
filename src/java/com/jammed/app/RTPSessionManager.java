@@ -1,5 +1,6 @@
 package com.jammed.app;
 
+import com.jammed.event.RTPReceiverListener;
 import com.google.protobuf.MessageLite;
 import com.jammed.gen.MediaProtos.Media;
 import com.jammed.gen.MessageProtos.PlayRequest;
@@ -8,7 +9,9 @@ import com.jammed.gen.ProtoBuffer.Request;
 import com.jammed.handlers.PlayRequestHandler;
 import com.jammed.handlers.PlayResponseHandler;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.ExecutorService;
@@ -24,6 +27,7 @@ import javax.swing.event.EventListenerList;
 public class RTPSessionManager {
 
 	private final ExecutorService transmitters;
+	private final List<Integer> transmissionIds;
 	private final RequestHandler requestHandler;
 	private final ResponseHandler responseHandler;
 	private final Map<Integer, Request> receiveRequests;
@@ -35,6 +39,7 @@ public class RTPSessionManager {
 
 	private RTPSessionManager() {
 		transmitters = Executors.newCachedThreadPool();
+		transmissionIds= Collections.synchronizedList(new ArrayList<Integer>());
 		requestHandler = new RequestHandler();
 		responseHandler = new ResponseHandler();
 		receiveRequests = Collections.synchronizedMap(new TreeMap<Integer, Request>());
@@ -113,24 +118,29 @@ public class RTPSessionManager {
 				return false; //this media isn't present on our system
 			}
 			System.out.println("Got a request for media on my machine");
+			
+			synchronized (transmissionIds) {
+				if (!transmissionIds.contains(Integer.valueOf(request.getId()))) {
+					try {
+						Media media = playRequest.getMedia();
+						File mediaFile = new File(media.getLocation());
+						MediaLocator locator = new MediaLocator(mediaFile.toURI().toURL());
 
-			Media media = playRequest.getMedia();
-			try {
-				File mediaFile = new File(media.getLocation());
-				MediaLocator locator = new MediaLocator(mediaFile.toURI().toURL());
-
-				PlayResponse.Builder builder = PlayResponse.newBuilder();
-				builder.setType(builder.getType());
-				builder.setAddress( "224.111.111.112");
-				builder.setAuidoPort(5006);
-				builder.setRequest(request);
-				Cloud.getInstance().send(builder.build(), request.getId());
-				System.out.println("Sending Play Response");
-				RTPTransmitter t = RTPTransmitter.create(locator, "224.111.111.112", 5006);
-				transmitters.execute(t);
-				System.out.println("Transmitting");
-			} catch (Exception ex) {
-				ex.printStackTrace();
+						PlayResponse.Builder builder = PlayResponse.newBuilder();
+						builder.setType(builder.getType());
+						builder.setAddress("224.111.111.112");
+						builder.setAuidoPort(5006);
+						builder.setRequest(request);
+						transmissionIds.add(Integer.valueOf(request.getId()));
+						Cloud.getInstance().send(builder.build(), request.getId());
+						System.out.println("Sending Play Response");
+						RTPTransmitter t = RTPTransmitter.create(locator, "224.111.111.112", 5006);
+						transmitters.execute(t);
+						System.out.println("Transmitting");
+					} catch (Exception ex) {
+						ex.printStackTrace();
+					}
+				}
 			}
 
 			return true;

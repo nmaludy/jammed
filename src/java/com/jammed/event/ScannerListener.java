@@ -1,4 +1,4 @@
-package com.jammed.app;
+package com.jammed.event;
 
 import com.jammed.gen.MediaProtos.Playlist;
 

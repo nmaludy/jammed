@@ -1,4 +1,4 @@
-package com.jammed.app;
+package com.jammed.event;
 
 import java.util.EventListener;
 

@@ -1,5 +1,6 @@
 package com.jammed.app;
 
+import com.jammed.event.ScannerListener;
 import com.jammed.gen.MediaProtos.Media;
 import com.jammed.gen.MediaProtos.Playlist;
 import java.io.File;
