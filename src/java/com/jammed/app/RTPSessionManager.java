@@ -123,6 +123,7 @@ public class RTPSessionManager {
 				if (!transmissionIds.contains(Integer.valueOf(request.getId()))) {
 					try {
 						Media media = playRequest.getMedia();
+						boolean isVideo = MediaUtils.isVideo(media);
 						File mediaFile = new File(media.getLocation());
 						MediaLocator locator = new MediaLocator(mediaFile.toURI().toURL());
 
@@ -130,6 +131,10 @@ public class RTPSessionManager {
 						builder.setType(builder.getType());
 						builder.setAddress("224.111.111.112");
 						builder.setAuidoPort(5006);
+						if(isVideo) {
+							builder.setVideoPort(5008);
+							System.out.println("Sending video");
+						}
 						builder.setRequest(request);
 						transmissionIds.add(Integer.valueOf(request.getId()));
 						Cloud.getInstance().send(builder.build(), request.getId());

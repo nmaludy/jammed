@@ -1,14 +1,13 @@
 package com.jammed.event;
 
 import com.jammed.app.RTPReceiver;
-import java.util.EventObject;
 import javax.media.protocol.DataSource;
 
 /**
  *
  * @author nmaludy
  */
-public class StreamReceivedEvent extends EventObject {
+public class StreamReceivedEvent extends StreamEvent {
 	private static final long serialVersionUID = 1L;
 
 	private final DataSource dataSource;

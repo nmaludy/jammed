@@ -1,6 +1,5 @@
 package com.jammed.event;
 
-import com.jammed.event.StreamReceivedEvent;
 import java.util.EventListener;
 
 /**

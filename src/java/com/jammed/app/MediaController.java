@@ -21,7 +21,6 @@ import javax.media.StopTimeChangeEvent;
 import javax.media.TransitionEvent;
 import javax.media.bean.playerbean.MediaPlayer;
 import javax.media.format.FormatChangeEvent;
-import javax.media.protocol.DataSource;
 
 /**
  *
@@ -30,7 +29,8 @@ import javax.media.protocol.DataSource;
 public class MediaController implements ControllerListener, RTPReceiverListener {
 	private static final RTPSessionManager sessionManager = RTPSessionManager.getInstance();
 	private static MediaController INSTANCE;
-	private VideoHandler videoHandler;
+	private RemoteVideoHandler videoHandler;
+	private RemoteAudioHandler audioHandler;
 	private MediaPlayer player;
 	private MediaPlayer remoteVideoPlayer;
 	private PlayerPanel panel;
@@ -47,7 +47,8 @@ public class MediaController implements ControllerListener, RTPReceiverListener 
 	
 
 	private MediaController() {
-		videoHandler = new VideoHandler();
+		videoHandler = new RemoteVideoHandler();
+		audioHandler = new RemoteAudioHandler();
 		sessionManager.addReceiverListener(this);
 	}
 
@@ -85,12 +86,6 @@ public class MediaController implements ControllerListener, RTPReceiverListener 
 		player.realize();
 	}
 
-	private void initRemotePlayer(DataSource ds) {
-		player = MediaUtils.createMediaPlayer(ds);
-		player.addControllerListener(this);
-		player.realize();
-	}
-
 	private void playOrPause() {
 		if (isPaused || !sessionInProgress) {
 			play();
@@ -118,6 +113,10 @@ public class MediaController implements ControllerListener, RTPReceiverListener 
 		if (player != null) {
 			player.close();
 			player = null;
+		}
+		if (remoteVideoPlayer != null) {
+			remoteVideoPlayer.close();
+			remoteVideoPlayer = null;
 		}
 		if (audioReceiver != null) {
 			audioReceiver.stop();
@@ -169,22 +168,40 @@ public class MediaController implements ControllerListener, RTPReceiverListener 
 			remoteVideoPlayer.addControllerListener(videoHandler);
 			remoteVideoPlayer.realize();
 		} else {
-			initRemotePlayer(event.getDataSource());
+			player = MediaUtils.createMediaPlayer(event.getDataSource());
+			player.addControllerListener(audioHandler);
+			player.realize();
 		}
 	}
 
-	private class VideoHandler implements ControllerListener {
+	private class RemoteVideoHandler implements ControllerListener {
 
 		public void controllerUpdate(ControllerEvent event) {
 			if (event instanceof RealizeCompleteEvent) {
-				handleRealizeComplete((RealizeCompleteEvent) event);
+				handleVideoRealizeComplete((RealizeCompleteEvent) event);
 			}
 		}
 
-		private void handleRealizeComplete(RealizeCompleteEvent event) {
+		private void handleVideoRealizeComplete(RealizeCompleteEvent event) {
 			remoteVideoPlayer.prefetch();
 			panel.setVideoPlayer(remoteVideoPlayer);
 			remoteVideoPlayer.start();
+			sessionInProgress = true;
+		}
+	}
+
+	private class RemoteAudioHandler implements ControllerListener {
+
+		public void controllerUpdate(ControllerEvent event) {
+			if (event instanceof RealizeCompleteEvent) {
+				handleAudioRealizeComplete((RealizeCompleteEvent) event);
+			}
+		}
+
+		private void handleAudioRealizeComplete(RealizeCompleteEvent event) {
+			player.prefetch();
+			panel.setAudioPlayer(player);
+			player.start();
 			sessionInProgress = true;
 		}
 	}

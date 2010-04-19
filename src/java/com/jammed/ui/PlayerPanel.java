@@ -44,13 +44,16 @@ public class PlayerPanel extends JPanel {
 
 	public void setPlayer(Player p) {
 		if (player != null) {
+			player.deallocate();
 			player.close();
 		}
 		if (audioPlayer != null) {
+			audioPlayer.deallocate();
 			audioPlayer.close();
 			audioPlayer = null;
 		}
 		if (videoPlayer != null) {
+			videoPlayer.deallocate();
 			videoPlayer.close();
 			videoPlayer = null;
 		}
@@ -60,10 +63,12 @@ public class PlayerPanel extends JPanel {
 
 	public void setAudioPlayer(Player p) {
 		if (player != null) {
+			player.deallocate();
 			player.close();
 			player = null;
 		}
 		if (audioPlayer != null) {
+			audioPlayer.deallocate();
 			audioPlayer.close();
 		}
 		audioPlayer = p;
@@ -72,10 +77,12 @@ public class PlayerPanel extends JPanel {
 
 	public void setVideoPlayer(Player p) {
 		if (player != null) {
+			player.deallocate();
 			player.close();
 			player = null;
 		}
 		if (videoPlayer != null) {
+			videoPlayer.deallocate();
 			videoPlayer.close();
 		}
 		videoPlayer = p;
@@ -90,7 +97,7 @@ public class PlayerPanel extends JPanel {
 		if (player != null) {
 			Component visualComponent = player.getVisualComponent();
 			if (visualComponent != null) {
-				System.out.println("Adding Video");
+				System.out.println("Adding Video player");
 				add(visualComponent, BorderLayout.CENTER);
 			} else {
 				add(background, BorderLayout.CENTER);
@@ -104,24 +111,15 @@ public class PlayerPanel extends JPanel {
 		}
 
 		if (audioPlayer != null) {
-			add(background, BorderLayout.CENTER);
-			Component controlComponent = player.getControlPanelComponent();
-			if (controlComponent != null) {
-				add(controlComponent, BorderLayout.SOUTH);
-			}
+			System.out.println("Adding Audio To Panel");
+			//Component controlComponent = audioPlayer.getControlPanelComponent();
 		}
 
 		if (videoPlayer != null) {
 			Component visualComponent = videoPlayer.getVisualComponent();
 			if (visualComponent != null) {
-				System.out.println("Adding Video");
+				System.out.println("Adding Video To Panel");
 				add(visualComponent, BorderLayout.CENTER);
-			} else {
-				add(background, BorderLayout.CENTER);
-			}
-			Component controlComponent = player.getControlPanelComponent();
-			if (controlComponent != null) {
-				add(controlComponent, BorderLayout.SOUTH);
 			}
 		}
 
