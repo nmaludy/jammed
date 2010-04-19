@@ -171,6 +171,8 @@ public class GUI extends JFrame implements ActionListener {
 		javax.swing.SwingUtilities.invokeLater(new Runnable() {
 
 			public void run() {
+				Cloud.getInstance(); //Start the cloud
+				TransmissionAddressManager.getInstance(); //Start transmission address manager
 				GUI.getInstance();
 			}
 		});

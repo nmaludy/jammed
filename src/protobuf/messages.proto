@@ -45,3 +45,14 @@ message PlayResponse {
 	optional int32   videoPort = 5;
 	optional Media   media     = 6;
 }
+
+message AddressDeclaration {
+	required Message.Type type = 1 [default = ADDRESS_DECLARATION];
+	required string	 address = 2;
+	required Request request = 3;
+}
+
+message AddressRejection {
+	required Message.Type type = 1 [default = ADDRESS_REJECTION];
+	required Request request = 2;
+}

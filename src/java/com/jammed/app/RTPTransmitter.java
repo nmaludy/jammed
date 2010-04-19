@@ -197,7 +197,7 @@ public class RTPTransmitter implements ControllerListener, Runnable {
 				sendStream = rtpMgrs[i].createSendStream(dataOutput, i);
 				sendStream.start();
 			} catch (Exception e) {
-				System.err.println(e.getMessage() + "JFKDLSJKFL");
+				System.err.println(e.getMessage());
 				return;
 			}
 		}

@@ -7,20 +7,20 @@ import javax.media.protocol.DataSource;
  *
  * @author nmaludy
  */
-public class StreamReceivedEvent extends StreamEvent {
+public class ReceivedStreamEvent extends StreamEvent {
 	private static final long serialVersionUID = 1L;
 
 	private final DataSource dataSource;
 	private final boolean isVideo;
 
-	private StreamReceivedEvent(RTPReceiver source, DataSource dataSource, boolean isVideo) {
+	private ReceivedStreamEvent(RTPReceiver source, DataSource dataSource, boolean isVideo) {
 		super(source);
 		this.dataSource = dataSource;
 		this.isVideo = isVideo;
 	}
 
-	public static StreamReceivedEvent create(RTPReceiver source, DataSource dataSource, boolean isVideo) {
-		return new StreamReceivedEvent(source, dataSource, isVideo);
+	public static ReceivedStreamEvent create(RTPReceiver source, DataSource dataSource, boolean isVideo) {
+		return new ReceivedStreamEvent(source, dataSource, isVideo);
 	}
 
 	public DataSource getDataSource() {

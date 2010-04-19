@@ -42,49 +42,52 @@ public class PlayerPanel extends JPanel {
 		return this.player;
 	}
 
-	public void setPlayer(Player p) {
+	public void resetAll() {
+		resetPlayer();
+		resetAudioPlayer();
+		resetVideoPlayer();
+	}
+
+	public void resetPlayer() {
 		if (player != null) {
-			player.deallocate();
 			player.close();
+			player.deallocate();
+			player = null;
 		}
+	}
+
+	public void resetAudioPlayer() {
 		if (audioPlayer != null) {
-			audioPlayer.deallocate();
 			audioPlayer.close();
+			audioPlayer.deallocate();
 			audioPlayer = null;
 		}
+	}
+
+	public void resetVideoPlayer() {
 		if (videoPlayer != null) {
-			videoPlayer.deallocate();
 			videoPlayer.close();
+			videoPlayer.deallocate();
 			videoPlayer = null;
 		}
+	}
+
+	public void setPlayer(Player p) {
+		resetAll();
 		player = p;
 		update();
 	}
 
 	public void setAudioPlayer(Player p) {
-		if (player != null) {
-			player.deallocate();
-			player.close();
-			player = null;
-		}
-		if (audioPlayer != null) {
-			audioPlayer.deallocate();
-			audioPlayer.close();
-		}
+		resetPlayer();
+		resetAudioPlayer();
 		audioPlayer = p;
 		update();
 	}
 
 	public void setVideoPlayer(Player p) {
-		if (player != null) {
-			player.deallocate();
-			player.close();
-			player = null;
-		}
-		if (videoPlayer != null) {
-			videoPlayer.deallocate();
-			videoPlayer.close();
-		}
+		resetPlayer();
+		resetVideoPlayer();
 		videoPlayer = p;
 		update();
 	}

@@ -1,7 +1,9 @@
 package com.jammed.app;
 
 import com.jammed.event.RTPReceiverListener;
-import com.jammed.event.StreamReceivedEvent;
+import com.jammed.event.ReceivedStopEvent;
+import com.jammed.event.ReceivedStreamEvent;
+import com.jammed.event.StreamEvent;
 import com.jammed.gen.MediaProtos.Media;
 import com.jammed.ui.PlayerPanel;
 import java.io.File;
@@ -112,10 +114,12 @@ public class MediaController implements ControllerListener, RTPReceiverListener 
 	private void destroyCurrent() {
 		if (player != null) {
 			player.close();
+			player.deallocate();
 			player = null;
 		}
 		if (remoteVideoPlayer != null) {
 			remoteVideoPlayer.close();
+			remoteVideoPlayer.deallocate();
 			remoteVideoPlayer = null;
 		}
 		if (audioReceiver != null) {
@@ -125,6 +129,9 @@ public class MediaController implements ControllerListener, RTPReceiverListener 
 		if (videoReceiver != null) {
 			videoReceiver.stop();
 			videoReceiver = null;
+		}
+		if (panel != null) {
+			panel.resetAll();
 		}
 		sessionInProgress = false;
 	}
@@ -162,15 +169,20 @@ public class MediaController implements ControllerListener, RTPReceiverListener 
 		play();
 	}
 
-	public void streamReceived(StreamReceivedEvent event) {
-		if (event.isVideo()) {
-			remoteVideoPlayer = MediaUtils.createMediaPlayer(event.getDataSource());
-			remoteVideoPlayer.addControllerListener(videoHandler);
-			remoteVideoPlayer.realize();
-		} else {
-			player = MediaUtils.createMediaPlayer(event.getDataSource());
-			player.addControllerListener(audioHandler);
-			player.realize();
+	public void receivedStreamUpdate(StreamEvent event) {
+		if (event instanceof ReceivedStreamEvent) {
+			ReceivedStreamEvent rs = (ReceivedStreamEvent) event;
+			if (rs.isVideo()) {
+				remoteVideoPlayer = MediaUtils.createMediaPlayer(rs.getDataSource());
+				remoteVideoPlayer.addControllerListener(videoHandler);
+				remoteVideoPlayer.realize();
+			} else {
+				player = MediaUtils.createMediaPlayer(rs.getDataSource());
+				player.addControllerListener(audioHandler);
+				player.realize();
+			}
+		} else if (event instanceof ReceivedStopEvent) {
+			destroyCurrent();
 		}
 	}
 

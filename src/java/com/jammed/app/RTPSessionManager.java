@@ -13,7 +13,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedSet;
 import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import javax.media.MediaLocator;
@@ -28,10 +30,11 @@ public class RTPSessionManager {
 
 	private final ExecutorService transmitters;
 	private final List<Integer> transmissionIds;
-	private final RequestHandler requestHandler;
-	private final ResponseHandler responseHandler;
+	private final RTPTransmissionHandler requestHandler;
+	private final RTPReceptionHandler responseHandler;
 	private final Map<Integer, Request> receiveRequests;
 	private final EventListenerList receiveListeners;
+	private final SortedSet<Integer> portsInUse;
 
 	private static class RTPSessionManagerHolder {
 		static final RTPSessionManager instance = new RTPSessionManager();
@@ -40,10 +43,12 @@ public class RTPSessionManager {
 	private RTPSessionManager() {
 		transmitters = Executors.newCachedThreadPool();
 		transmissionIds= Collections.synchronizedList(new ArrayList<Integer>());
-		requestHandler = new RequestHandler();
-		responseHandler = new ResponseHandler();
+		requestHandler = new RTPTransmissionHandler();
+		responseHandler = new RTPReceptionHandler();
 		receiveRequests = Collections.synchronizedMap(new TreeMap<Integer, Request>());
 		receiveListeners = new EventListenerList();
+		portsInUse = Collections.synchronizedSortedSet(new TreeSet<Integer>());
+		portsInUse.add(Integer.valueOf(2000));//Populate with initial port
 		Cloud.getInstance().addMessageHandler(requestHandler);
 		Cloud.getInstance().addMessageHandler(responseHandler);
 	}
@@ -98,7 +103,7 @@ public class RTPSessionManager {
 	 * equal to Cloud.getInstance().getHostname(). Then starts a
 	 * RTP transmit session to a new address and sends a Play Response message back.
 	 */
-	private class RequestHandler extends PlayRequestHandler {
+	private class RTPTransmissionHandler extends PlayRequestHandler {
 
 		@Override
 		public boolean handleMessage(final MessageLite message) {
@@ -126,22 +131,30 @@ public class RTPSessionManager {
 						boolean isVideo = MediaUtils.isVideo(media);
 						File mediaFile = new File(media.getLocation());
 						MediaLocator locator = new MediaLocator(mediaFile.toURI().toURL());
+						String address = TransmissionAddressManager.getInstance().getAddress();
+						Integer audioPort;
 
 						PlayResponse.Builder builder = PlayResponse.newBuilder();
 						builder.setType(builder.getType());
-						builder.setAddress("224.111.111.112");
-						builder.setAuidoPort(5006);
-						if(isVideo) {
-							builder.setVideoPort(5008);
-							System.out.println("Sending video");
+						builder.setAddress(address);
+						synchronized(portsInUse) {
+							audioPort = Integer.valueOf(portsInUse.last() + 2);
+							builder.setAuidoPort(audioPort);
+							portsInUse.add(audioPort);
+							if(isVideo) {
+								Integer videoPort = Integer.valueOf(audioPort.intValue() + 2);
+								builder.setVideoPort(videoPort);
+								portsInUse.add(videoPort);
+								System.out.println("Sending video");
+							}
 						}
 						builder.setRequest(request);
 						transmissionIds.add(Integer.valueOf(request.getId()));
-						Cloud.getInstance().send(builder.build(), request.getId());
-						System.out.println("Sending Play Response");
-						RTPTransmitter t = RTPTransmitter.create(locator, "224.111.111.112", 5006);
+						RTPTransmitter t = RTPTransmitter.create(locator, address, audioPort);
 						transmitters.execute(t);
 						System.out.println("Transmitting");
+						Cloud.getInstance().send(builder.build(), request.getId());
+						System.out.println("Sending Play Response");
 					} catch (Exception ex) {
 						ex.printStackTrace();
 					}
@@ -158,7 +171,7 @@ public class RTPSessionManager {
 	 * media on. This class handles the reponse to the request messages and starts
 	 * the receiving of the stream.
 	 */
-	private class ResponseHandler extends PlayResponseHandler {
+	private class RTPReceptionHandler extends PlayResponseHandler {
 
 		@Override
 		public boolean handleMessage(final MessageLite message) {

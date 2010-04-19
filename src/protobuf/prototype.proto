@@ -15,6 +15,8 @@ message Message {
 		PLAY_REQUEST  = 5;
 		PLAY_RESPONSE = 6;
 		FORCE_REQUEST = 7;
+		ADDRESS_DECLARATION = 8;
+		ADDRESS_REJECTION = 9;
 	}
 }
 

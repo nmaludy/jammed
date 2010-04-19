@@ -131,6 +131,11 @@ public class LibrarySearchPanel extends JPanel implements ActionListener{
 
 			final Playlist playlist = (Playlist) message;
 			Request request = playlist.getRequest();
+			String hostname = request.getOrigin();
+			if (!hostname.equals(Cloud.getInstance().getHostName())) {
+				return false; //a request that originated from this system, ignore it
+			}
+			
 			Integer requestId = Integer.valueOf(playlist.getRequest().getId());
 			System.out.println("Got search response for ID " + requestId);
 			if (searchRequests.containsKey(requestId)) {

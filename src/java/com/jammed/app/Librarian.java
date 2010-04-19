@@ -60,13 +60,12 @@ public class Librarian extends SearchHandler implements ScannerListener {
 		}
 
 		final Search search = (Search) message;
-		if (search.getRequest().getOrigin().equals(Cloud.getInstance().getHostName())) {
-			System.out.println("Search from self");
-			return true;
-		} else {
-			System.out.println("Search from " + search.getRequest().getOrigin());
+		Request request = search.getRequest();
+		String hostname = request.getOrigin();
+		if (hostname.equals(Cloud.getInstance().getHostName())) {
+			return false; //a request that originated from this system, ignore it
 		}
-		final Request request = search.getRequest();
+		
 		final String query = search.getQuery();
 		System.out.println("Handling request for " + query + " ID " + request.getId());
 		final Playlist results = search(query, request);
