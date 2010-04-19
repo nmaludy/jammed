@@ -50,6 +50,7 @@ public class PlayerPanel extends JPanel {
 
 	public void resetPlayer() {
 		if (player != null) {
+			player.stop();
 			player.close();
 			player.deallocate();
 			player = null;
@@ -58,6 +59,7 @@ public class PlayerPanel extends JPanel {
 
 	public void resetAudioPlayer() {
 		if (audioPlayer != null) {
+			audioPlayer.stop();
 			audioPlayer.close();
 			audioPlayer.deallocate();
 			audioPlayer = null;
@@ -66,6 +68,7 @@ public class PlayerPanel extends JPanel {
 
 	public void resetVideoPlayer() {
 		if (videoPlayer != null) {
+			videoPlayer.stop();
 			videoPlayer.close();
 			videoPlayer.deallocate();
 			videoPlayer = null;

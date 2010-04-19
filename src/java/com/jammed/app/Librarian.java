@@ -20,6 +20,7 @@ import java.io.IOException;
 
 import java.util.ArrayList;
 import java.util.List;
+import javax.swing.SwingUtilities;
 import javax.swing.event.EventListenerList;
 
 public class Librarian extends SearchHandler implements ScannerListener {
@@ -229,13 +230,18 @@ public class Librarian extends SearchHandler implements ScannerListener {
 		localPlaylistListeners.get(playlistIndex).remove(PlaylistListener.class, l);
 	}
 
-	protected void firePlaylistEvent(EventListenerList list, PlaylistEvent event) {
-		Object[] listeners = list.getListenerList();
-		for (int i = listeners.length - 2; i >= 0; i -= 2) {
-			if (listeners[i] == PlaylistListener.class) {
-				((PlaylistListener) listeners[i + 1]).playlistChanged(event);
+	protected void firePlaylistEvent(final EventListenerList list, final PlaylistEvent event) {
+		SwingUtilities.invokeLater(new Runnable() {
+
+			public void run() {
+				Object[] listeners = list.getListenerList();
+				for (int i = listeners.length - 2; i >= 0; i -= 2) {
+					if (listeners[i] == PlaylistListener.class) {
+						((PlaylistListener) listeners[i + 1]).playlistChanged(event);
+					}
+				}
 			}
-		}
+		});
 	}
 
 	public void addMediaToPlaylist(Media m, int playlistIndex) {

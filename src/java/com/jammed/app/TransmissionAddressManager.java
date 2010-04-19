@@ -7,6 +7,8 @@ import com.jammed.gen.ProtoBuffer.Request;
 import com.jammed.handlers.AddressDeclarationHandler;
 import com.jammed.handlers.AddressRejectionHandler;
 import java.util.Random;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  *
@@ -17,7 +19,9 @@ public class TransmissionAddressManager {
 	private final Random r = new Random();
 	private final ClientDeclarationHandler declarationHandler;
 	private final ClientRejectionHandler rejectionHandler;
-	private volatile Request declarationRequest;
+	private final ReentrantReadWriteLock requestLock = new ReentrantReadWriteLock();
+	private final Lock requestWrite = requestLock.writeLock();
+	private Request declarationRequest;
 	private volatile String address;
 
 	private TransmissionAddressManager() {
@@ -72,9 +76,11 @@ public class TransmissionAddressManager {
 		AddressDeclaration.Builder builder = AddressDeclaration.newBuilder();
 		builder.setType(builder.getType());
 		builder.setAddress(address);
+		requestWrite.lock();
 		declarationRequest = RequestPool.getInstance().lease();
 		builder.setRequest(declarationRequest);
 		Cloud.getInstance().send(builder.build(), declarationRequest.getId());
+		requestWrite.unlock();
 	}
 
 	private class ClientDeclarationHandler extends AddressDeclarationHandler {
@@ -119,10 +125,12 @@ public class TransmissionAddressManager {
 			if (!hostname.equals(Cloud.getInstance().getHostName())) {
 				return false; //a request did not originate from this system, ignore it
 			}
+			requestWrite.lock();
 			if (request.getId() != declarationRequest.getId()) {
 				return false; //Not the most recent request that we have sent out
 			}
 			RequestPool.getInstance().release(declarationRequest);
+			requestWrite.unlock();
 			
 			sendDeclarationRequest();
 			return true;

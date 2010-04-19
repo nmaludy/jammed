@@ -27,6 +27,7 @@ import javax.media.rtp.event.ReceiveStreamEvent;
 import javax.media.rtp.event.RemotePayloadChangeEvent;
 import javax.media.rtp.event.SessionEvent;
 import javax.media.rtp.event.StreamMappedEvent;
+import javax.swing.SwingUtilities;
 import javax.swing.event.EventListenerList;
 
 /**
@@ -87,7 +88,6 @@ public class RTPReceiver implements ReceiveStreamListener, SessionListener {
 	 * Close the session manager and event listeners
 	 */
 	public void stop() {
-		streamListeners = null;
 		if (manager != null) {
 			manager.removeTargets("Removing Receiver Targets");
 			manager.dispose();
@@ -95,6 +95,8 @@ public class RTPReceiver implements ReceiveStreamListener, SessionListener {
 		}
 		ReceivedStopEvent stopEvent = ReceivedStopEvent.create(this);
 		fireReceiverEvent(stopEvent);
+		System.out.println("killing RTPReceiver");
+		streamListeners = null;
 	}
 
 	public void addReceiverListener(final RTPReceiverListener l) {
@@ -109,12 +111,17 @@ public class RTPReceiver implements ReceiveStreamListener, SessionListener {
 		if (streamListeners == null) {
 			return;
 		}
-		Object[] listeners = streamListeners.getListenerList();
-		for (int i = listeners.length - 2; i >= 0; i -= 2) {
-			if (listeners[i] == RTPReceiverListener.class) {
-				((RTPReceiverListener) listeners[i + 1]).receivedStreamUpdate(event);
+		SwingUtilities.invokeLater(new Runnable() {
+
+			public void run() {
+				Object[] listeners = streamListeners.getListenerList();
+				for (int i = listeners.length - 2; i >= 0; i -= 2) {
+					if (listeners[i] == RTPReceiverListener.class) {
+						((RTPReceiverListener) listeners[i + 1]).receivedStreamUpdate(event);
+					}
+				}
 			}
-		}
+		});
 	}
 	/*
 	 * SessionListener.
@@ -122,10 +129,9 @@ public class RTPReceiver implements ReceiveStreamListener, SessionListener {
 
 	@Override
 	public void update(SessionEvent evt) {
-		System.out.println("SessionEvent event : " + evt.getClass().toString() );
 		if (evt instanceof NewParticipantEvent) {
 			Participant p = ((NewParticipantEvent) evt).getParticipant();
-			System.err.println("  - A new participant had just joined: " + p.getCNAME());
+			//System.err.println("  - A new participant had just joined: " + p.getCNAME());
 		}
 	}
 
@@ -134,7 +140,6 @@ public class RTPReceiver implements ReceiveStreamListener, SessionListener {
 	 */
 	@Override
 	public void update(ReceiveStreamEvent evt) {
-		System.out.println("ReceiveStream event : " + evt.getClass().toString() );
 		Participant participant = evt.getParticipant();	// could be null.
 		ReceiveStream stream = evt.getReceiveStream();  // could be null.
 
@@ -146,21 +151,19 @@ public class RTPReceiver implements ReceiveStreamListener, SessionListener {
 			try {
 				stream = ((NewReceiveStreamEvent) evt).getReceiveStream();
 				DataSource ds = stream.getDataSource();
-
 				// Find out the formats.
-				RTPControl ctl = (RTPControl) ds.getControl("javax.media.rtp.RTPControl");
-				if (ctl != null) {
-					System.err.println("  - Recevied new RTP stream: " + ctl.getFormat());
-				} else {
-					System.err.println("  - Recevied new RTP stream");
-				}
+//				RTPControl ctl = (RTPControl) ds.getControl("javax.media.rtp.RTPControl");
+//				if (ctl != null) {
+//					System.err.println("  - Recevied new RTP stream: " + ctl.getFormat());
+//				} else {
+//					System.err.println("  - Recevied new RTP stream");
+//				}
 
-				if (participant == null) {
-					System.err.println("      The sender of this stream had yet to be identified.");
-				} else {
-					System.err.println("      The stream comes from: " + participant.getCNAME());
-				}
-
+//				if (participant == null) {
+//					System.err.println("      The sender of this stream had yet to be identified.");
+//				} else {
+//					System.err.println("      The stream comes from: " + participant.getCNAME());
+//				}
 				ReceivedStreamEvent e = ReceivedStreamEvent.create(this, ds, isVideo);
 				fireReceiverEvent(e);
 
@@ -174,16 +177,16 @@ public class RTPReceiver implements ReceiveStreamListener, SessionListener {
 			if (stream != null && stream.getDataSource() != null) {
 				DataSource ds = stream.getDataSource();
 				// Find out the formats.
-				RTPControl ctl = (RTPControl) ds.getControl("javax.media.rtp.RTPControl");
-				System.err.println("  - The previously unidentified stream ");
-				if (ctl != null) {
-					System.err.println("      " + ctl.getFormat());
-				}
-				System.err.println("      had now been identified as sent by: " + participant.getCNAME());
+				//RTPControl ctl = (RTPControl) ds.getControl("javax.media.rtp.RTPControl");
+				//System.err.println("  - The previously unidentified stream ");
+				//if (ctl != null) {
+				//	System.err.println("      " + ctl.getFormat());
+				//}
+				//System.err.println("      had now been identified as sent by: " + participant.getCNAME());
 			}
 		} else if (evt instanceof ByeEvent) {
 
-			System.err.println("  - Got \"bye\" from: " + participant.getCNAME());
+			//System.err.println("  - Got \"bye\" from: " + participant.getCNAME());
 		} else if (evt instanceof InactiveReceiveStreamEvent) {
 			stop();
 		}

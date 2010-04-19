@@ -1,5 +1,8 @@
 package com.jammed.app;
 
+import com.jammed.event.RTPTransmissionListener;
+import com.jammed.event.StreamEvent;
+import com.jammed.event.TransmissionStopEvent;
 import java.awt.Dimension;
 import java.io.IOException;
 import java.net.InetAddress;
@@ -7,6 +10,7 @@ import javax.media.ConfigureCompleteEvent;
 import javax.media.Control;
 import javax.media.ControllerEvent;
 import javax.media.ControllerListener;
+import javax.media.EndOfMediaEvent;
 import javax.media.Format;
 import javax.media.Manager;
 import javax.media.MediaLocator;
@@ -28,21 +32,27 @@ import javax.media.protocol.PushBufferStream;
 import javax.media.rtp.RTPManager;
 import javax.media.rtp.SendStream;
 import javax.media.rtp.SessionAddress;
+import javax.swing.SwingUtilities;
+import javax.swing.event.EventListenerList;
 
 /**
  *
  * @author nmaludy
  */
 public class RTPTransmitter implements ControllerListener, Runnable {
-	
+
+	private EventListenerList streamListeners;
 	private MediaLocator locator;
 	private String ipAddress;
 	private int portBase;
+	private int audioPort = -1;
+	private int videoPort = -1;
 	private Processor processor = null;
 	private RTPManager rtpMgrs[];
 	private DataSource dataOutput = null;
 
 	private RTPTransmitter(MediaLocator locator, String ipAddress, int portBase) {
+		this.streamListeners = new EventListenerList();
 		this.locator = locator;
 		this.ipAddress = ipAddress;
 		this.portBase = portBase;
@@ -59,7 +69,40 @@ public class RTPTransmitter implements ControllerListener, Runnable {
 	public void run() {
 		createAndConfigureProcessor();
 	}
-	
+
+	public void addTransmitterListener(final RTPTransmissionListener l) {
+		streamListeners.add(RTPTransmissionListener.class, l);
+	}
+
+	public void removeTransmitterListener(final RTPTransmissionListener l) {
+		streamListeners.remove(RTPTransmissionListener.class, l);
+	}
+
+	protected void fireTransmitterEvent(final StreamEvent event) {
+		if (streamListeners == null) {
+			return;
+		}
+		SwingUtilities.invokeLater(new Runnable() {
+
+			public void run() {
+				Object[] listeners = streamListeners.getListenerList();
+				for (int i = listeners.length - 2; i >= 0; i -= 2) {
+					if (listeners[i] == RTPTransmissionListener.class) {
+						((RTPTransmissionListener) listeners[i + 1]).transmissionStreamUpdate(event);
+					}
+				}
+			}
+		});
+	}
+
+	public int getAudioPort() {
+		return audioPort;
+	}
+
+	public int getVideoPort() {
+		return videoPort;
+	}
+
 	/**
 	 * Stops the transmission if already started
 	 */
@@ -67,21 +110,29 @@ public class RTPTransmitter implements ControllerListener, Runnable {
 		if (processor != null) {
 			processor.stop();
 			processor.close();
+			processor.deallocate();
 			processor = null;
+		}
+		if (rtpMgrs != null) {
 			for (int i = 0; i < rtpMgrs.length; i++) {
 				rtpMgrs[i].removeTargets("Session ended.");
 				rtpMgrs[i].dispose();
 			}
+			rtpMgrs = null;
 		}
+		TransmissionStopEvent stopEvent = TransmissionStopEvent.create(this);
+		fireTransmitterEvent(stopEvent);
+		streamListeners = null;
 	}
 
 	public void controllerUpdate(ControllerEvent ce) {
-		System.out.println("Transmission event : " + ce.getClass().toString() );
 		if (ce instanceof ConfigureCompleteEvent) {
 			setupTracks();
 		} else if (ce instanceof RealizeCompleteEvent) {
 			setupQuality();
 			createTransmitter(); //calls start transmission
+		} else if (ce instanceof EndOfMediaEvent) {
+			stop();
 		}
 	}
 
@@ -114,7 +165,7 @@ public class RTPTransmitter implements ControllerListener, Runnable {
 		Format supported[];
 		Format chosen;
 		boolean atLeastOneTrack = false;
-		
+
 		double audioQuality = 0.0;
 		float videoQuality = 0.0f;
 		// Program the tracks.
@@ -127,7 +178,7 @@ public class RTPTransmitter implements ControllerListener, Runnable {
 						if (supported[i] instanceof VideoFormat) {
 							//chosen = checkForVideoSizes(tracks[i].getFormat(), supported[0]);
 							VideoFormat vf = (VideoFormat) supported[j];
-							if(vf.getFrameRate() > videoQuality) {
+							if (vf.getFrameRate() > videoQuality) {
 								videoQuality = vf.getFrameRate();
 								chosen = checkForVideoSizes(tracks[i].getFormat(), supported[j]);
 							}
@@ -140,8 +191,8 @@ public class RTPTransmitter implements ControllerListener, Runnable {
 						}
 					}
 					tracks[i].setFormat(chosen);
-					System.err.println("Track " + i + " is set to transmit as:");
-					System.err.println("  " + chosen);
+					//System.err.println("Track " + i + " is set to transmit as:");
+					//System.err.println("  " + chosen);
 					atLeastOneTrack = true;
 				} else {
 					tracks[i].setEnabled(false);
@@ -183,8 +234,10 @@ public class RTPTransmitter implements ControllerListener, Runnable {
 			try {
 				if (pbss[i].getFormat() instanceof AudioFormat) {
 					port = portBase;
-				} else if (pbss[i].getFormat() instanceof VideoFormat){
+					audioPort = port;
+				} else if (pbss[i].getFormat() instanceof VideoFormat) {
 					port = portBase + 2;
+					videoPort = port;
 				}
 				rtpMgrs[i] = RTPManager.newInstance();
 				//port = portBase + 2 * i;
@@ -193,7 +246,7 @@ public class RTPTransmitter implements ControllerListener, Runnable {
 				destAddr = new SessionAddress(ipAddr, port);
 				rtpMgrs[i].initialize(localAddr);
 				rtpMgrs[i].addTarget(destAddr);
-				System.err.println("Created RTP session: " + ipAddress + " " + port);
+				//System.err.println("Created RTP session: " + ipAddress + " " + port);
 				sendStream = rtpMgrs[i].createSendStream(dataOutput, i);
 				sendStream.start();
 			} catch (Exception e) {
@@ -264,25 +317,6 @@ public class RTPTransmitter implements ControllerListener, Runnable {
 					  && controls[i] instanceof Owned) {
 				QualityControl qc = (QualityControl) controls[i];
 				qc.setQuality(1.0f);
-				//Object owner = ((Owned) cs[i]).getOwner();
-
-				// Check to see if the owner is a Codec.
-				// Then check for the output format.
-//				if (owner instanceof Codec) {
-//					Format fmts[] = ((Codec) owner).getSupportedOutputFormats(null);
-//					for (int j = 0; j < fmts.length; j++) {
-//						if (fmts[j].matches(jpegFmt)) {
-//							qc = (QualityControl) cs[i];
-//							qc.setQuality(val);
-//							System.err.println("- Setting quality to "
-//									  + val + " on " + qc);
-//							break;
-//						}
-//					}
-//				}
-//				if (qc != null) {
-//					break;
-//				}
 			} else if (controls[i] instanceof BitRateControl) {
 				BitRateControl brc = (BitRateControl) controls[i];
 				int maxBitRate = brc.getMaxSupportedBitRate();

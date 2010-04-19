@@ -6,6 +6,7 @@ import com.jammed.gen.MediaProtos.Media;
 import com.jammed.gen.MediaProtos.Playlist;
 import java.util.ArrayList;
 import java.util.List;
+import javax.swing.SwingUtilities;
 import javax.swing.table.AbstractTableModel;
 
 /**
@@ -106,21 +107,25 @@ public class MediaTableModel extends AbstractTableModel implements PlaylistListe
 		fireTableRowsDeleted(0, end);
 	}
 
-	public void playlistChanged(PlaylistEvent event) {
-		if (event.getType() == PlaylistEvent.Type.ADD) {
-			Playlist list = (Playlist)event.getSource();
-			List<Media> toAdd = new ArrayList<Media>(event.getEndIndex() - event.getStartIndex());
-			for (int i = event.getStartIndex(); i <= event.getEndIndex(); i++){
-				toAdd.add(list.getMedia(i));
+	public void playlistChanged(final PlaylistEvent event) {
+		SwingUtilities.invokeLater(new Runnable() {
+
+			public void run() {
+				if (event.getType() == PlaylistEvent.Type.ADD) {
+					Playlist list = (Playlist) event.getSource();
+					List<Media> toAdd = new ArrayList<Media>(event.getEndIndex() - event.getStartIndex());
+					for (int i = event.getStartIndex(); i <= event.getEndIndex(); i++) {
+						toAdd.add(list.getMedia(i));
+					}
+					addAll(toAdd);
+				} else if (event.getType() == PlaylistEvent.Type.DELETE) {
+					deleteRows(event.getStartIndex(), event.getEndIndex());
+				} else if (event.getType() == PlaylistEvent.Type.REPLACE) {
+					clear();
+					Playlist list = (Playlist) event.getSource();
+					addAll(list.getMediaList());
+				}
 			}
-			addAll(toAdd);
-		} else if(event.getType() == PlaylistEvent.Type.DELETE) {
-			deleteRows(event.getStartIndex(), event.getEndIndex());
-		} else if(event.getType() == PlaylistEvent.Type.REPLACE) {
-			clear();
-			Playlist list = (Playlist)event.getSource();
-			addAll(list.getMediaList());
-			System.out.println("Replacing " + list.getMediaCount());
-		}
+		});
 	}
 }

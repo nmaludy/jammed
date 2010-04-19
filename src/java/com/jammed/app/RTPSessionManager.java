@@ -2,6 +2,9 @@ package com.jammed.app;
 
 import com.jammed.event.RTPReceiverListener;
 import com.google.protobuf.MessageLite;
+import com.jammed.event.RTPTransmissionListener;
+import com.jammed.event.StreamEvent;
+import com.jammed.event.TransmissionStopEvent;
 import com.jammed.gen.MediaProtos.Media;
 import com.jammed.gen.MessageProtos.PlayRequest;
 import com.jammed.gen.MessageProtos.PlayResponse;
@@ -103,7 +106,7 @@ public class RTPSessionManager {
 	 * equal to Cloud.getInstance().getHostname(). Then starts a
 	 * RTP transmit session to a new address and sends a Play Response message back.
 	 */
-	private class RTPTransmissionHandler extends PlayRequestHandler {
+	private class RTPTransmissionHandler extends PlayRequestHandler implements RTPTransmissionListener {
 
 		@Override
 		public boolean handleMessage(final MessageLite message) {
@@ -151,6 +154,7 @@ public class RTPSessionManager {
 						builder.setRequest(request);
 						transmissionIds.add(Integer.valueOf(request.getId()));
 						RTPTransmitter t = RTPTransmitter.create(locator, address, audioPort);
+						t.addTransmitterListener(this);
 						transmitters.execute(t);
 						System.out.println("Transmitting");
 						Cloud.getInstance().send(builder.build(), request.getId());
@@ -163,6 +167,17 @@ public class RTPSessionManager {
 
 			return true;
 		}
+
+		public void transmissionStreamUpdate(StreamEvent event) {
+			if (event instanceof TransmissionStopEvent) {
+				TransmissionStopEvent ts = (TransmissionStopEvent) event;
+				RTPTransmitter transmitter = (RTPTransmitter)ts.getSource();
+				synchronized (transmissionIds) {
+					transmissionIds.remove(transmitter.getAudioPort());
+					transmissionIds.remove(transmitter.getVideoPort());
+				}
+			}
+		}
 	}
 
 	/*
@@ -172,6 +187,8 @@ public class RTPSessionManager {
 	 * the receiving of the stream.
 	 */
 	private class RTPReceptionHandler extends PlayResponseHandler {
+		RTPReceiver receiver = null;
+		RTPReceiver videoReceiver = null;
 
 		@Override
 		public boolean handleMessage(final MessageLite message) {
@@ -192,13 +209,15 @@ public class RTPSessionManager {
 					System.out.println("It is a response i was looking for");
 					String hostname = playResponse.getAddress();
 					int port = playResponse.getAuidoPort();
-					RTPReceiver receiver = RTPReceiver.create(hostname, port, false);
+
+					stopReceivers();
+					receiver = RTPReceiver.create(hostname, port, false);
 					addListenersToReceiver(receiver);
 					receiver.start();
 
 					System.out.println("Receiving Audio");
 					if (playResponse.hasVideoPort()) {
-						RTPReceiver videoReceiver = RTPReceiver.create(hostname, playResponse.getVideoPort(), true);
+						videoReceiver = RTPReceiver.create(hostname, playResponse.getVideoPort(), true);
 						addListenersToReceiver(videoReceiver);
 						videoReceiver.start();
 
@@ -209,6 +228,17 @@ public class RTPSessionManager {
 			// Handle PlayResponse
 
 			return true;
+		}
+
+		public void stopReceivers() {
+			if (receiver != null) {
+				receiver.stop();
+				receiver = null;
+			}
+			if (videoReceiver != null) {
+				videoReceiver.stop();
+				videoReceiver = null;
+			}
 		}
 	}
 }

@@ -18,6 +18,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 
 /**
  *
@@ -69,8 +70,8 @@ public class LibrarySearchPanel extends JPanel implements ActionListener{
 			.addGroup(layout.createSequentialGroup()
 				.addComponent(scrollPane))
 			.addGroup(layout.createSequentialGroup()
-				.addComponent(clearButton)
-				.addComponent(addButton)));
+				.addComponent(addButton)
+				.addComponent(clearButton)));
 
 		layout.setVerticalGroup(layout.createSequentialGroup()
 			.addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
@@ -79,8 +80,8 @@ public class LibrarySearchPanel extends JPanel implements ActionListener{
 			.addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
 				.addComponent(scrollPane))
 			.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-				.addComponent(clearButton)
-				.addComponent(addButton)));
+				.addComponent(addButton)
+				.addComponent(clearButton)));
 		
 		normalizeTable();
 		responder = new SearchResponder();
@@ -129,13 +130,23 @@ public class LibrarySearchPanel extends JPanel implements ActionListener{
 				throw new IllegalArgumentException();
 			}
 
-			final Playlist playlist = (Playlist) message;
+			final Playlist playlist = (Playlist) message;			
+			SwingUtilities.invokeLater(new Runnable() {
+				public void run() {
+					handle(playlist);
+				}
+			});
+			
+			return true;
+		}
+
+		public void handle(Playlist playlist) {
 			Request request = playlist.getRequest();
 			String hostname = request.getOrigin();
 			if (!hostname.equals(Cloud.getInstance().getHostName())) {
-				return false; //a request that originated from this system, ignore it
+				return; //a request that originated from this system, ignore it
 			}
-			
+
 			Integer requestId = Integer.valueOf(playlist.getRequest().getId());
 			System.out.println("Got search response for ID " + requestId);
 			if (searchRequests.containsKey(requestId)) {
@@ -146,8 +157,6 @@ public class LibrarySearchPanel extends JPanel implements ActionListener{
 				RequestPool.getInstance().release(builder.build());
 				Librarian.getInstance().setPlaylist(searchPlaylistIndex, playlist);
 			}
-
-			return true;
 		}
 	}
 }

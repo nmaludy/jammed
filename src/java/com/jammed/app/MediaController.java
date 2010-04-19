@@ -113,11 +113,13 @@ public class MediaController implements ControllerListener, RTPReceiverListener 
 
 	private void destroyCurrent() {
 		if (player != null) {
+			player.stop();
 			player.close();
 			player.deallocate();
 			player = null;
 		}
 		if (remoteVideoPlayer != null) {
+			remoteVideoPlayer.stop();
 			remoteVideoPlayer.close();
 			remoteVideoPlayer.deallocate();
 			remoteVideoPlayer = null;
