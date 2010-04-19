@@ -1,3 +1,4 @@
+
 package com.jammed.app;
 
 import com.jammed.event.PlaylistEvent;
@@ -29,7 +30,7 @@ public class Librarian extends SearchHandler implements ScannerListener {
 	private final EventListenerList libraryListener;
 	private final List<Playlist> localPlaylists;
 	private final List<EventListenerList> localPlaylistListeners;
-	private String host = Checksum.fletcher16(Cloud.getInstance().getAddress()) + "";
+	private static final String host = Checksum.fletcher16(Cloud.getInstance().getAddress()) + "";
 
 	static class LibrarianHolder {
 		static Librarian instance = new Librarian();
@@ -41,7 +42,7 @@ public class Librarian extends SearchHandler implements ScannerListener {
 
 	private Librarian() {
 		libraryFile = new File("./library");
-		if (libraryFile.exists()) {
+		if(libraryFile.exists()) {
 			library = readLibrary();
 		} else {
 			library = createEmptyPlaylist();
