@@ -22,7 +22,7 @@ public class Librarian implements ScannerListener {
 	private final EventListenerList libraryListener;
 	private final List<Playlist> localPlaylists;
 	private final List<EventListenerList> localPlaylistListeners;
-	private final String host;
+	private static final String host = Cloud.getInstance().getHostName();
 	
 	static class LibrarianHolder {
 		static Librarian instance = new Librarian();
@@ -42,7 +42,6 @@ public class Librarian implements ScannerListener {
 		libraryListener = new EventListenerList();
 		localPlaylists = new ArrayList<Playlist>();
 		localPlaylistListeners = new ArrayList<EventListenerList>();
-		host = Checksum.fletcher16(Cloud.getInstance().getAddress()) + "";
 	}
 	
 	public Playlist search (final String query) {
@@ -96,9 +95,9 @@ public class Librarian implements ScannerListener {
 	}
 
 	public Playlist createEmptyPlaylist() {
-		Playlist.Builder builder = Playlist.newBuilder()
-														.setHost(host)
-														.setType(Type.PLAYLIST);
+		final Playlist.Builder builder = Playlist.newBuilder().setHost(host);
+		builder.setType(builder.getType());
+		
 		return builder.build();
 	}
 
