@@ -148,9 +148,9 @@ public class LibrarySearchPanel extends JPanel implements ActionListener{
 			}
 
 			Integer requestId = Integer.valueOf(playlist.getRequest().getId());
-			System.out.println("Got search response for ID " + requestId);
+			//System.out.println("Got search response for ID " + requestId);
 			if (searchRequests.containsKey(requestId)) {
-				System.out.println("Got Playlist! ");
+				//System.out.println("Got Playlist! ");
 				searchRequests.remove(requestId);
 				Request.Builder builder = Request.newBuilder(request);
 				builder.setRelease(true);

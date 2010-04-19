@@ -79,13 +79,14 @@ public class RTPTransmitter implements ControllerListener, Runnable {
 	}
 
 	protected void fireTransmitterEvent(final StreamEvent event) {
-		if (streamListeners == null) {
-			return;
-		}
 		SwingUtilities.invokeLater(new Runnable() {
 
 			public void run() {
+				if (streamListeners == null) {
+					return;
+				}
 				Object[] listeners = streamListeners.getListenerList();
+				System.out.println("killing RTPTransmitter");
 				for (int i = listeners.length - 2; i >= 0; i -= 2) {
 					if (listeners[i] == RTPTransmissionListener.class) {
 						((RTPTransmissionListener) listeners[i + 1]).transmissionStreamUpdate(event);
@@ -122,7 +123,6 @@ public class RTPTransmitter implements ControllerListener, Runnable {
 		}
 		TransmissionStopEvent stopEvent = TransmissionStopEvent.create(this);
 		fireTransmitterEvent(stopEvent);
-		streamListeners = null;
 	}
 
 	public void controllerUpdate(ControllerEvent ce) {

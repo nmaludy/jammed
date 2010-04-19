@@ -7,7 +7,6 @@ import com.google.protobuf.MessageLite;
 
 import java.util.Collections;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
@@ -28,6 +27,8 @@ import java.net.UnknownHostException;
 import java.net.MulticastSocket;
 import java.net.DatagramPacket;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class MulticastListener implements Runnable {
 	
@@ -40,6 +41,7 @@ public class MulticastListener implements Runnable {
 	private final BlockingQueue<Future<Packet>> results;
 	private final List<PacketHandler<? extends MessageLite>> handlers;
 	private final Map<Integer, SortedSet<Packet>> completed;
+	private final Lock socketLock = new ReentrantLock();
 	
 	public MulticastListener (final String addressName, final int port) {
 		try {
@@ -83,8 +85,13 @@ public class MulticastListener implements Runnable {
 				while (true) {
 					final DatagramPacket dp = new DatagramPacket(buffer,
 						buffer.length);
-					
-					ms.receive(dp);
+
+					socketLock.lock();
+					try {
+						ms.receive(dp);
+					} finally {
+						socketLock.unlock(); //always unlock!
+					}
 					
 					final Callable<Packet> callable   = new PacketExecutor(dp);
 					final Future<Packet> futurePacket = pool.submit(callable);

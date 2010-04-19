@@ -173,8 +173,8 @@ public class RTPSessionManager {
 				TransmissionStopEvent ts = (TransmissionStopEvent) event;
 				RTPTransmitter transmitter = (RTPTransmitter)ts.getSource();
 				synchronized (transmissionIds) {
-					transmissionIds.remove(transmitter.getAudioPort());
-					transmissionIds.remove(transmitter.getVideoPort());
+					transmissionIds.remove(Integer.valueOf(transmitter.getAudioPort()));
+					transmissionIds.remove(Integer.valueOf(transmitter.getVideoPort()));
 				}
 			}
 		}

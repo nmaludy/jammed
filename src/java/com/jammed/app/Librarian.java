@@ -68,15 +68,15 @@ public class Librarian extends SearchHandler implements ScannerListener {
 		}
 		
 		final String query = search.getQuery();
-		System.out.println("Handling request for " + query + " ID " + request.getId());
+		//System.out.println("Handling request for " + query + " ID " + request.getId());
 		final Playlist results = search(query, request);
 
 		if (results.getMediaList().size() > 0) {
-			System.out.println("Search found stuff ");
+			//System.out.println("Search found stuff ");
 			Cloud.getInstance().send(results, request.getId());
-		} else {
-			System.out.println("No search results ");
-		}
+		}// else {
+		//	System.out.println("No search results ");
+		//}
 
 		return true;
 	}

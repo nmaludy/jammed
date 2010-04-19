@@ -95,8 +95,6 @@ public class RTPReceiver implements ReceiveStreamListener, SessionListener {
 		}
 		ReceivedStopEvent stopEvent = ReceivedStopEvent.create(this);
 		fireReceiverEvent(stopEvent);
-		System.out.println("killing RTPReceiver");
-		streamListeners = null;
 	}
 
 	public void addReceiverListener(final RTPReceiverListener l) {
@@ -108,13 +106,14 @@ public class RTPReceiver implements ReceiveStreamListener, SessionListener {
 	}
 
 	protected void fireReceiverEvent(final StreamEvent event) {
-		if (streamListeners == null) {
-			return;
-		}
 		SwingUtilities.invokeLater(new Runnable() {
 
 			public void run() {
+				if (streamListeners == null) {
+					return;
+				}
 				Object[] listeners = streamListeners.getListenerList();
+				System.out.println("killing RTPReceiver");
 				for (int i = listeners.length - 2; i >= 0; i -= 2) {
 					if (listeners[i] == RTPReceiverListener.class) {
 						((RTPReceiverListener) listeners[i + 1]).receivedStreamUpdate(event);

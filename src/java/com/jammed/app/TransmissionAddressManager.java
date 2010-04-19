@@ -77,10 +77,13 @@ public class TransmissionAddressManager {
 		builder.setType(builder.getType());
 		builder.setAddress(address);
 		requestWrite.lock();
-		declarationRequest = RequestPool.getInstance().lease();
-		builder.setRequest(declarationRequest);
-		Cloud.getInstance().send(builder.build(), declarationRequest.getId());
-		requestWrite.unlock();
+		try {
+			declarationRequest = RequestPool.getInstance().lease();
+			builder.setRequest(declarationRequest);
+			Cloud.getInstance().send(builder.build(), declarationRequest.getId());
+		} finally {
+			requestWrite.unlock();
+		}
 	}
 
 	private class ClientDeclarationHandler extends AddressDeclarationHandler {
