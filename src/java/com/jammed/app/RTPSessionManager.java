@@ -3,6 +3,7 @@ package com.jammed.app;
 import com.jammed.event.RTPReceiverListener;
 import com.google.protobuf.MessageLite;
 import com.jammed.event.RTPTransmissionListener;
+import com.jammed.event.ReceivedStopEvent;
 import com.jammed.event.StreamEvent;
 import com.jammed.event.TransmissionStopEvent;
 import com.jammed.gen.MediaProtos.Media;
@@ -172,6 +173,7 @@ public class RTPSessionManager {
 			if (event instanceof TransmissionStopEvent) {
 				TransmissionStopEvent ts = (TransmissionStopEvent) event;
 				RTPTransmitter transmitter = (RTPTransmitter)ts.getSource();
+				System.out.println("Killing transmission");
 				synchronized (transmissionIds) {
 					transmissionIds.remove(Integer.valueOf(transmitter.getAudioPort()));
 					transmissionIds.remove(Integer.valueOf(transmitter.getVideoPort()));
@@ -202,26 +204,23 @@ public class RTPSessionManager {
 				return false; // not a request from this system
 			}			
 			Integer id = Integer.valueOf(request.getId());
-			System.out.println("Got a play response " + id);
 			synchronized (receiveRequests) {
 				if (receiveRequests.containsKey(id)) { //check if this request has been handled yet
 					receiveRequests.remove(id);
-					System.out.println("It is a response i was looking for");
 					String hostname = playResponse.getAddress();
 					int port = playResponse.getAuidoPort();
+					//String hostname = "224.1.1.1";
+					//int port = 5000;
 
 					stopReceivers();
 					receiver = RTPReceiver.create(hostname, port, false);
 					addListenersToReceiver(receiver);
 					receiver.start();
 
-					System.out.println("Receiving Audio");
 					if (playResponse.hasVideoPort()) {
 						videoReceiver = RTPReceiver.create(hostname, playResponse.getVideoPort(), true);
 						addListenersToReceiver(videoReceiver);
 						videoReceiver.start();
-
-						System.out.println("Receiving Video");
 					}
 				}
 			}
@@ -230,7 +229,7 @@ public class RTPSessionManager {
 			return true;
 		}
 
-		public void stopReceivers() {
+		private void stopReceivers() {
 			if (receiver != null) {
 				receiver.stop();
 				receiver = null;

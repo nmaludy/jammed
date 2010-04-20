@@ -136,21 +136,24 @@ public class GUI extends JFrame implements ActionListener {
 			tabsPanel.setVisible(showPlaylistBox.isSelected());
 			pack();
 		} else if (e.getSource().equals(previousButton)) {
-			//controller.playRemoteMedia("224.111.111.112", 5006);
+			//controller.playRemoteMedia("224.1.1.1", 5000);
+			RTPReceiver r = RTPReceiver.create("224.111.111.112", 5000, false);
+			r.addReceiverListener(controller);
+			r.start();
 		} else if (e.getSource().equals(playPauseButton)) {
 			Media m = PlaylistPanel.getInstance().getSelectedMedia();
 			play(m);
 		} else if (e.getSource().equals(nextButton)) {
 			try {
-//				JFileChooser fc = new JFileChooser();
-//				int returnVal = fc.showOpenDialog(this);
-//
-//				if (returnVal == JFileChooser.APPROVE_OPTION) {
-//					File selectedFile = fc.getSelectedFile();
-//					MediaLocator l = new MediaLocator(selectedFile.toURI().toURL());
-//					RTPTransmitter t = new RTPTransmitter(l, "224.111.111.112", 5006);
-//					t.start();
-//				}
+				JFileChooser fc = new JFileChooser();
+				int returnVal = fc.showOpenDialog(this);
+
+				if (returnVal == JFileChooser.APPROVE_OPTION) {
+					File selectedFile = fc.getSelectedFile();
+					MediaLocator l = new MediaLocator(selectedFile.toURI().toURL());
+					RTPTransmitter t = RTPTransmitter.create(l, "224.111.111.112", 5000);
+					t.run();
+				}
 			} catch (Exception ex) {
 				ex.printStackTrace();
 			}
@@ -167,10 +170,11 @@ public class GUI extends JFrame implements ActionListener {
 	/*
 	 * Initializes a new instance of GUI and schedules it for launch.
 	 */
-	public static void main(String[] args) throws Exception {
+	public static void main(final String[] args) throws Exception {
 		javax.swing.SwingUtilities.invokeLater(new Runnable() {
 
 			public void run() {
+				//com.sun.media.codec.audio.mp3.JavaDecoder.main(args);
 				Cloud.getInstance(); //Start the cloud
 				TransmissionAddressManager.getInstance(); //Start transmission address manager
 				GUI.getInstance();

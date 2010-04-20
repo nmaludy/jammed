@@ -86,7 +86,7 @@ public class RTPTransmitter implements ControllerListener, Runnable {
 					return;
 				}
 				Object[] listeners = streamListeners.getListenerList();
-				System.out.println("killing RTPTransmitter");
+				System.out.println("Killing RTPTransmitter");
 				for (int i = listeners.length - 2; i >= 0; i -= 2) {
 					if (listeners[i] == RTPTransmissionListener.class) {
 						((RTPTransmissionListener) listeners[i + 1]).transmissionStreamUpdate(event);
@@ -117,6 +117,7 @@ public class RTPTransmitter implements ControllerListener, Runnable {
 		if (rtpMgrs != null) {
 			for (int i = 0; i < rtpMgrs.length; i++) {
 				rtpMgrs[i].removeTargets("Session ended.");
+				System.out.println("Removing target " + i);
 				rtpMgrs[i].dispose();
 			}
 			rtpMgrs = null;
@@ -174,25 +175,25 @@ public class RTPTransmitter implements ControllerListener, Runnable {
 				supported = tracks[i].getSupportedFormats();
 				if (supported.length > 0) {
 					chosen = supported[0]; //default
-					for (int j = 0; j < supported.length; j++) {
-						if (supported[i] instanceof VideoFormat) {
-							//chosen = checkForVideoSizes(tracks[i].getFormat(), supported[0]);
-							VideoFormat vf = (VideoFormat) supported[j];
-							if (vf.getFrameRate() > videoQuality) {
-								videoQuality = vf.getFrameRate();
-								chosen = checkForVideoSizes(tracks[i].getFormat(), supported[j]);
-							}
-						} else if (supported[j] instanceof AudioFormat) {
-							AudioFormat af = (AudioFormat) supported[j];
-							if (af.getSampleRate() > audioQuality) {
-								audioQuality = af.getSampleRate();
-								chosen = supported[j];
-							}
-						}
-					}
+//					for (int j = 0; j < supported.length; j++) {
+//						if (supported[i] instanceof VideoFormat) {
+//							//chosen = checkForVideoSizes(tracks[i].getFormat(), supported[0]);
+//							VideoFormat vf = (VideoFormat) supported[j];
+//							if (vf.getFrameRate() > videoQuality) {
+//								videoQuality = vf.getFrameRate();
+//								chosen = checkForVideoSizes(tracks[i].getFormat(), supported[j]);
+//							}
+//						} else if (supported[j] instanceof AudioFormat) {
+//							AudioFormat af = (AudioFormat) supported[j];
+//							if (af.getSampleRate() > audioQuality) {
+//								audioQuality = af.getSampleRate();
+//								chosen = supported[j];
+//							}
+//						}
+//					}
 					tracks[i].setFormat(chosen);
-					//System.err.println("Track " + i + " is set to transmit as:");
-					//System.err.println("  " + chosen);
+					System.err.println("Track " + i + " is set to transmit as:");
+					System.err.println("  " + chosen);
 					atLeastOneTrack = true;
 				} else {
 					tracks[i].setEnabled(false);
@@ -240,13 +241,14 @@ public class RTPTransmitter implements ControllerListener, Runnable {
 					videoPort = port;
 				}
 				rtpMgrs[i] = RTPManager.newInstance();
-				//port = portBase + 2 * i;
 				ipAddr = InetAddress.getByName(ipAddress);
-				localAddr = new SessionAddress(InetAddress.getLocalHost(), port);
-				destAddr = new SessionAddress(ipAddr, port);
+				//localAddr = new SessionAddress(InetAddress.getLocalHost(), port);
+				localAddr = new SessionAddress(ipAddr, port, 1);
+				destAddr = new SessionAddress(ipAddr, port, 1);
+				//rtpMgrs[i].initialize(localAddr);
 				rtpMgrs[i].initialize(localAddr);
 				rtpMgrs[i].addTarget(destAddr);
-				//System.err.println("Created RTP session: " + ipAddress + " " + port);
+				System.err.println("Created RTP session: " + ipAddress + " " + port);
 				sendStream = rtpMgrs[i].createSendStream(dataOutput, i);
 				sendStream.start();
 			} catch (Exception e) {

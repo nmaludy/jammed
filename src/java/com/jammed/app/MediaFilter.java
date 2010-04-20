@@ -17,6 +17,7 @@ public class MediaFilter implements FilenameFilter {
 				  || name.endsWith(".mov")
 				  || name.endsWith(".mpg")
 				  || name.endsWith(".mp2")
+				  || name.endsWith(".mp3")
 				  || name.endsWith(".mvr")
 				  || name.endsWith(".wav");
 	}
