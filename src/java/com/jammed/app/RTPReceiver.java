@@ -10,6 +10,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.media.control.BufferControl;
 import javax.media.protocol.DataSource;
 import javax.media.rtp.InvalidSessionAddressException;
 import javax.media.rtp.Participant;
@@ -20,7 +21,6 @@ import javax.media.rtp.ReceiveStreamListener;
 import javax.media.rtp.SessionAddress;
 import javax.media.rtp.SessionListener;
 import javax.media.rtp.event.ByeEvent;
-import javax.media.rtp.event.InactiveReceiveStreamEvent;
 import javax.media.rtp.event.NewParticipantEvent;
 import javax.media.rtp.event.NewReceiveStreamEvent;
 import javax.media.rtp.event.ReceiveStreamEvent;
@@ -73,8 +73,8 @@ public class RTPReceiver implements ReceiveStreamListener, SessionListener {
 			//}
 			//manager.initialize(localAddr);
 			manager.initialize(localAddr);
-			//BufferControl bc = (BufferControl) manager.getControl("javax.media.control.BufferControl");
-			//bc.setBufferLength(350);
+			BufferControl bc = (BufferControl) manager.getControl("javax.media.control.BufferControl");
+			bc.setBufferLength(350);
 			manager.addTarget(destAddr);
 			System.out.println("Connecting to " +destAddr.toString());
 		} catch (UnknownHostException ex) {

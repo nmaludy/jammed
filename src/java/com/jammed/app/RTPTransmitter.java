@@ -175,22 +175,22 @@ public class RTPTransmitter implements ControllerListener, Runnable {
 				supported = tracks[i].getSupportedFormats();
 				if (supported.length > 0) {
 					chosen = supported[0]; //default
-//					for (int j = 0; j < supported.length; j++) {
-//						if (supported[i] instanceof VideoFormat) {
-//							//chosen = checkForVideoSizes(tracks[i].getFormat(), supported[0]);
-//							VideoFormat vf = (VideoFormat) supported[j];
-//							if (vf.getFrameRate() > videoQuality) {
-//								videoQuality = vf.getFrameRate();
-//								chosen = checkForVideoSizes(tracks[i].getFormat(), supported[j]);
-//							}
-//						} else if (supported[j] instanceof AudioFormat) {
-//							AudioFormat af = (AudioFormat) supported[j];
-//							if (af.getSampleRate() > audioQuality) {
-//								audioQuality = af.getSampleRate();
-//								chosen = supported[j];
-//							}
-//						}
-//					}
+					for (int j = 0; j < supported.length; j++) {
+						if (supported[i] instanceof VideoFormat) {
+							//chosen = checkForVideoSizes(tracks[i].getFormat(), supported[0]);
+							VideoFormat vf = (VideoFormat) supported[j];
+							if (vf.getFrameRate() > videoQuality) {
+								videoQuality = vf.getFrameRate();
+								chosen = checkForVideoSizes(tracks[i].getFormat(), supported[j]);
+							}
+						} else if (supported[j] instanceof AudioFormat) {
+							AudioFormat af = (AudioFormat) supported[j];
+							if (af.getSampleRate() > audioQuality) {
+								audioQuality = af.getSampleRate();
+								chosen = supported[j];
+							}
+						}
+					}
 					tracks[i].setFormat(chosen);
 					System.err.println("Track " + i + " is set to transmit as:");
 					System.err.println("  " + chosen);
@@ -242,10 +242,8 @@ public class RTPTransmitter implements ControllerListener, Runnable {
 				}
 				rtpMgrs[i] = RTPManager.newInstance();
 				ipAddr = InetAddress.getByName(ipAddress);
-				//localAddr = new SessionAddress(InetAddress.getLocalHost(), port);
 				localAddr = new SessionAddress(ipAddr, port, 1);
 				destAddr = new SessionAddress(ipAddr, port, 1);
-				//rtpMgrs[i].initialize(localAddr);
 				rtpMgrs[i].initialize(localAddr);
 				rtpMgrs[i].addTarget(destAddr);
 				System.err.println("Created RTP session: " + ipAddress + " " + port);
