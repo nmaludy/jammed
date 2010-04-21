@@ -7,12 +7,14 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 
 /**
  *
  * @author nmaludy
  */
-public class PlaylistPanel extends JScrollPane implements MouseListener {
+public class PlaylistPanel extends JScrollPane implements MouseListener, TableModelListener {
 
 	private static final long serialVersionUID = 1L;
 	private static PlaylistPanel INSTANCE;
@@ -25,6 +27,7 @@ public class PlaylistPanel extends JScrollPane implements MouseListener {
 		playlistIndex = Librarian.getInstance().addEmptyPlaylist();
 		model = MediaTableModel.createModel(Librarian.getInstance().getPlaylist(playlistIndex));
 		Librarian.getInstance().addPlaylistListener(model, playlistIndex);
+		model.addTableModelListener(this);
 		table = new JTable(model);
 		setColumnHeaderView(table.getTableHeader());
 		setViewportView(table);
@@ -77,4 +80,9 @@ public class PlaylistPanel extends JScrollPane implements MouseListener {
 
 	public void mouseExited(MouseEvent me) {
 	}
+
+	public void tableChanged(TableModelEvent tme) {
+		normalizeTable();
+	}
+
 }

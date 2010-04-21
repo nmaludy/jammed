@@ -174,7 +174,7 @@ public class GUI extends JFrame implements ActionListener {
 		javax.swing.SwingUtilities.invokeLater(new Runnable() {
 
 			public void run() {
-				//com.sun.media.codec.audio.mp3.JavaDecoder.main(args);
+				com.sun.media.codec.audio.mp3.JavaDecoder.main(args);
 				Cloud.getInstance(); //Start the cloud
 				TransmissionAddressManager.getInstance(); //Start transmission address manager
 				GUI.getInstance();

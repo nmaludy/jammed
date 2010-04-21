@@ -10,12 +10,14 @@ import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 
 /**
  *
  * @author nmaludy
  */
-public class LibraryMediaPanel extends JPanel implements ActionListener{
+public class LibraryMediaPanel extends JPanel implements ActionListener, TableModelListener{
 	private static final long serialVersionUID = 1L;
 	private final JTable table;
 	private final MediaTableModel model;
@@ -27,6 +29,7 @@ public class LibraryMediaPanel extends JPanel implements ActionListener{
 		super();
 		model = MediaTableModel.createModel(Librarian.getInstance().getLibrary());
 		Librarian.getInstance().addLibraryListener(model);
+		model.addTableModelListener(this);
 		table = new JTable(model);
 		scrollPane = new JScrollPane(table);
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
@@ -90,5 +93,9 @@ public class LibraryMediaPanel extends JPanel implements ActionListener{
 	private void normalizeTable() {
 		TableUtils.normalizeColumnWidths(table);
 		revalidate();
+	}
+
+	public void tableChanged(TableModelEvent tme) {
+		normalizeTable();
 	}
 }

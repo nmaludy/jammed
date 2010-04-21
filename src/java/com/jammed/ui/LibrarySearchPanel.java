@@ -19,12 +19,14 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 
 /**
  *
  * @author nmaludy
  */
-public class LibrarySearchPanel extends JPanel implements ActionListener{
+public class LibrarySearchPanel extends JPanel implements ActionListener, TableModelListener {
 	private static final long serialVersionUID = 1L;
 	private final JTable table;
 	private final MediaTableModel model;
@@ -42,6 +44,7 @@ public class LibrarySearchPanel extends JPanel implements ActionListener{
 		searchPlaylistIndex = Librarian.getInstance().addEmptyPlaylist();
 		model = MediaTableModel.createModel(Librarian.getInstance().getPlaylist(searchPlaylistIndex));
 		Librarian.getInstance().addPlaylistListener(model, searchPlaylistIndex);
+		model.addTableModelListener(this);
 		table = new JTable(model);
 		scrollPane = new JScrollPane(table);
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
@@ -122,6 +125,10 @@ public class LibrarySearchPanel extends JPanel implements ActionListener{
 		revalidate();
 	}
 
+	public void tableChanged(TableModelEvent tme) {
+		normalizeTable();
+	}
+
 	private class SearchResponder extends PlaylistHandler {
 
 		@Override
@@ -156,6 +163,7 @@ public class LibrarySearchPanel extends JPanel implements ActionListener{
 				builder.setRelease(true);
 				RequestPool.getInstance().release(builder.build());
 				Librarian.getInstance().setPlaylist(searchPlaylistIndex, playlist);
+				normalizeTable();
 			}
 		}
 	}
