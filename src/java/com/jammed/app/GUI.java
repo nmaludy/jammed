@@ -19,7 +19,9 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.LayoutStyle;
 import javax.swing.SwingConstants;
+import javax.swing.UIManager;
 import javax.swing.WindowConstants;
+import org.pushingpixels.substance.api.skin.SubstanceBusinessLookAndFeel;
 
 /*
  * TODO: Convert to completely custom controls and remove JMF controls.
@@ -85,19 +87,13 @@ public class GUI extends JFrame implements ActionListener {
 
 		layout.linkSize(SwingConstants.VERTICAL, previousButton, playPauseButton, nextButton, showPlaylistBox);
 
-		previousButton.setBackground(Color.white);
-		playPauseButton.setBackground(Color.white);
-		nextButton.setBackground(Color.white);
-
 		previousButton.addActionListener(this);
 		playPauseButton.addActionListener(this);
 		nextButton.addActionListener(this);
 		showPlaylistBox.addActionListener(this);
 
 		controller.setPlayerPanel(playerPanel);
-
 		tabsPanel.setVisible(false);
-
 		initializeButtonIcons();
 
 		setTitle("Jammed!");
@@ -174,9 +170,14 @@ public class GUI extends JFrame implements ActionListener {
 		javax.swing.SwingUtilities.invokeLater(new Runnable() {
 
 			public void run() {
-				com.sun.media.codec.audio.mp3.JavaDecoder.main(args);
+				//com.sun.media.codec.audio.mp3.JavaDecoder.main(args);
 				Cloud.getInstance(); //Start the cloud
 				TransmissionAddressManager.getInstance(); //Start transmission address manager
+				try {
+					UIManager.setLookAndFeel(new SubstanceBusinessLookAndFeel());
+				} catch (Exception e) {
+					System.out.println("Substance Graphite failed to initialize");
+				}
 				GUI.getInstance();
 			}
 		});

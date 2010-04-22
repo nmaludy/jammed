@@ -19,7 +19,6 @@ public class TabbedPanel extends JPanel {
 		BorderLayout layout = new BorderLayout();
 		setLayout(layout);
 		tabs.addTab("Playlist", PlaylistPanel.getInstance());
-		//tabs.addTab("Library", LibraryPanel.create());
 		tabs.addTab("Library", LibraryMediaPanel.create());
 		tabs.addTab("Search", LibrarySearchPanel.create());
 		add(tabs, BorderLayout.CENTER);
