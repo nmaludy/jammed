@@ -32,7 +32,7 @@ public class LibraryMediaPanel extends JPanel implements ActionListener, TableMo
 		model.addTableModelListener(this);
 		table = new JTable(model);
 		scrollPane = new JScrollPane(table);
-		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+		//table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		table.setPreferredScrollableViewportSize(table.getPreferredSize());
 		table.setAutoCreateRowSorter(true);
 		table.getRowSorter().toggleSortOrder(0);

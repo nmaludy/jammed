@@ -16,7 +16,7 @@ import javax.swing.table.AbstractTableModel;
 public class MediaTableModel extends AbstractTableModel implements PlaylistListener {
 	private static final long serialVersionUID = 1L;
 
-	private String[] columns = {"Title", "Duration"};
+	private String[] columns = {"Title"};
 	private List<Media> media;
 
 	private MediaTableModel(List<Media> m) {

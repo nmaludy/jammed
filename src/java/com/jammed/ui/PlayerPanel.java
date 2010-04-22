@@ -26,7 +26,8 @@ public class PlayerPanel extends JPanel {
 
 	private PlayerPanel() {
 		super();
-		imageURL = this.getClass().getResource("/images/jammed_logo.png");
+		//imageURL = this.getClass().getResource("/images/jammed_logo.png");
+		imageURL = this.getClass().getResource("/images/jammed_text.png");
 		backgroundImage = new ImageIcon(imageURL);
 		background = new JLabel(backgroundImage);
 		BorderLayout layout = new BorderLayout();

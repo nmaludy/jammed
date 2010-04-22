@@ -31,7 +31,7 @@ public class PlaylistPanel extends JScrollPane implements MouseListener, TableMo
 		table = new JTable(model);
 		setColumnHeaderView(table.getTableHeader());
 		setViewportView(table);
-		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+		//table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		table.setPreferredScrollableViewportSize(table.getPreferredSize());
 		table.setAutoCreateRowSorter(true);
 		table.addMouseListener(this);
