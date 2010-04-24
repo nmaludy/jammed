@@ -14,20 +14,37 @@ public class Packet implements Comparable<Packet> {
 	private final byte[] data;
 	private final PacketHeader header;
 	private final MessageLite message;
+	private final boolean empty;
 	
 	public Packet(final byte[] header, final byte[] data) {
 		this.header = new PacketHeader(header);
 		
-		if (isFinished() && (this.header.getSequence() == 0)) {
-			// Single packet message
-			this.message = PacketBuilder.getInstance().buildMessage(data, this.header.getType());
-			this.data    = null;
-		} else {
-			// Multi-packet message
-			this.data    = data;
-			this.message = null;
-		}
+		final PacketManager manager = PacketManager.getInstance();
 		
+		if (manager.receive(this.header)) {
+			System.out.println(this.header.toString());
+			
+			if (isFinished() && (this.header.getSequence() == 0)) {
+				// Single packet message
+				this.message = PacketBuilder.getInstance().buildMessage(data, this.header.getType());
+				this.data    = null;
+			} else {
+				// Multi-packet message
+				this.data    = data;
+				this.message = null;
+			}
+			
+			this.empty   = false;
+			
+		} else {
+			this.message = null;
+			this.data    = null;
+			this.empty   = true;
+		}
+	}
+	
+	public boolean isEmpty() {
+		return empty;
 	}
 	
 	public boolean isChunk() {
