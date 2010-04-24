@@ -63,20 +63,13 @@ public class RTPReceiver implements ReceiveStreamListener, SessionListener {
 			manager.addSessionListener(this);
 			manager.addReceiveStreamListener(this);
 			source = InetAddress.getByName(host);
-
-			//if (source.isMulticastAddress()) {
-				localAddr = new SessionAddress(source, port, ttl);
-				destAddr = new SessionAddress(source, port, ttl);
-			//} else {
-			//	localAddr = new SessionAddress(InetAddress.getLocalHost(), port);
-			//	destAddr = new SessionAddress(source, port);
-			//}
-			//manager.initialize(localAddr);
+			localAddr = new SessionAddress(source, port, ttl);
+			destAddr = new SessionAddress(source, port, ttl);
 			manager.initialize(localAddr);
 			BufferControl bc = (BufferControl) manager.getControl("javax.media.control.BufferControl");
 			bc.setBufferLength(350);
 			manager.addTarget(destAddr);
-			System.out.println("Connecting to " +destAddr.toString());
+			System.out.println("Connecting to " + destAddr.toString());
 		} catch (UnknownHostException ex) {
 			ex.printStackTrace();
 		} catch (InvalidSessionAddressException ex) {
@@ -91,7 +84,7 @@ public class RTPReceiver implements ReceiveStreamListener, SessionListener {
 	 */
 	public void stop() {
 		if (manager != null) {
-			manager.removeTargets("Removing Receiver Targets");
+			//manager.removeTargets("Removing Receiver Targets");
 			manager.dispose();
 			manager = null;
 		}
@@ -184,8 +177,13 @@ public class RTPReceiver implements ReceiveStreamListener, SessionListener {
 				System.err.println("      had now been identified as sent by: " + participant.getCNAME());
 			}
 		} else if (evt instanceof ByeEvent) {
-			System.err.println("  - Got \"bye\" from: " + participant.getCNAME());
-			stop();
+			ByeEvent bye = (ByeEvent)evt;
+			if (bye.getReceiveStream() == null) {
+				System.err.println("  - Got \"bye\" from: " + participant.getCNAME() + " they are a passive receiver, no big deal.");
+			} else {
+				System.err.println("  - Got \"bye\" from: " + participant.getCNAME() + " they are a sender, exiting.");
+				stop();
+			}
 		}
 	}
 }

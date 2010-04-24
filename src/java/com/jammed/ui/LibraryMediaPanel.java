@@ -3,6 +3,8 @@ package com.jammed.ui;
 import com.jammed.app.Librarian;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.io.File;
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
@@ -17,7 +19,7 @@ import javax.swing.event.TableModelListener;
  *
  * @author nmaludy
  */
-public class LibraryMediaPanel extends JPanel implements ActionListener, TableModelListener{
+public class LibraryMediaPanel extends JPanel implements ActionListener, MouseListener, TableModelListener{
 	private static final long serialVersionUID = 1L;
 	private final JTable table;
 	private final MediaTableModel model;
@@ -36,6 +38,7 @@ public class LibraryMediaPanel extends JPanel implements ActionListener, TableMo
 		table.setPreferredScrollableViewportSize(table.getPreferredSize());
 		table.setAutoCreateRowSorter(true);
 		table.getRowSorter().toggleSortOrder(0);
+		table.addMouseListener(this);
 
 		selectButton = new JButton("Set Folder");
 		selectButton.addActionListener(this);
@@ -72,7 +75,8 @@ public class LibraryMediaPanel extends JPanel implements ActionListener, TableMo
 			int[] selectedIndexes = table.getSelectedRows();
 			int index = PlaylistPanel.getInstance().getCurrentPlaylistIndex();
 			for(int i : selectedIndexes) {
-				Librarian.getInstance().addMediaToPlaylist(model.getMedia(i), index);
+				int modelIndex = table.convertRowIndexToModel(i);
+				Librarian.getInstance().addMediaToPlaylist(model.getMedia(modelIndex), index);
 			}
 		} else if (e.getSource().equals(selectButton)) {
 			try {
@@ -97,5 +101,23 @@ public class LibraryMediaPanel extends JPanel implements ActionListener, TableMo
 
 	public void tableChanged(TableModelEvent tme) {
 		normalizeTable();
+	}
+
+	public void mouseClicked(MouseEvent me) {
+		if (me.getClickCount() > 1) {
+			addButton.doClick();
+		}
+	}
+
+	public void mousePressed(MouseEvent me) {
+	}
+
+	public void mouseReleased(MouseEvent me) {
+	}
+
+	public void mouseEntered(MouseEvent me) {
+	}
+
+	public void mouseExited(MouseEvent me) {
 	}
 }

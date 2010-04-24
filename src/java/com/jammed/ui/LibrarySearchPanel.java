@@ -10,6 +10,8 @@ import com.jammed.gen.ProtoBuffer.Request;
 import com.jammed.handlers.PlaylistHandler;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import javax.swing.GroupLayout;
@@ -26,7 +28,7 @@ import javax.swing.event.TableModelListener;
  *
  * @author nmaludy
  */
-public class LibrarySearchPanel extends JPanel implements ActionListener, TableModelListener {
+public class LibrarySearchPanel extends JPanel implements ActionListener, MouseListener, TableModelListener {
 	private static final long serialVersionUID = 1L;
 	private final JTable table;
 	private final MediaTableModel model;
@@ -51,6 +53,7 @@ public class LibrarySearchPanel extends JPanel implements ActionListener, TableM
 		table.setPreferredScrollableViewportSize(table.getPreferredSize());
 		table.setAutoCreateRowSorter(true);
 		table.getRowSorter().toggleSortOrder(0);
+		table.addMouseListener(this);
 
 		searchRequests = new TreeMap<Integer, Request>();
 
@@ -115,7 +118,8 @@ public class LibrarySearchPanel extends JPanel implements ActionListener, TableM
 			int[] selectedIndexes = table.getSelectedRows();
 			int index = PlaylistPanel.getInstance().getCurrentPlaylistIndex();
 			for(int i : selectedIndexes) {
-				Librarian.getInstance().addMediaToPlaylist(model.getMedia(i), index);
+				int modelIndex = table.convertRowIndexToModel(i);
+				Librarian.getInstance().addMediaToPlaylist(model.getMedia(modelIndex), index);
 			}
 		}
 	}
@@ -127,6 +131,22 @@ public class LibrarySearchPanel extends JPanel implements ActionListener, TableM
 
 	public void tableChanged(TableModelEvent tme) {
 		normalizeTable();
+	}
+
+	public void mouseClicked(MouseEvent me) {
+		addButton.doClick();
+	}
+
+	public void mousePressed(MouseEvent me) {
+	}
+
+	public void mouseReleased(MouseEvent me) {
+	}
+
+	public void mouseEntered(MouseEvent me) {
+	}
+
+	public void mouseExited(MouseEvent me) {
 	}
 
 	private class SearchResponder extends PlaylistHandler {
