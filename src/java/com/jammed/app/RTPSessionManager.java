@@ -143,7 +143,7 @@ public class RTPSessionManager {
 						builder.setAddress(address);
 						synchronized(portsInUse) {
 							audioPort = Integer.valueOf(portsInUse.last() + 2);
-							builder.setAuidoPort(audioPort);
+							builder.setAudioPort(audioPort);
 							portsInUse.add(audioPort);
 							if(isVideo) {
 								Integer videoPort = Integer.valueOf(audioPort.intValue() + 2);
@@ -208,7 +208,7 @@ public class RTPSessionManager {
 				if (receiveRequests.containsKey(id)) { //check if this request has been handled yet
 					receiveRequests.remove(id);
 					String hostname = playResponse.getAddress();
-					int port = playResponse.getAuidoPort();
+					int port = playResponse.getAudioPort();
 					//String hostname = "224.1.1.1";
 					//int port = 5000;
 
