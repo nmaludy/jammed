@@ -101,17 +101,14 @@ public class PlayerPanel extends JPanel {
 		invalidate();
 		BorderLayout layout = new BorderLayout();
 		setLayout(layout);
+		add(background, BorderLayout.CENTER);
+
 		if (player != null) {
 			Component visualComponent = player.getVisualComponent();
 			if (visualComponent != null) {
 				System.out.println("Adding Video player");
+				removeAll();
 				add(visualComponent, BorderLayout.CENTER);
-			} else {
-				add(background, BorderLayout.CENTER);
-			}
-			Component controlComponent = player.getControlPanelComponent();
-			if (controlComponent != null) {
-				add(controlComponent, BorderLayout.SOUTH);
 			}
 			revalidate();
 			return;
@@ -119,13 +116,13 @@ public class PlayerPanel extends JPanel {
 
 		if (audioPlayer != null) {
 			System.out.println("Adding Audio To Panel");
-			//Component controlComponent = audioPlayer.getControlPanelComponent();
 		}
 
 		if (videoPlayer != null) {
 			Component visualComponent = videoPlayer.getVisualComponent();
 			if (visualComponent != null) {
 				System.out.println("Adding Video To Panel");
+				removeAll();
 				add(visualComponent, BorderLayout.CENTER);
 			}
 		}

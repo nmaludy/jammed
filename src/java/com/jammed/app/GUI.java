@@ -167,6 +167,7 @@ public class GUI extends JFrame implements ActionListener {
 	 * Initializes a new instance of GUI and schedules it for launch.
 	 */
 	public static void main(final String[] args) throws Exception {
+		JFrame.setDefaultLookAndFeelDecorated(true);
 		javax.swing.SwingUtilities.invokeLater(new Runnable() {
 
 			public void run() {

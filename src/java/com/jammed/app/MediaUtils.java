@@ -26,6 +26,7 @@ public class MediaUtils {
 		mediaPlayer.setMediaLocator(mediaLocator);
 		mediaPlayer.setPopupActive(false);
 		mediaPlayer.setControlPanelVisible(true);
+		mediaPlayer.setPlaybackLoop(false);
 
 		if (mediaPlayer.getPlayer() == null) {
 			System.err.println("ERROR - MediaUtils.createMediaPlayer - Player creation failed: " + nameUrl);
@@ -47,6 +48,7 @@ public class MediaUtils {
 		mediaPlayer.setDataSource(dataSource);
 		mediaPlayer.setPopupActive(false);
 		mediaPlayer.setControlPanelVisible(true);
+		mediaPlayer.setPlaybackLoop(false);
 		
 		if (mediaPlayer.getPlayer() == null) {
 			System.err.println("ERROR - MediaUtils.createMediaPlayer - Player creation failed: " + dataSource);
