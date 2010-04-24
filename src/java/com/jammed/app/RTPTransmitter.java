@@ -108,6 +108,7 @@ public class RTPTransmitter implements ControllerListener, Runnable {
 	 * Stops the transmission if already started
 	 */
 	public void stop() {
+		synchronized(processor) {
 		if (processor != null) {
 			processor.stop();
 			processor.close();
@@ -124,6 +125,7 @@ public class RTPTransmitter implements ControllerListener, Runnable {
 		}
 		TransmissionStopEvent stopEvent = TransmissionStopEvent.create(this);
 		fireTransmitterEvent(stopEvent);
+		}
 	}
 
 	public void controllerUpdate(ControllerEvent ce) {
@@ -154,6 +156,7 @@ public class RTPTransmitter implements ControllerListener, Runnable {
 
 	private void setupTracks() {
 		// Get the tracks from the processor
+		synchronized(processor) {
 		TrackControl[] tracks = processor.getTrackControls();
 		if (tracks == null || tracks.length < 1) {
 			System.err.println("Couldn't find tracks in processor");
@@ -208,11 +211,14 @@ public class RTPTransmitter implements ControllerListener, Runnable {
 			return;
 		}
 		processor.realize(); //When complete sends RealizeCompleteEvent to controllerUpdate()
+		}
 	}
 
 	private void setupQuality() {
+		synchronized(processor) {
 		setJPEGQuality(processor, 0.5f);
 		dataOutput = processor.getDataOutput();
+		}
 	}
 
 	/**
@@ -258,7 +264,9 @@ public class RTPTransmitter implements ControllerListener, Runnable {
 	}
 
 	private void startTransmission() {
+		synchronized(processor) {
 		processor.start();
+		}
 	}
 
 	/**

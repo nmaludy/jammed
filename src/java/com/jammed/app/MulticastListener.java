@@ -160,14 +160,17 @@ public class MulticastListener implements Runnable {
 			}
 
 			synchronized (packets) {
-				packets.add(packet);
+				if (!packet.isEmpty()) {
+					packets.add(packet);
+				}
 			}
 
 			completed.put(request, packets);
 
-			if (packet.isFinished()) {
+			if (packet.isFinished() && !packet.isEmpty()) {
 				finishedRequests.add(request);
 			}
+			
 		} catch (final Exception e) {
 		}
 
