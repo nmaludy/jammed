@@ -4,7 +4,6 @@ import com.jammed.gen.MediaProtos.Media;
 import com.jammed.ui.PlayerPanel;
 import com.jammed.ui.PlaylistPanel;
 import com.jammed.ui.TabbedPanel;
-import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -179,7 +178,9 @@ public class GUI extends JFrame implements ActionListener {
 				} catch (Exception e) {
 					System.out.println("Substance Graphite failed to initialize");
 				}
-				GUI.getInstance();
+				URL imageURL = this.getClass().getResource("/images/jammed_text.png");
+				JFrame f = GUI.getInstance();
+				f.setIconImage(new ImageIcon(imageURL).getImage());
 			}
 		});
 	}
