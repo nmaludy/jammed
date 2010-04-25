@@ -2,6 +2,7 @@
 package com.jammed.app;
 
 import com.jammed.handlers.SearchHandler;
+import com.jammed.handlers.PlayResponseHandler;
 import com.jammed.handlers.PlayRequestHandler;
 
 import java.io.File;
@@ -19,7 +20,9 @@ public class AndroidServer {
 	}
 	
 	protected static void registerHandlers() {
+		cloud.addMessageHandler(new PlayResponseHandler());
 		cloud.addMessageHandler(new SearchHandler());
 		cloud.addMessageHandler(new PlayRequestHandler());
+		//cloud.addMessageHandler(new PlaylistHandler());
 	}
 }

@@ -177,6 +177,7 @@ public class RTPReceiver implements ReceiveStreamListener, SessionListener {
 				System.err.println("      had now been identified as sent by: " + participant.getCNAME());
 			}
 		} else if (evt instanceof ByeEvent) {
+			/*
 			ByeEvent bye = (ByeEvent)evt;
 			if (bye.getReceiveStream() == null) {
 				System.err.println("  - Got \"bye\" from: " + participant.getCNAME() + " they are a passive receiver, no big deal.");
@@ -184,6 +185,7 @@ public class RTPReceiver implements ReceiveStreamListener, SessionListener {
 				System.err.println("  - Got \"bye\" from: " + participant.getCNAME() + " they are a sender, exiting.");
 				stop();
 			}
+			*/
 		}
 	}
 }
