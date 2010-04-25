@@ -114,6 +114,9 @@ public class RTPSessionManager {
 			if (!(message instanceof PlayRequest)) {
 				throw new IllegalArgumentException();
 			}
+			
+			System.out.println("Received PlayRequest");
+			
 			PlayRequest playRequest = (PlayRequest) message;
 			Request request = playRequest.getRequest();
 			String hostname = request.getOrigin();
