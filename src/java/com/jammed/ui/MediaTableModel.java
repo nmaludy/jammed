@@ -1,5 +1,6 @@
 package com.jammed.ui;
 
+import com.jammed.app.Cloud;
 import com.jammed.event.PlaylistEvent;
 import com.jammed.event.PlaylistListener;
 import com.jammed.gen.MediaProtos.Media;
@@ -30,6 +31,15 @@ public class MediaTableModel extends AbstractTableModel implements PlaylistListe
 			l.add(m);
 		}
 		return new MediaTableModel(l);
+	}
+	
+	public Playlist getPlaylist() {
+		final Playlist.Builder builder = Playlist.newBuilder();
+		builder.setType(builder.getType());
+		builder.addAllMedia(media);
+		builder.setHost(Cloud.getInstance().getHostName());
+		
+		return builder.build();
 	}
 
 	@Override

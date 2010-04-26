@@ -49,8 +49,10 @@ public class FullscreenWindow extends FullscreenCanvas {
         }
 
         // Top layer
+		final String hostname = Cloud.getInstance().getHostName();
         g.setColor(Color.WHITE);
         g.drawString("Click anywhere to exit", 5, bounds.height - 15);
+		g.drawString("Host: " + hostname, 5, 15);
     }
 
     @Override

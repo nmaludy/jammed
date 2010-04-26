@@ -30,7 +30,7 @@ public class FullscreenMain {
 	
 	private static final Cloud cloud         = Cloud.getInstance();
 	private static final MessageBox message  = new MessageBox();
-	private static final DirectiveHandler dh = new DirectiveHandler(message);
+	private static final DirectiveHandler dh = new DirectiveHandler(null);
 	
 	static {
 		cloud.addMessageHandler(dh);

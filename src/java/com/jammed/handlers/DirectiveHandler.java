@@ -4,6 +4,7 @@ package com.jammed.handlers;
 import com.jammed.app.PacketHandler;
 import com.jammed.app.MessageBox;
 import com.jammed.app.Cloud;
+import com.jammed.app.DirectedPlaylist;
 
 import com.jammed.gen.MessageProtos.Directive;
 
@@ -14,10 +15,10 @@ import java.util.List;
 
 public class DirectiveHandler extends PacketHandler<Directive> {
 	
-	private final MessageBox display;
+	private final DirectedPlaylist playlist;
 
-	public DirectiveHandler(final MessageBox display) {
-		this.display = display;
+	public DirectiveHandler(final DirectedPlaylist p) {
+		this.playlist = p;
 	}
 	
 	public boolean isMessageSupported (final MessageLite message) {
@@ -62,8 +63,11 @@ public class DirectiveHandler extends PacketHandler<Directive> {
 			directive.getDestination())) {
 		
 			// This is a message for us
-			final List<String> m = directive.getDirectiveList();
-			display.setMessage(m);
+			if (directive.hasPlaylist()) {
+				playlist.stop();
+				playlist.setPlaylist(directive.getPlaylist());
+				playlist.start();
+			}
 			
 		}
 		

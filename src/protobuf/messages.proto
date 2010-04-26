@@ -23,6 +23,7 @@ message Directive {
 	
 	// Optional Fields
 	optional string  password    = 5;
+	optional Playlist playlist   = 6;
 }
 
 message PlayRequest {

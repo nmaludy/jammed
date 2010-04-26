@@ -36,8 +36,8 @@ public class FullscreenPanel extends JPanel implements ActionListener {
 		startButton.addActionListener(this);
 		
 		message   = new MessageBox();
-		directive = new DirectiveHandler(message);
-		playlist  = new DirectedPlaylist();
+		playlist  = new DirectedPlaylist(message);
+		directive = new DirectiveHandler(playlist);
 		RTPSessionManager.getInstance().addReceiverListener(playlist);
 		
 		add(startButton);
