@@ -76,7 +76,7 @@ public abstract class FullscreenCanvas extends Frame
         } catch (final Exception e) {
             e.printStackTrace();
         } finally {
-            device.setFullScreenWindow(null);
+            //device.setFullScreenWindow(null);
             if (g != null) g.dispose();
             this.dispose();
         }

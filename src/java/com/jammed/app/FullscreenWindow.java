@@ -18,6 +18,8 @@ public class FullscreenWindow extends FullscreenCanvas {
 	private static final long serialVersionUID   = 0x454D53;
 
     private final List<Drawable> drawable = new ArrayList<Drawable>();
+	
+	private Runnable exitAction;
 
     public FullscreenWindow() {
         super();
@@ -25,6 +27,10 @@ public class FullscreenWindow extends FullscreenCanvas {
 	
 	public void addDrawable (final Drawable d) {
 		this.drawable.add(d);
+	}
+	
+	public void setExitAction (final Runnable exitAction) {
+		this.exitAction = exitAction;
 	}
     
     @Override
@@ -50,6 +56,7 @@ public class FullscreenWindow extends FullscreenCanvas {
     @Override
     public void mouseClicked(final MouseEvent me) {
         super.exit();
+		exitAction.run();
     }
     
 }

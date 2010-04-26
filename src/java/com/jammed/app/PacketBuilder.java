@@ -26,6 +26,10 @@ public class PacketBuilder {
 		this.handlers.add(handler);
 	}
 	
+	public void removeMessageHandler (final PacketHandler<? extends MessageLite> handler) {
+		this.handlers.remove(handler);
+	}
+	
 	public MessageLite buildMessage (final byte[] data, final int type) {
 		for (final PacketHandler<? extends MessageLite> handler : handlers) {
 			if (handler.isMessageSupported(type)) {
