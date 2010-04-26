@@ -66,6 +66,7 @@ public class RTPTransmitter implements ControllerListener, Runnable {
 	 * Starts the transmission. Returns null if transmission started ok.
 	 * Otherwise it returns a string with the reason why the setup failed.
 	 */
+	@Override
 	public void run() {
 		createAndConfigureProcessor();
 	}
@@ -106,9 +107,11 @@ public class RTPTransmitter implements ControllerListener, Runnable {
 
 	/**
 	 * Stops the transmission if already started
+	 *
+	 * Private due to synchronization issues of the processor and RTPManager. If this is to be made public
+	 * Both of those variables need to be locked or synchronized properly.
 	 */
-	public void stop() {
-		synchronized(processor) {
+	private void stop() {
 		if (processor != null) {
 			processor.stop();
 			processor.close();
@@ -125,9 +128,9 @@ public class RTPTransmitter implements ControllerListener, Runnable {
 		}
 		TransmissionStopEvent stopEvent = TransmissionStopEvent.create(this);
 		fireTransmitterEvent(stopEvent);
-		}
 	}
 
+	@Override
 	public void controllerUpdate(ControllerEvent ce) {
 		if (ce instanceof ConfigureCompleteEvent) {
 			setupTracks();
@@ -156,7 +159,6 @@ public class RTPTransmitter implements ControllerListener, Runnable {
 
 	private void setupTracks() {
 		// Get the tracks from the processor
-		synchronized(processor) {
 		TrackControl[] tracks = processor.getTrackControls();
 		if (tracks == null || tracks.length < 1) {
 			System.err.println("Couldn't find tracks in processor");
@@ -174,36 +176,36 @@ public class RTPTransmitter implements ControllerListener, Runnable {
 		float videoQuality = 0.0f;
 		// Program the tracks.
 		for (int i = 0; i < tracks.length; i++) {
-			if (tracks[i].isEnabled()) {
-				supported = tracks[i].getSupportedFormats();
-				if (supported.length > 0) {
-					chosen = supported[0]; //default
-					for (int j = 0; j < supported.length; j++) {
-						if (supported[i] instanceof VideoFormat) {
-							//chosen = checkForVideoSizes(tracks[i].getFormat(), supported[0]);
-							VideoFormat vf = (VideoFormat) supported[j];
-							if (vf.getFrameRate() > videoQuality) {
-								videoQuality = vf.getFrameRate();
-								chosen = checkForVideoSizes(tracks[i].getFormat(), supported[j]);
-							}
-						} else if (supported[j] instanceof AudioFormat) {
-							AudioFormat af = (AudioFormat) supported[j];
-							if (af.getSampleRate() > audioQuality) {
-								audioQuality = af.getSampleRate();
-								chosen = supported[j];
-							}
-						}
-					}
-					tracks[i].setFormat(chosen);
-					System.err.println("Track " + i + " is set to transmit as:");
-					System.err.println("  " + chosen);
-					atLeastOneTrack = true;
-				} else {
-					tracks[i].setEnabled(false);
-				}
-			} else {
+			if (!tracks[i].isEnabled()) {
 				tracks[i].setEnabled(false);
+				continue;
 			}
+			supported = tracks[i].getSupportedFormats();
+			if (supported.length <= 0) {
+				tracks[i].setEnabled(false);
+				continue;
+			}
+			chosen = supported[0]; //default
+			for (int j = 0; j < supported.length; j++) {
+				if (supported[i] instanceof VideoFormat) {
+					//chosen = checkForVideoSizes(tracks[i].getFormat(), supported[0]);
+					VideoFormat vf = (VideoFormat) supported[j];
+					if (vf.getFrameRate() > videoQuality) {
+						videoQuality = vf.getFrameRate();
+						chosen = checkForVideoSizes(tracks[i].getFormat(), supported[j]);
+					}
+				} else if (supported[j] instanceof AudioFormat) {
+					AudioFormat af = (AudioFormat) supported[j];
+					if (af.getSampleRate() > audioQuality) {
+						audioQuality = af.getSampleRate();
+						chosen = supported[j];
+					}
+				}
+			}
+			tracks[i].setFormat(chosen);
+			System.err.println("Track " + i + " is set to transmit as:");
+			System.err.println("  " + chosen);
+			atLeastOneTrack = true;
 		}
 
 		if (!atLeastOneTrack) {
@@ -211,14 +213,11 @@ public class RTPTransmitter implements ControllerListener, Runnable {
 			return;
 		}
 		processor.realize(); //When complete sends RealizeCompleteEvent to controllerUpdate()
-		}
 	}
 
 	private void setupQuality() {
-		synchronized(processor) {
 		setJPEGQuality(processor, 0.5f);
 		dataOutput = processor.getDataOutput();
-		}
 	}
 
 	/**
@@ -264,9 +263,7 @@ public class RTPTransmitter implements ControllerListener, Runnable {
 	}
 
 	private void startTransmission() {
-		synchronized(processor) {
 		processor.start();
-		}
 	}
 
 	/**
