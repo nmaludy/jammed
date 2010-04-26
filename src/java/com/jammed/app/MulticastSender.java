@@ -51,6 +51,10 @@ public class MulticastSender {
 		this.handlers.add(handler);
 	}
 	
+	public void removeMessageHandler (final PacketHandler<? extends MessageLite> handler) {
+		this.handlers.remove(handler);
+	}
+	
 	public void setSource (final int source) {
 		this.source = source;
 	}

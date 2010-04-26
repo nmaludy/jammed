@@ -21,6 +21,7 @@ public class TabbedPanel extends JPanel {
 		tabs.addTab("Playlist", PlaylistPanel.getInstance());
 		tabs.addTab("Library", LibraryMediaPanel.create());
 		tabs.addTab("Search", LibrarySearchPanel.create());
+		tabs.addTab("Fullscreen", FullscreenPanel.create());
 		add(tabs, BorderLayout.CENTER);
 	}
 

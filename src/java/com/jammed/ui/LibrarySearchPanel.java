@@ -134,7 +134,9 @@ public class LibrarySearchPanel extends JPanel implements ActionListener, MouseL
 	}
 
 	public void mouseClicked(MouseEvent me) {
-		addButton.doClick();
+		if (me.getClickCount() > 1) {
+			addButton.doClick();
+		}
 	}
 
 	public void mousePressed(MouseEvent me) {

@@ -47,12 +47,12 @@ public class Cloud implements Runnable {
 		sender.addMessageHandler(handler);
 		listener.addMessageHandler(handler);
 		builder.addMessageHandler(handler);
-		
-		for (int i = 0; i < 20; i++) {
-			if (handler.isMessageSupported(i)) {
-				System.out.println("Adding Handler for type: " + i);
-			}
-		}
+	}
+	
+	public void removeMessageHandler (final PacketHandler<? extends MessageLite> handler) {
+		sender.removeMessageHandler(handler);
+		listener.removeMessageHandler(handler);
+		builder.removeMessageHandler(handler);
 	}
 
 	public void run() {

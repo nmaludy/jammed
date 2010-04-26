@@ -69,6 +69,10 @@ public class MulticastListener implements Runnable {
 		this.handlers.add(handler);
 	}
 	
+	public void removeMessageHandler (final PacketHandler<? extends MessageLite> handler) {
+		this.handlers.remove(handler);
+	}
+	
 	private class ListenerThread extends Thread {
 		
 		@Override

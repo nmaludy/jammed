@@ -1,6 +1,8 @@
 
 package com.jammed.app;
 
+import com.jammed.gen.MediaProtos.Media;
+
 import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
@@ -60,6 +62,12 @@ public class MessageBox implements Drawable {
         this.message.clear();
 		this.message.addAll(message);
     }
+
+	public void setMessage (final Media media) {
+        this.message.clear();
+		this.message.add("Now Playing:");
+		this.message.add(media.getTitle());
+    }	
 
     public void setForeground (final Color c) {
         this.foreground = c;

@@ -27,6 +27,7 @@ import javax.media.rtp.event.ReceiveStreamEvent;
 import javax.media.rtp.event.RemotePayloadChangeEvent;
 import javax.media.rtp.event.SessionEvent;
 import javax.media.rtp.event.StreamMappedEvent;
+import javax.media.rtp.event.InactiveReceiveStreamEvent;
 import javax.swing.SwingUtilities;
 import javax.swing.event.EventListenerList;
 
@@ -182,6 +183,11 @@ public class RTPReceiver implements ReceiveStreamListener, SessionListener {
 				System.err.println("  - Got \"bye\" from: " + participant.getCNAME() + " they are a passive receiver, no big deal.");
 			} else {
 				System.err.println("  - Got \"bye\" from: " + participant.getCNAME() + " they are a sender, exiting.");
+				stop();
+			}
+		} else if (evt instanceof InactiveReceiveStreamEvent) {
+			InactiveReceiveStreamEvent irse = (InactiveReceiveStreamEvent)evt;
+			if (irse.getReceiveStream() != null) {
 				stop();
 			}
 		}
