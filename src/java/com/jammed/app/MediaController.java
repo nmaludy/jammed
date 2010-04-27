@@ -7,12 +7,17 @@ import com.jammed.event.StreamEvent;
 import com.jammed.gen.MediaProtos.Media;
 import com.jammed.ui.PlayerPanel;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import javax.media.CachingControlEvent;
+import javax.media.Control;
 import javax.media.ControllerClosedEvent;
 import javax.media.ControllerErrorEvent;
 import javax.media.ControllerEvent;
 import javax.media.ControllerListener;
 import javax.media.DurationUpdateEvent;
+import javax.media.EndOfMediaEvent;
+import javax.media.GainControl;
 import javax.media.MediaTimeSetEvent;
 import javax.media.PrefetchCompleteEvent;
 import javax.media.RateChangeEvent;
@@ -23,6 +28,7 @@ import javax.media.StopTimeChangeEvent;
 import javax.media.TransitionEvent;
 import javax.media.bean.playerbean.MediaPlayer;
 import javax.media.format.FormatChangeEvent;
+import javax.swing.SwingUtilities;
 
 /**
  *
@@ -31,6 +37,7 @@ import javax.media.format.FormatChangeEvent;
 public class MediaController implements ControllerListener, RTPReceiverListener {
 	private static final RTPSessionManager sessionManager = RTPSessionManager.getInstance();
 	private static MediaController INSTANCE;
+	private List<ControllerListener> controllerListeners;
 	private RemoteVideoHandler videoHandler;
 	private RemoteAudioHandler audioHandler;
 	private MediaPlayer player;
@@ -38,6 +45,7 @@ public class MediaController implements ControllerListener, RTPReceiverListener 
 	private PlayerPanel panel;
 	private RTPReceiver audioReceiver;
 	private RTPReceiver videoReceiver;
+	private float preferredGain;
 
 	//Variables to manage controller state
 	private boolean isPaused = false;
@@ -49,9 +57,11 @@ public class MediaController implements ControllerListener, RTPReceiverListener 
 	
 
 	private MediaController() {
+		controllerListeners = new ArrayList<ControllerListener>();
 		videoHandler = new RemoteVideoHandler();
 		audioHandler = new RemoteAudioHandler();
 		sessionManager.addReceiverListener(this);
+		preferredGain = 0.6f;
 	}
 
 	public static MediaController getInstance() {
@@ -88,40 +98,41 @@ public class MediaController implements ControllerListener, RTPReceiverListener 
 		player.realize();
 	}
 
-	private void playOrPause() {
-		if (isPaused || !sessionInProgress) {
-			play();
-		} else {
-			pause();
+	public void play() {
+		if (player!= null) {
+			player.start();
 		}
-	}
-
-	private void play() {
-		if (isPaused) {
-			player.restoreMediaTime();
-			isPaused = false;
+		if (remoteVideoPlayer != null) {
+			remoteVideoPlayer.start();
 		}
-		player.start();
 		sessionInProgress = true;
 	}
 
-	private void pause() {
-		player.saveMediaTime();
-		player.stop();
-		isPaused = true;
+	public void pause() {
+		if (player != null) {
+			player.stop();
+		}
+		if (remoteVideoPlayer != null) {
+			remoteVideoPlayer.stop();
+			remoteVideoPlayer = null;
+		}
+	}
+
+	public boolean isSessionInProgress() {
+		return sessionInProgress;
 	}
 
 	private void destroyCurrent() {
 		if (player != null) {
 			player.stop();
 			player.close();
-			player.deallocate();
+			//player.deallocate();
 			player = null;
 		}
 		if (remoteVideoPlayer != null) {
 			remoteVideoPlayer.stop();
 			remoteVideoPlayer.close();
-			remoteVideoPlayer.deallocate();
+			//remoteVideoPlayer.deallocate();
 			remoteVideoPlayer = null;
 		}
 		if (audioReceiver != null) {
@@ -142,6 +153,7 @@ public class MediaController implements ControllerListener, RTPReceiverListener 
 	 * TODO: Handle all of the control events
 	 */
 	public void controllerUpdate(ControllerEvent event) {
+		System.out.println(event.getClass().toString());
 		if (event instanceof RealizeCompleteEvent) {
 			handleRealizeComplete((RealizeCompleteEvent) event);
 		} else if (event instanceof PrefetchCompleteEvent) {
@@ -156,6 +168,9 @@ public class MediaController implements ControllerListener, RTPReceiverListener 
 			// processCachingControl ( (CachingControlEvent) event );
 		} else if (event instanceof StartEvent) {
 		} else if (event instanceof MediaTimeSetEvent) {
+		} else if (event instanceof EndOfMediaEvent) {
+			fireControllerEvent(event);
+			destroyCurrent();
 		} else if (event instanceof TransitionEvent) {
 		} else if (event instanceof RateChangeEvent) {
 		} else if (event instanceof StopTimeChangeEvent) {
@@ -168,6 +183,7 @@ public class MediaController implements ControllerListener, RTPReceiverListener 
 	private void handleRealizeComplete(RealizeCompleteEvent event) {
 		player.prefetch();
 		panel.setPlayer(player);
+		setGain(preferredGain);
 		play();
 	}
 
@@ -186,6 +202,69 @@ public class MediaController implements ControllerListener, RTPReceiverListener 
 		} else if (event instanceof ReceivedStopEvent) {
 			destroyCurrent();
 		}
+	}
+
+	public void addControllerListener(final ControllerListener c) {
+		controllerListeners.add(c);
+	}
+
+	public void removeControllerListener(final ControllerListener c) {
+		controllerListeners.remove(c);
+	}
+
+	protected void fireControllerEvent(final ControllerEvent event) {
+		SwingUtilities.invokeLater(new Runnable() {
+
+			public void run() {
+				if (controllerListeners == null) {
+					return;
+				}
+
+				for(ControllerListener l : controllerListeners) {
+					l.controllerUpdate(event);
+					System.out.println("fire event");
+				}
+			}
+		});
+	}
+
+	public void mute() {
+		if (player == null) {
+			return;
+		}
+		GainControl g = player.getGainControl();
+		if (g != null) {
+			g.setMute(true);
+		}
+	}
+
+	public void unmute() {
+		if (player == null) {
+			return;
+		}
+		GainControl g = player.getGainControl();
+		if (g != null) {
+			g.setMute(false);
+		}
+	}
+
+	public void setGain(float gain) {
+		preferredGain = gain;
+		if (player == null) {
+			return;
+		}
+		GainControl g = player.getGainControl();
+		if (g != null) {
+			g.setLevel(preferredGain);
+		}
+	}
+
+	public double getMediaTime() {
+		return player.getMediaTime().getSeconds();
+	}
+
+	public double getMediaDuration() {
+		return player.getDuration().getSeconds();
 	}
 
 	private class RemoteVideoHandler implements ControllerListener {

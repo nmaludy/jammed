@@ -120,6 +120,35 @@ public class PlaylistPanel extends JPanel implements ActionListener, MouseListen
 		row = table.convertRowIndexToModel(row);
 		return model.getMedia(row);
 	}
+
+	public Media getNextSelectedMedia() {
+		int row = table.getSelectedRow();
+		if (row == -1) {
+			return null;
+		}
+		int rowCount = model.getRowCount();
+		if ((row + 1) < rowCount){
+			row = table.convertRowIndexToModel(row + 1);
+			table.getSelectionModel().setSelectionInterval(row, row);
+			return model.getMedia(row);
+		} else {
+			return null;
+		}
+	}
+
+	public Media getPreviousSelectedMedia() {
+		int row = table.getSelectedRow();
+		if (row == -1) {
+			return null;
+		}
+		if ((row - 1) >= 0){
+			row = table.convertRowIndexToModel(row - 1);
+			table.getSelectionModel().setSelectionInterval(row, row);
+			return model.getMedia(row);
+		} else {
+			return null;
+		}
+	}
 	
 	@Override
 	public void actionPerformed(ActionEvent e) {
