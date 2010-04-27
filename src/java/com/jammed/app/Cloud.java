@@ -3,6 +3,8 @@ package com.jammed.app;
 
 import com.google.protobuf.MessageLite;
 
+import com.jammed.handlers.DirectiveHandler;
+
 import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
 
@@ -35,6 +37,8 @@ public class Cloud implements Runnable {
 		listener = new MulticastListener(DEFAULT_ADDRESS, DEFAULT_PORT);
 		
 		sender.setSource(Checksum.fletcher16(host));
+		
+		addMessageHandler(new DirectiveHandler(null));
 		
 		(new Thread(this)).start();
 	}

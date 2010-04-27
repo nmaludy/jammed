@@ -22,6 +22,8 @@ import javax.swing.UIManager;
 import javax.swing.WindowConstants;
 import org.pushingpixels.substance.api.skin.SubstanceBusinessLookAndFeel;
 
+import com.jammed.handlers.DirectiveHandler;
+
 /*
  * TODO: Convert to completely custom controls and remove JMF controls.
  * TODO: Abstract more media handling utilities to MediaUtils

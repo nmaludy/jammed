@@ -118,6 +118,7 @@ public class RTPTransmitter implements ControllerListener, Runnable {
 			processor.deallocate();
 			processor = null;
 		}
+		/*
 		if (rtpMgrs != null) {
 			for (int i = 0; i < rtpMgrs.length; i++) {
 				rtpMgrs[i].removeTargets("Session ended.");
@@ -126,6 +127,8 @@ public class RTPTransmitter implements ControllerListener, Runnable {
 			}
 			rtpMgrs = null;
 		}
+		*/
+		rtpMgrs = null;
 		TransmissionStopEvent stopEvent = TransmissionStopEvent.create(this);
 		fireTransmitterEvent(stopEvent);
 	}
