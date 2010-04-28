@@ -28,7 +28,9 @@ public class Librarian extends SearchHandler implements ScannerListener {
 	private File libraryRoot = null;
 	private final File libraryFile;
 	private Playlist library;
+	private Playlist searchList;
 	private final EventListenerList libraryListener;
+	private final EventListenerList searchListener;
 	private final List<Playlist> localPlaylists;
 	private final List<EventListenerList> localPlaylistListeners;
 	private static final String host = Checksum.fletcher16(Cloud.getInstance().getAddress()) + "";
@@ -48,6 +50,8 @@ public class Librarian extends SearchHandler implements ScannerListener {
 		} else {
 			library = createEmptyPlaylist();
 		}
+		searchList = createEmptyPlaylist();
+		searchListener = new EventListenerList();
 		libraryListener = new EventListenerList();
 		localPlaylists = new ArrayList<Playlist>();
 		localPlaylistListeners = new ArrayList<EventListenerList>();
@@ -196,6 +200,16 @@ public class Librarian extends SearchHandler implements ScannerListener {
 		refreshLibrary();
 	}
 
+	public Playlist getSearchPlaylist() {
+		return searchList;
+	}
+
+	public void setSearchPlaylist(Playlist list) {
+		searchList = list;
+		PlaylistEvent e = PlaylistEvent.create(searchList, PlaylistEvent.Type.REPLACE, 0, 0);
+		firePlaylistEvent(searchListener, e);
+	}
+
 	public Playlist getPlaylist(int index) {
 		return localPlaylists.get(index);
 	}
@@ -220,6 +234,14 @@ public class Librarian extends SearchHandler implements ScannerListener {
 
 	public void removeLibraryListener(PlaylistListener l) {
 		libraryListener.remove(PlaylistListener.class, l);
+	}
+
+	public void addSearchListener(PlaylistListener l) {
+		searchListener.add(PlaylistListener.class, l);
+	}
+
+	public void removeSearchListener(PlaylistListener l) {
+		searchListener.remove(PlaylistListener.class, l);
 	}
 
 	public void addPlaylistListener(PlaylistListener l, int playlistIndex) {

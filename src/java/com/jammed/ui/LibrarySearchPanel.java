@@ -37,15 +37,13 @@ public class LibrarySearchPanel extends JPanel implements ActionListener, MouseL
 	private final JButton searchButton;
 	private final JButton clearButton;
 	private final JButton addButton;
-	private final int searchPlaylistIndex;
 	private final SearchResponder responder;
 	private final SortedMap<Integer, Request> searchRequests;
 
 	private LibrarySearchPanel() {
 		super();
-		searchPlaylistIndex = Librarian.getInstance().addEmptyPlaylist();
-		model = MediaTableModel.createModel(Librarian.getInstance().getPlaylist(searchPlaylistIndex));
-		Librarian.getInstance().addPlaylistListener(model, searchPlaylistIndex);
+		model = MediaTableModel.createModel(Librarian.getInstance().getSearchPlaylist());
+		Librarian.getInstance().addSearchListener(model);
 		model.addTableModelListener(this);
 		table = new JTable(model);
 		scrollPane = new JScrollPane(table);
@@ -113,7 +111,7 @@ public class LibrarySearchPanel extends JPanel implements ActionListener, MouseL
 			Cloud.getInstance().send(builder.build(), request.getId());
 		} else if (e.getSource().equals(clearButton)) {
 			Playlist empty = Librarian.getInstance().createEmptyPlaylist();
-			Librarian.getInstance().setPlaylist(searchPlaylistIndex, empty);
+			Librarian.getInstance().setSearchPlaylist(empty);
 		} else if (e.getSource().equals(addButton)) {
 			int[] selectedIndexes = table.getSelectedRows();
 			int index = PlaylistPanel.getInstance().getCurrentPlaylistIndex();
@@ -184,7 +182,7 @@ public class LibrarySearchPanel extends JPanel implements ActionListener, MouseL
 				Request.Builder builder = Request.newBuilder(request);
 				builder.setRelease(true);
 				RequestPool.getInstance().release(builder.build());
-				Librarian.getInstance().setPlaylist(searchPlaylistIndex, playlist);
+				Librarian.getInstance().setSearchPlaylist(playlist);
 				normalizeTable();
 			}
 		}
