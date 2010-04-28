@@ -41,6 +41,8 @@ public class iTunes extends AbstractPlaylist {
 			final Media.Builder media = item.getValue();
 			
 			if (media != null) {
+				media.setHostname(Cloud.getInstance().getHostName());
+				
 				if (!media.hasTitle() && media.hasName()) {
 					media.setTitle(media.getName());
 				}

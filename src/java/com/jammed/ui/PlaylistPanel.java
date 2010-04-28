@@ -12,12 +12,14 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.File;
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JOptionPane;
+import javax.swing.JFileChooser;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import java.awt.event.KeyEvent;
@@ -35,7 +37,9 @@ public class PlaylistPanel extends JPanel implements ActionListener, KeyListener
 	private final JScrollPane scrollPane;
 	private final MediaTableModel model;
 	private int playlistIndex;
+	
 	private final JButton sendButton;
+	private final JButton importButton;
 
 	public PlaylistPanel() {
 		super();
@@ -53,8 +57,11 @@ public class PlaylistPanel extends JPanel implements ActionListener, KeyListener
 		table.setAutoCreateRowSorter(true);
 		table.addMouseListener(this);
 		
-		sendButton = new JButton("Send Playlist");
+		sendButton   = new JButton("Send Playlist");
+		importButton = new JButton("Import Playlist");
+		
 		sendButton.addActionListener(this);
+		importButton.addActionListener(this);
 		
 		GroupLayout layout = new GroupLayout(this);
 		setLayout(layout);
@@ -63,13 +70,15 @@ public class PlaylistPanel extends JPanel implements ActionListener, KeyListener
 			.addGroup(layout.createSequentialGroup()
 				.addComponent(scrollPane))
 			.addGroup(layout.createSequentialGroup()
-				.addComponent(sendButton)));
+				.addComponent(sendButton)
+				.addComponent(importButton)));
 
 		layout.setVerticalGroup(layout.createSequentialGroup()
 			.addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
 				.addComponent(scrollPane))
 			.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-				.addComponent(sendButton)));
+				.addComponent(sendButton)
+				.addComponent(importButton)));
 
 		normalizeTable();
 	}
@@ -104,6 +113,26 @@ public class PlaylistPanel extends JPanel implements ActionListener, KeyListener
 		builder.setPlaylist(playlist);
 		
 		Cloud.getInstance().send(builder.build(), request.getId());
+	}
+	
+	protected void importPlaylist() {
+		final JFileChooser fc = new JFileChooser();
+		fc.showOpenDialog(this);
+		
+		final File selection = fc.getSelectedFile();
+		if (selection == null) return;
+		
+		System.out.println("Import");
+		
+		final Librarian library = Librarian.getInstance();
+		final Playlist  p       = library.open(selection);
+		final int       index   = getCurrentPlaylistIndex();
+		
+		library.addMediaToPlaylist(p.getMediaList(), index);
+		normalizeTable();
+		
+		System.out.println(p.getMediaCount());
+		
 	}
 
 	private void normalizeTable() {
@@ -159,7 +188,10 @@ public class PlaylistPanel extends JPanel implements ActionListener, KeyListener
 	public void keyPressed(final KeyEvent ke) {
 		if (ke.getKeyCode() == KeyEvent.VK_DELETE) {
 			final int row = table.getSelectedRow();
-			model.deleteRow(row);
+			
+			if (row > 0) {
+				model.deleteRow(row);
+			}
 		}
 	}
 	
@@ -171,6 +203,10 @@ public class PlaylistPanel extends JPanel implements ActionListener, KeyListener
 		final Object source = e.getSource();
 		if (source == sendButton) {
 			send();
+		} else if (source == importButton) {
+			importPlaylist();
+		} else {
+			assert false : "A button was pressed that does not exist";
 		}
 	}
 

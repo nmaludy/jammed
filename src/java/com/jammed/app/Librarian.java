@@ -130,7 +130,7 @@ public class Librarian extends SearchHandler implements ScannerListener {
 		return builder.build();
 	}
 
-	public void open(final File file) {
+	public Playlist open(final File file) {
 		final String name = file.getName().toLowerCase();
 		AbstractPlaylist builder = null;
 
@@ -147,9 +147,10 @@ public class Librarian extends SearchHandler implements ScannerListener {
 		final Playlist playlist = builder.getPlaylist();
 
 		if (playlist.getMediaList().size() > 0) {
-			localPlaylists.add(playlist);
-			localPlaylistListeners.add(new EventListenerList());
+			return playlist;
 		}
+		
+		return null;
 	}
 
 	public Playlist createEmptyPlaylist() {
