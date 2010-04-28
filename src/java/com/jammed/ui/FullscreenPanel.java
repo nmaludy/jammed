@@ -59,7 +59,7 @@ public class FullscreenPanel extends JPanel implements ActionListener {
 	
 	protected void enterFullscreen() {
 		// Start listening for directives
-		Cloud.getInstance().removeMessageHandler(directive);
+		Cloud.getInstance().addMessageHandler(directive);
 		
 		// Open the fullscreen window
 		final FullscreenWindow fw = new FullscreenWindow();

@@ -57,6 +57,10 @@ public class DirectiveHandler extends PacketHandler<Directive> {
 			throw new IllegalArgumentException();
 		}
 		
+		if (this.playlist == null) {
+			return false;
+		}
+		
 		final Directive directive = (Directive)message;
 		
 		if (Cloud.getInstance().getHostName().equals(

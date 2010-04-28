@@ -28,6 +28,8 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import org.pushingpixels.substance.api.skin.SubstanceBusinessLookAndFeel;
 
+import com.jammed.handlers.DirectiveHandler;
+
 /*
  * TODO: Convert to completely custom controls and remove JMF controls.
  * TODO: Abstract more media handling utilities to MediaUtils
