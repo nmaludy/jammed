@@ -256,13 +256,16 @@ public class GUI extends JFrame implements ActionListener, ChangeListener, Contr
 							b.append(':');
 							int seconds = time % 60;
 							b.append(twoDigits.format((double) seconds));
-							b.append('/');
 
-							int dminutes = duration / 60;
-							b.append(dminutes);
-							b.append(':');
-							int dseconds = duration % 60;
-							b.append(twoDigits.format((double) dseconds));
+							if (!controller.isStream()) {
+								b.append('/');
+
+								int dminutes = duration / 60;
+								b.append(dminutes);
+								b.append(':');
+								int dseconds = duration % 60;
+								b.append(twoDigits.format((double) dseconds));
+							}
 
 							timeLabel.setText(b.toString());
 						}

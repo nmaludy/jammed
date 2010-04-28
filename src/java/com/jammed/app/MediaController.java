@@ -50,6 +50,7 @@ public class MediaController implements ControllerListener, RTPReceiverListener 
 	//Variables to manage controller state
 	private boolean isPaused = false;
 	private boolean sessionInProgress = false;
+	private boolean isStream = false;
 
 	static { //Ensure that INSTNACE is initialzed
 		 INSTANCE = new MediaController();
@@ -122,6 +123,10 @@ public class MediaController implements ControllerListener, RTPReceiverListener 
 		return sessionInProgress;
 	}
 
+	public boolean isStream() {
+		return isStream;
+	}
+
 	private void destroyCurrent() {
 		if (player != null) {
 			player.stop();
@@ -147,6 +152,7 @@ public class MediaController implements ControllerListener, RTPReceiverListener 
 			panel.resetAll();
 		}
 		sessionInProgress = false;
+		isStream = false;
 	}
 
 	/*
@@ -199,6 +205,7 @@ public class MediaController implements ControllerListener, RTPReceiverListener 
 				player.addControllerListener(audioHandler);
 				player.realize();
 			}
+			isStream = true;
 		} else if (event instanceof ReceivedStopEvent) {
 			destroyCurrent();
 		}
