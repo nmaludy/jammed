@@ -20,12 +20,14 @@ import javax.swing.JTable;
 import javax.swing.JOptionPane;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 
 /**
  *
  * @author nmaludy
  */
-public class PlaylistPanel extends JPanel implements ActionListener, MouseListener, TableModelListener {
+public class PlaylistPanel extends JPanel implements ActionListener, KeyListener, MouseListener, TableModelListener {
 
 	private static final long serialVersionUID = 1L;
 	private static PlaylistPanel INSTANCE;
@@ -42,6 +44,7 @@ public class PlaylistPanel extends JPanel implements ActionListener, MouseListen
 		Librarian.getInstance().addPlaylistListener(model, playlistIndex);
 		model.addTableModelListener(this);
 		table = new JTable(model);
+		table.addKeyListener(this);
 		scrollPane = new JScrollPane(table);
 		//setColumnHeaderView(table.getTableHeader());
 		//setViewportView(table);
@@ -148,6 +151,19 @@ public class PlaylistPanel extends JPanel implements ActionListener, MouseListen
 		} else {
 			return null;
 		}
+	}
+	
+	public void keyReleased(final KeyEvent ke) {
+	}
+	
+	public void keyPressed(final KeyEvent ke) {
+		if (ke.getKeyCode() == KeyEvent.VK_DELETE) {
+			final int row = table.getSelectedRow();
+			model.deleteRow(row);
+		}
+	}
+	
+	public void keyTyped(final KeyEvent ke) {
 	}
 	
 	@Override
