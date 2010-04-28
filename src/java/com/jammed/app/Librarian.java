@@ -150,6 +150,8 @@ public class Librarian extends SearchHandler implements ScannerListener {
 			return playlist;
 		}
 		
+		System.out.println("Empty playlist");
+		
 		return null;
 	}
 

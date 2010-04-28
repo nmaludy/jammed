@@ -22,10 +22,14 @@ public class PLS extends AbstractPlaylist {
 	private final static String TITLE         = "Title";
 	private final static String LENGTH        = "Length";
 	
+	private final String host;
+	
 	protected Playlist.Builder playlist;
 	
 	public PLS (final String host) {
 		this.playlist = Playlist.newBuilder();
+		this.host     = host;
+		
 		this.playlist.setType(playlist.getType());
 		this.playlist.setHost(host);
 	}
@@ -72,10 +76,12 @@ public class PLS extends AbstractPlaylist {
 				add = add && setValue(peek, media);
                 while (scanner.hasNext(currentEntryPattern)) {
 					add = add && setValue(scanner.nextLine(), media);
+					System.out.println("add: " + add);
                 }
 				
 				if (add) {
 					media.setType(media.getType());
+					media.setHostname(host);
 					playlist.addMedia(media);
 				}
             }
