@@ -63,11 +63,15 @@ public class DirectiveHandler extends PacketHandler<Directive> {
 		
 		final Directive directive = (Directive)message;
 		
+		
+		
 		if (Cloud.getInstance().getHostName().equals(
 			directive.getDestination())) {
 		
 			// This is a message for us
 			if (directive.hasPlaylist()) {
+				System.out.println("Received Playlist of size: " + directive.getPlaylist().getMediaCount());
+				
 				playlist.stop();
 				playlist.setPlaylist(directive.getPlaylist());
 				playlist.start();

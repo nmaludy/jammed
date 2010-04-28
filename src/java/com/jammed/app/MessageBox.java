@@ -57,6 +57,10 @@ public class MessageBox implements Drawable {
         if (random.nextBoolean()) { this.deltaX *= -1; }
         if (random.nextBoolean()) { this.deltaY *= -1; }
 	}
+	
+	public void clearMessage() {
+		this.message.clear();
+	}
 
     public void setMessage (final Collection<String> message) {
         this.message.clear();
@@ -80,13 +84,23 @@ public class MessageBox implements Drawable {
     public void move() {
         x += deltaX;
         y += deltaY;
+		
+		final int xLimit = screenSize.width - 
+			(width + insets.right + insets.left);
+			
+		final int yLimit =  screenSize.height - 
+           (height + insets.top + insets.bottom);
         
-        if (x > screenSize.width -
-           (width + insets.right + insets.left))  { deltaX *= -1; }
-        if (x < 0)                                { deltaX *= -1; }
-        if (y > screenSize.height - 
-           (height + insets.top + insets.bottom)) { deltaY *= -1; }
-        if (y < 0)                                { deltaY *= -1; }
+        if (x > xLimit) { deltaX *= -1; }
+        if (x < 0)      { deltaX *= -1; }
+        if (y > yLimit) { deltaY *= -1; }
+        if (y < 0)      { deltaY *= -1; }
+		
+		if (x > (xLimit + Math.abs(deltaX)) ||
+			y > (yLimit + Math.abs(deltaY))) {
+			// Sanity check on the current position
+			resetPosition();
+		}
     }
 
     public void setScreenSize(final Rectangle bounds) {

@@ -39,14 +39,13 @@ public class DirectedPlaylist implements RTPReceiverListener {
 	public void stop() {
 		playlist = null;
 		current  = -1;
+		display.clearMessage();
 	}
 	
 	public void receivedStreamUpdate(final StreamEvent event) {
-		System.out.println("Stream Event");
 		
 		if (event instanceof ReceivedStopEvent) {
 			// Song has finished playing
-			System.out.println("Song is finished");
 			if (playlist != null) {
 				next();
 			}
@@ -57,12 +56,14 @@ public class DirectedPlaylist implements RTPReceiverListener {
 		if (current < playlist.getMediaCount()) { 
 			final Media media = playlist.getMedia(current);
 			
+			System.out.println("current: " + current);
+			
 			display.setMessage(media);
 			manager.requestReceiveSession(media, this);
 			current++;
 		} else {
 			// We are done with the current playlist
-			current = -1;
+			stop();
 		}
 	}
 }
