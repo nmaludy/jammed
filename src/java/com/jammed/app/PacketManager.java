@@ -29,6 +29,8 @@ public class PacketManager {
 		
 		final int  checksum = header.getChecksum();
 		final long now      = System.currentTimeMillis();
+
+		System.out.println("Manager = " + header.toString());
 		
 		if (packets.containsKey(checksum)) {
 			return false;

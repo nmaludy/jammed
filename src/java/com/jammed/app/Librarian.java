@@ -11,6 +11,7 @@ import com.jammed.gen.MessageProtos.Search;
 import com.jammed.gen.ProtoBuffer.Message.Type;
 import com.jammed.gen.ProtoBuffer.Request;
 import com.jammed.handlers.SearchHandler;
+import com.jammed.ui.PlaylistPanel;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -72,11 +73,11 @@ public class Librarian extends SearchHandler implements ScannerListener {
 		}
 		
 		final String query = search.getQuery();
-		//System.out.println("Handling request for " + query + " ID " + request.getId());
+		System.out.println("Handling search request for " + query + " ID " + request.getId());
 		final Playlist results = search(query, request);
 
 		if (results.getMediaList().size() > 0) {
-			//System.out.println("Search found stuff ");
+			System.out.println("Search found stuff ");
 			Cloud.getInstance().send(results, request.getId());
 		}// else {
 		//	System.out.println("No search results ");
@@ -92,6 +93,9 @@ public class Librarian extends SearchHandler implements ScannerListener {
 		builder.setRequest(request);
 
 		for (final Playlist playlist : localPlaylists) {
+			if (playlist.equals(getPlaylist(PlaylistPanel.getInstance().getCurrentPlaylistIndex()))){
+				continue;
+			}
 			for (final Media media : playlist.getMediaList()) {
 				if (media.getTitle().contains(query)) {
 					builder.addMedia(media);
@@ -286,5 +290,18 @@ public class Librarian extends SearchHandler implements ScannerListener {
 		int endIndex = list.getMediaCount() - 1;
 		PlaylistEvent e = PlaylistEvent.create(list, PlaylistEvent.Type.ADD, startIndex, endIndex);
 		firePlaylistEvent(localPlaylistListeners.get(playlistIndex), e);
+	}
+
+	public void addMediaToSearch(List<Media> m) {
+		Playlist list = searchList;
+		int startIndex = list.getMediaCount();
+
+		Playlist.Builder builder = Playlist.newBuilder(list);
+		list = builder.addAllMedia(m).build();
+		searchList = list;
+
+		int endIndex = list.getMediaCount() - 1;
+		PlaylistEvent e = PlaylistEvent.create(list, PlaylistEvent.Type.ADD, startIndex, endIndex);
+		firePlaylistEvent(searchListener, e);
 	}
 }

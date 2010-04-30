@@ -46,7 +46,7 @@ public class PacketHeader implements Comparable<PacketHeader> {
         checksum = header[2];
 
         check[0]   = header[0] & 0xFFFF;
-        check[1]   = (header[0] >>> 16) & 0xFFFF;
+        check[1]   = (header[1] >>> 16) & 0xFFFF;
         calculated = Checksum.fletcher32(check);
 
         if (checksum != calculated) {
@@ -62,7 +62,7 @@ public class PacketHeader implements Comparable<PacketHeader> {
         int bitIndex  = 0;
 
         check[0] = ints[0] & 0xFFFF;
-        check[1] = (ints[0] >>> 16) & 0xFFFF;
+        check[1] = (ints[1] >>> 16) & 0xFFFF;
 
         checksum = Checksum.fletcher32(check);
         ints[2]  = checksum;
