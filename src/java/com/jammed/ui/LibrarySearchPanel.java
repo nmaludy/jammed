@@ -158,10 +158,7 @@ public class LibrarySearchPanel extends JPanel implements ActionListener, MouseL
 				throw new IllegalArgumentException();
 			}
 
-			final Playlist playlist = (Playlist) message;			
-			Request request = playlist.getRequest();
-			Integer requestId = Integer.valueOf(playlist.getRequest().getId());
-			System.out.println("Got search response for ID " + requestId);
+			final Playlist playlist = (Playlist) message;
 			SwingUtilities.invokeLater(new Runnable() {
 				public void run() {
 					handle(playlist);
@@ -178,16 +175,18 @@ public class LibrarySearchPanel extends JPanel implements ActionListener, MouseL
 				return; //a request that originated from this system, ignore it
 			}
 
-			//if (searchRequests.containsKey(requestId)) {
+			Librarian.getInstance().addMediaToSearch(playlist.getMediaList());
+			normalizeTable();
+
+			Integer requestId = Integer.valueOf(playlist.getRequest().getId());
+			System.out.println("Got search response for ID " + requestId);
+			if (searchRequests.containsKey(requestId)) {
 				//System.out.println("Got Playlist! ");
-				//searchRequests.remove(requestId);
-				//Request.Builder builder = Request.newBuilder(request);
-				//builder.setRelease(true);
-				//RequestPool.getInstance().release(builder.build());
-				//Librarian.getInstance().setSearchPlaylist(playlist);
-				Librarian.getInstance().addMediaToSearch(playlist.getMediaList());
-				normalizeTable();
-			//}
+				searchRequests.remove(requestId);
+				Request.Builder builder = Request.newBuilder(request);
+				builder.setRelease(true);
+				RequestPool.getInstance().release(builder.build()); //Release request ID
+			}
 		}
 	}
 }
