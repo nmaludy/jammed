@@ -1,5 +1,7 @@
 package com.jammed.app;
 
+import com.jammed.event.PlayerListener;
+import com.jammed.event.PlayerStopEvent;
 import com.jammed.event.RTPReceiverListener;
 import com.jammed.event.ReceivedStopEvent;
 import com.jammed.event.ReceivedStreamEvent;
@@ -10,7 +12,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import javax.media.CachingControlEvent;
-import javax.media.Control;
 import javax.media.ControllerClosedEvent;
 import javax.media.ControllerErrorEvent;
 import javax.media.ControllerEvent;
@@ -37,7 +38,7 @@ import javax.swing.SwingUtilities;
 public class MediaController implements ControllerListener, RTPReceiverListener {
 	private static final RTPSessionManager sessionManager = RTPSessionManager.getInstance();
 	private static MediaController INSTANCE;
-	private List<ControllerListener> controllerListeners;
+	private List<PlayerListener> playerListeners;
 	private RemoteVideoHandler videoHandler;
 	private RemoteAudioHandler audioHandler;
 	private MediaPlayer player;
@@ -58,7 +59,7 @@ public class MediaController implements ControllerListener, RTPReceiverListener 
 	
 
 	private MediaController() {
-		controllerListeners = new ArrayList<ControllerListener>();
+		playerListeners = new ArrayList<PlayerListener>();
 		videoHandler = new RemoteVideoHandler();
 		audioHandler = new RemoteAudioHandler();
 		sessionManager.addReceiverListener(this);
@@ -175,7 +176,7 @@ public class MediaController implements ControllerListener, RTPReceiverListener 
 		} else if (event instanceof StartEvent) {
 		} else if (event instanceof MediaTimeSetEvent) {
 		} else if (event instanceof EndOfMediaEvent) {
-			fireControllerEvent(event);
+			firePlayerEvent(new PlayerStopEvent(this));
 			destroyCurrent();
 		} else if (event instanceof TransitionEvent) {
 		} else if (event instanceof RateChangeEvent) {
@@ -207,28 +208,29 @@ public class MediaController implements ControllerListener, RTPReceiverListener 
 			}
 			isStream = true;
 		} else if (event instanceof ReceivedStopEvent) {
+			firePlayerEvent(new PlayerStopEvent(this));
 			destroyCurrent();
 		}
 	}
 
-	public void addControllerListener(final ControllerListener c) {
-		controllerListeners.add(c);
+	public void addPlayerListener(final PlayerListener c) {
+		playerListeners.add(c);
 	}
 
-	public void removeControllerListener(final ControllerListener c) {
-		controllerListeners.remove(c);
+	public void removePlayerListener(final PlayerListener c) {
+		playerListeners.remove(c);
 	}
 
-	protected void fireControllerEvent(final ControllerEvent event) {
+	protected void firePlayerEvent(final PlayerStopEvent event) {
 		SwingUtilities.invokeLater(new Runnable() {
 
 			public void run() {
-				if (controllerListeners == null) {
+				if (playerListeners == null) {
 					return;
 				}
 
-				for(ControllerListener l : controllerListeners) {
-					l.controllerUpdate(event);
+				for(PlayerListener l : playerListeners) {
+					l.playerUpdate(event);
 					System.out.println("fire event");
 				}
 			}

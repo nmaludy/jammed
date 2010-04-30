@@ -40,6 +40,7 @@ public class PlaylistPanel extends JPanel implements ActionListener, KeyListener
 	
 	private final JButton sendButton;
 	private final JButton importButton;
+	private int selectedModelIndex;
 
 	public PlaylistPanel() {
 		super();
@@ -150,18 +151,22 @@ public class PlaylistPanel extends JPanel implements ActionListener, KeyListener
 			return null;
 		}
 		row = table.convertRowIndexToModel(row);
+		selectedModelIndex = row;
 		return model.getMedia(row);
 	}
 
 	public Media getNextSelectedMedia() {
-		int row = table.getSelectedRow();
+		int row = selectedModelIndex;
 		if (row == -1) {
 			return null;
 		}
 		int rowCount = model.getRowCount();
+		row = table.convertRowIndexToView(row);
 		if ((row + 1) < rowCount){
-			row = table.convertRowIndexToModel(row + 1);
+			row++;
 			table.getSelectionModel().setSelectionInterval(row, row);
+			row = table.convertRowIndexToModel(row);
+			selectedModelIndex = row;
 			return model.getMedia(row);
 		} else {
 			return null;
@@ -169,13 +174,17 @@ public class PlaylistPanel extends JPanel implements ActionListener, KeyListener
 	}
 
 	public Media getPreviousSelectedMedia() {
-		int row = table.getSelectedRow();
+		//int row = table.getSelectedRow();
+		int row = selectedModelIndex;
 		if (row == -1) {
 			return null;
 		}
+		row = table.convertRowIndexToView(row);
 		if ((row - 1) >= 0){
-			row = table.convertRowIndexToModel(row - 1);
+			row--;
 			table.getSelectionModel().setSelectionInterval(row, row);
+			row = table.convertRowIndexToModel(row);
+			selectedModelIndex = row;
 			return model.getMedia(row);
 		} else {
 			return null;

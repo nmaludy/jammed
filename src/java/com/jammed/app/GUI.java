@@ -1,5 +1,7 @@
 package com.jammed.app;
 
+import com.jammed.event.PlayerListener;
+import com.jammed.event.PlayerStopEvent;
 import com.jammed.gen.MediaProtos.Media;
 import com.jammed.ui.PlayerPanel;
 import com.jammed.ui.PlaylistPanel;
@@ -9,7 +11,6 @@ import java.awt.event.ActionListener;
 import java.net.URL;
 import java.text.DecimalFormat;
 import javax.media.ControllerEvent;
-import javax.media.ControllerListener;
 import javax.media.EndOfMediaEvent;
 import javax.swing.GroupLayout;
 import javax.swing.ImageIcon;
@@ -28,7 +29,6 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import org.pushingpixels.substance.api.skin.SubstanceBusinessLookAndFeel;
 
-import com.jammed.handlers.DirectiveHandler;
 
 /*
  * TODO: Convert to completely custom controls and remove JMF controls.
@@ -36,7 +36,7 @@ import com.jammed.handlers.DirectiveHandler;
  *
  * @author Nicholas Maludy
  */
-public class GUI extends JFrame implements ActionListener, ChangeListener, ControllerListener {
+public class GUI extends JFrame implements ActionListener, ChangeListener, PlayerListener {
 
 	private static final long serialVersionUID = 0;
 	private static GUI INSTANCE;
@@ -111,7 +111,7 @@ public class GUI extends JFrame implements ActionListener, ChangeListener, Contr
 		showPlaylistBox.addActionListener(this);
 
 		controller.setPlayerPanel(playerPanel);
-		controller.addControllerListener(this);
+		controller.addPlayerListener(this);
 		volumeSlider.addChangeListener(this);
 		volumeSlider.setPreferredSize(nextButton.getPreferredSize());
 		tabsPanel.setVisible(false);
@@ -230,12 +230,9 @@ public class GUI extends JFrame implements ActionListener, ChangeListener, Contr
 		}
 	}
 
-	public void controllerUpdate(ControllerEvent ce) {
-		System.out.println("GUI " +ce.getClass().toString());
-		if (ce instanceof EndOfMediaEvent) {
-			System.out.println("Goto next!");
-			next();
-		}
+	public void playerUpdate(PlayerStopEvent event) {
+		System.out.println("Goto next!");
+		next();
 	}
 	
 	private class TimerThread extends Thread {
